@@ -4,5 +4,5 @@
 // NEVER paste the "service_role" / "secret" key here.
 window.HUB_CONFIG = {
   SUPABASE_URL: "https://ealvdauolvawrjkcjivn.supabase.co",   // looks like https://abcdefgh.supabase.co
-  SUPABASE_KEY: "PASTE-YOUR-ANON-KEY-HERE"       // starts with eyJ... or sb_publishable_...
+  SUPABASE_KEY: "sb_publishable_ZQSxBuX18sXm0eqVu8WTMQ_pqeCCZP0"       // starts with eyJ... or sb_publishable_...
 };
