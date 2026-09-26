@@ -984,6 +984,7 @@ async function signedUrl(path){ const c=signedCache.get(path); if (c&&c.exp>Date
   signedCache.set(path,{url:data.signedUrl,exp:Date.now()+50*60*1000}); return data.signedUrl; }
 
 const CFG=window.HUB_CONFIG||{};
+const CAME_FROM_LINK=/type=(invite|magiclink|signup)/.test(location.hash);
 let SB=null;
 function showLogin(msg,bad){ $("#app").hidden=true; $("#login").hidden=false; if(msg!=null){ $("#loginMsg").textContent=msg; $("#loginMsg").classList.toggle("bad",!!bad); } }
 function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=on); }
@@ -1022,6 +1023,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {data:mine,error}=await SB.rpc("my_traveler");
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
     $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email;
+    if (CAME_FROM_LINK){ $("#pwBox").hidden=false; banner("Welcome! Choose a password next to your email (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
     myId=user.id; canWrite=true; userNs=null;
     const be=makeBackend(SB); db=be.db; assets=be.files;
     if (!store.get("view")){ state.view=mine; store.set("view",mine); }
