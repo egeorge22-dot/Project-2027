@@ -370,7 +370,7 @@ img{max-width:100%}
     <div class="box">
       <div class="h2">Ask Claude (or any AI) about the trip</div>
       <p class="sub" style="margin-top:0">Type your question, press <b>Copy for Claude</b>, then paste into a new chat on claude.ai. It includes everyone's routes, budgets, bookings and ideas, so Claude can answer properly. Free Claude accounts work fine.</p>
-      <textarea id="askIn" class="copybox" placeholder="e.g. What should I book in the next month? Where do Ruby's and my trips overlap?" aria-label="Your question"></textarea>
+      <textarea id="askIn" class="copybox" placeholder="e.g. What should I book in the next month? Where do my friends' trips overlap with mine?" aria-label="Your question"></textarea>
       <div class="form" style="margin-top:10px"><button class="btn" id="copyBtn" type="button">Copy for Claude</button><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener" style="text-decoration:none">Open claude.ai</a><span class="sub" id="copyMsg"></span></div>
       <div class="sugg" id="sugg"></div>
       <textarea id="copyFallback" class="copybox" hidden readonly aria-label="Text to copy"></textarea>
@@ -931,7 +931,7 @@ async function copyForClaude(){ const q=$("#askIn").value.trim(); const text=con
   try{ await navigator.clipboard.writeText(text); $("#copyMsg").textContent="Copied. Paste it into a new chat on claude.ai."; $("#copyFallback").hidden=true; }
   catch(e){ const fb=$("#copyFallback"); fb.value=text; fb.hidden=false; fb.focus(); fb.select(); $("#copyMsg").textContent="Press Ctrl+C (or Cmd+C) to copy the selected text."; } }
 $("#copyBtn").addEventListener("click",copyForClaude);
-["What should I book in the next month?","Where do our trips overlap?","How could I cut my budget by 15%?","Plan my Dolomites days"].forEach(s=>$("#sugg").append(el("button",{class:"chip",type:"button",onclick:()=>{ $("#askIn").value=s; copyForClaude(); }},s)));
+["What should I book in the next month?","Where do our trips overlap?","How could I cut my budget by 15%?","Plan my days at my next stop"].forEach(s=>$("#sugg").append(el("button",{class:"chip",type:"button",onclick:()=>{ $("#askIn").value=s; copyForClaude(); }},s)));
 
 /* ---------- boot ---------- */
 $("#gaz").append(...GAZ.map(g=>el("option",{value:g.name},g.country)));
