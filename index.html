@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16202B">
+<script>try{var __t=localStorage.getItem("theme");if(__t==="light"||__t==="dark")document.documentElement.dataset.theme=__t;}catch(e){}</script>
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Euro '27">
@@ -666,6 +667,11 @@ body{background:var(--ground);isolation:isolate}
 .th-f input{flex:1;min-width:0;background:var(--line-2);border:1px solid transparent;border-radius:99px;padding:7px 12px;font:inherit;font-size:14px;color:var(--ink)}
 .th-f input:focus{outline:none;border-color:var(--vc,var(--t0));background:var(--panel)}
 .th-f .btn{border-radius:99px}
+
+.face{cursor:pointer;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.face.dim{opacity:.85}
+.face:hover,.face:focus{outline:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35)) brightness(1.05)}
+:root[data-theme="dark"] .stamp.inked{mix-blend-mode:screen;filter:brightness(1.6)} :root[data-theme="dark"] .stamp{filter:grayscale(.6) brightness(1.8)}
 </style>
 </head>
 <body>
@@ -698,7 +704,7 @@ body{background:var(--ground);isolation:isolate}
     <div class="stub"><div class="big num" id="cdBig">—</div><div class="lbl" id="cdLbl">days to go</div></div>
   </header>
 
-  <div class="topbar"><div class="viewas" id="viewas"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="notifBtn" type="button" hidden>Turn on notifications</button><button class="btn ghost sm" id="photoBtn" type="button">Change my photo</button><button class="btn ghost sm" id="crewBtn" type="button" hidden>Crew & logins</button><input type="file" id="photoIn" accept="image/*" hidden><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
+  <div class="topbar"><div class="viewas" id="viewas"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="notifBtn" type="button" hidden>Turn on notifications</button><button class="btn ghost sm" id="photoBtn" type="button">Change my photo</button><button class="btn ghost sm" id="themeBtn" type="button">Theme: Auto</button><button class="btn ghost sm" id="crewBtn" type="button" hidden>Crew & logins</button><input type="file" id="photoIn" accept="image/*" hidden><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
@@ -1073,7 +1079,7 @@ function renderPins(){
   const k=vb.w/W, gR=$("#gRoutes"), gP=$("#gPins"), gL=$("#gLabels"), gN=$("#gNow"); gR.innerHTML=gP.innerHTML=gL.innerHTML=gN.innerHTML="";
   const focus=viewing(); const visT=state.travelers.filter(t=>!state.hidden.has(t.id)||t.id===focus);
   const order=[...visT].sort((a,b)=>(a.id===focus)-(b.id===focus)); // focus drawn last
-  const day=scrubDay(), placed=[];
+  const day=scrubDay(), placed=[], faces=[];
   order.forEach(t=>{
     const ss=stopsOf(t.id).filter(s=>isFinite(s.lat)&&isFinite(s.lng)), col=tColor(t.id);
     const dim=focus&&t.id!==focus; const op=dim?.28:1;
@@ -1094,8 +1100,22 @@ function renderPins(){
         const hit=b=>placed.some(p=>b[0]<p[2]&&b[2]>p[0]&&b[1]<p[3]&&b[3]>p[1]);
         const cd=cands.find(q=>!hit(bx(q)))||cands[0]; placed.push(bx(cd));
         const lb=sv("text",{x:cd[0],y:cd[1],"text-anchor":cd[2],class:"plabel","font-size":12*k,style:`stroke-width:${3*k}px`}); lb.textContent=txt; gL.append(lb); } });
-    const now=locOn(t.id,day); if (now&&isFinite(now.lat)&&!dim){ const [x,y]=P(now.lng,now.lat); gN.append(sv("circle",{cx:x+off,cy:y+off,r:12*k*1.25,class:"nowring",stroke:col})); }
+    const now=locOn(t.id,day); if (now&&isFinite(now.lat)){ const [x0,y0]=P(now.lng,now.lat); if(!dim) gN.append(sv("circle",{cx:x0+off,cy:y0+off,r:12*k*1.25,class:"nowring",stroke:col}));
+      faces.push({t,now,x:x0,y:y0,col,dim}); }
   });
+  // friends' faces where they are on the chosen day (spread out when they share a spot)
+  const pxs=vb.w/Math.max(200,($("#map").getBoundingClientRect().width||1000)), R=Math.min(16*k*1.25,15*pxs), used=[];
+  faces.sort((a,b)=>(a.t.id===focus)-(b.t.id===focus)).forEach(f=>{ let fx=f.x, fy=f.y-R*2.1; let n=0; while (used.some(u=>Math.hypot(u[0]-fx,u[1]-fy)<R*1.7)&&n<8){ n++; fx=f.x+(n%2?1:-1)*Math.ceil(n/2)*R*1.8; } used.push([fx,fy]);
+    const g=sv("g",{class:"face"+(f.dim?" dim":""),tabindex:"0","aria-label":f.t.name+" is in "+f.now.place,transform:`translate(${fx.toFixed(1)},${fy.toFixed(1)})`});
+    g.append(sv("path",{d:`M${(-R*.35).toFixed(1)},${(R*.8).toFixed(1)} L${(f.x-fx).toFixed(1)},${(f.y-fy-2*k).toFixed(1)} L${(R*.35).toFixed(1)},${(R*.8).toFixed(1)}Z`,fill:f.col}));
+    g.append(sv("circle",{r:R+2*k,fill:f.col}));
+    const u=picOf(f.t.id);
+    if (u){ const cid="fc-"+f.t.id.replace(/[^a-zA-Z0-9]/g,""); const cp=sv("clipPath",{id:cid}); cp.append(sv("circle",{r:R})); g.append(cp);
+      g.append(sv("image",{href:u,x:-R,y:-R,width:R*2,height:R*2,"clip-path":`url(#${cid})`,preserveAspectRatio:"xMidYMid slice"})); }
+    else { g.append(sv("circle",{r:R,fill:f.col})); const tx=sv("text",{"text-anchor":"middle",y:R*.36,"font-size":R*.95,fill:"#fff","font-weight":"700"}); tx.textContent=ini(f.t.name); g.append(tx); }
+    const tt=sv("title"); tt.textContent=f.t.name+" · "+f.now.place; g.append(tt);
+    g.addEventListener("pointerdown",e=>e.stopPropagation()); g.addEventListener("click",e=>{ e.stopPropagation(); selectStop(f.now.id); });
+    gN.append(g); });
   if (picked){ const [x,y]=P(picked.lng,picked.lat); gP.append(sv("circle",{cx:x,cy:y,r:6*k,fill:"var(--ink)",class:"pin"})); }
 }
 function renderPeople(){
@@ -2055,6 +2075,9 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
       $("#cfName").value=""; $("#cfEmail").value=""; $("#cfPass").value=""; loadCrew(); logAct("added "+r.name+" to the crew");
     }catch(err){ toast(err.message,{ms:8000}); }
     b.disabled=false; b.textContent="Add to the crew"; });
+  const THEMES=["auto","light","dark"], applyTheme=t=>{ if(t==="auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t; $("#themeBtn").textContent="Theme: "+t[0].toUpperCase()+t.slice(1); };
+  applyTheme(store.get("theme")||"auto");
+  $("#themeBtn").addEventListener("click",()=>{ const cur=store.get("theme")||"auto", nx=THEMES[(THEMES.indexOf(cur)+1)%3]; store.set("theme",nx); applyTheme(nx); });
   $("#photoBtn").addEventListener("click",()=>{ if(!state.me){ toast("Your account isn't linked to a traveller yet."); return; } $("#photoIn").value=""; $("#photoIn").click(); });
   $("#photoIn").addEventListener("change",async()=>{ const f=$("#photoIn").files[0]; if(!f||!state.me||!db) return;
     try{ const bmp=await createImageBitmap(f); const S=128, c=document.createElement("canvas"); c.width=S; c.height=S; const side=Math.min(bmp.width,bmp.height);
