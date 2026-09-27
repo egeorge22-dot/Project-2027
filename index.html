@@ -570,6 +570,40 @@ body{background:var(--ground);isolation:isolate}
 .photo-row{display:flex;gap:6px;padding:4px 10px 6px}
 .ticket{background:radial-gradient(120% 160% at 0% 110%,rgba(47,128,196,.38),transparent 55%),radial-gradient(90% 120% at 100% -20%,rgba(232,106,79,.22),transparent 60%),var(--band)}
 .photo-row .btn{flex:1}
+
+/* route check */
+.rcheck{padding-bottom:12px}
+.rc-h{display:flex;align-items:center;gap:10px}
+.rc-ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;background:var(--ok)}
+.rc-ic.bad{background:var(--red)} .rc-ic.info{background:var(--sea)}
+.rc-row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line-2);padding:9px 0;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.rc-row .rc-dot{width:8px;height:8px;border-radius:50%;background:var(--sea)}
+.rc-row.bad .rc-dot{background:var(--red)} .rc-row.warn .rc-dot{background:var(--warn,#C98A12)}
+.rc-row .chev{color:var(--ink-3)}
+.rc-row:hover{background:linear-gradient(90deg,var(--line-2),transparent)}
+#trips .rcheck{margin-bottom:16px}
+/* crew timeline */
+.tl-wrap{display:grid;grid-template-columns:auto 1fr;gap:0 10px;margin-top:6px}
+.tl-names{padding-top:26px;display:grid;grid-auto-rows:40px}
+.tl-name{display:flex;align-items:center;gap:8px;font-size:13.5px;white-space:nowrap;color:var(--ink-2)}
+.tl-name.me{font-weight:600;color:var(--ink)}
+.tl-scroll{overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch;border-left:1px solid var(--line-2)}
+.tl-inner{position:relative;padding-top:26px}
+.tl-axis{position:absolute;top:0;left:0;right:0;height:22px}
+.tl-tick{position:absolute;top:4px;font-size:11px;color:var(--ink-3);transform:translateX(-1px);padding-left:4px;border-left:1px solid var(--line)}
+.tl-tick.m{font-weight:600;color:var(--ink-2)}
+.tl-lane{position:relative;height:40px;border-top:1px dashed var(--line-2)}
+.tl-lane.me{background:color-mix(in srgb,var(--c) 5%,transparent)}
+.tl-seg{position:absolute;top:7px;height:26px;border:0;border-radius:8px;background:var(--c);color:#fff;font:inherit;font-size:11.5px;font-weight:500;padding:0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:transform .12s,filter .12s}
+.tl-seg.alt{filter:brightness(1.12) saturate(.9)}
+.tl-seg:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.tl-seg.meet{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--vc,var(--t0))}
+.tl-seg i{font-style:normal;margin-left:4px}
+.tl-none{position:absolute;top:11px;left:8px;font-size:12px;color:var(--ink-3)}
+.tl-today{position:absolute;top:18px;bottom:0;width:2px;background:var(--red);z-index:2;border-radius:2px}
+.tl-today span{position:absolute;top:-16px;left:-14px;font-size:10px;color:var(--red);font-weight:600}
+.av.pic{color:transparent}
+.tl-seg.clash{top:21px;height:16px;font-size:10px;line-height:16px;background:repeating-linear-gradient(135deg,var(--red) 0 5px,color-mix(in srgb,var(--red) 70%,#fff) 5px 10px);z-index:1;box-shadow:0 0 0 2px var(--panel)}
 </style>
 </head>
 <body>
@@ -655,6 +689,7 @@ body{background:var(--ground);isolation:isolate}
         </div>
       </div>
     </div>
+    <div class="box" id="crewTL" style="margin-top:16px"></div>
   </section>
 
   <section class="panel" data-panel="bookings" hidden>
@@ -1107,6 +1142,7 @@ function renderDash(){
     left.append(el("div",{class:"box sum"},el("div",{class:"sum-row"},fig(b.n||"—","nights"),fig(ss.length?money(b.total):"—",(state.tier==="h"?"hostel":"hotel")+" budget"),fig(money(spentBy(v)),"spent so far")),
       el("div",{class:"sum-ready"},el("span",{},el("b",{},mineDone+"/"+mine.length)," booked"),el("div",{class:"meter"},el("b",{style:"width:"+pct+"%"}))),
       el("div",{class:"sub"},mine.length&&mineDone===mine.length?"Everything's booked. Time to pack!":(nd?"Next deadline: "+nd.title+" · "+fmt(nd.due)+" "+nd.due.slice(0,4):"Add booking dates so deadlines show here.")))); }
+  { const rc=routeCheckBox(v,true); if (rc&&routeIssues(v).length) right.prepend(rc); }
   { const open=tasksFor(v).filter(x=>x.status!=="done").length;
     left.append(el("div",{class:"box"},el("div",{class:"h2"},"Book next"),attentionList(tasksFor(v),3),el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("bookings")},open>3?"See all "+open+" bookings":"Manage bookings + files"))); }
   if (ss.length){ const tl=el("div",{class:"tl"}); const ti=iso(today());
@@ -1328,6 +1364,7 @@ function saveTraveler(tid,patch){ const list=state.travelers.map(t=>t.id===tid?{
 function renderTrips(){
   const box=$("#trips"); box.innerHTML=""; const v=viewing();
   if (v&&stopsOf(v).length) box.append(el("div",{class:"form"},el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add "+(v===state.me?"my":tName(v)+"'s")+" trip to a calendar"),el("span",{class:"sub"},"Downloads a calendar file with every stop, flight and booking deadline. Open each stop to see the weather.")));
+  if (v){ const rc=routeCheckBox(v,false); if (rc) box.append(rc); }
   const who=v?[tById(v)]:state.travelers;
   for (const t of who){ const ss=stopsOf(t.id), col=tColor(t.id);
     if (!v) box.append(el("div",{class:"person-h"},el("span",{class:"dotc",style:"--c:"+col}),t.name,el("span",{class:"sub",style:"font-weight:400"},ss.length?`${ss.length} stops · ${fmt(ss[0].start)} – ${fmt(ss[ss.length-1].end)}`:"no stops yet")));
@@ -1609,12 +1646,68 @@ $("#searchIcon").addEventListener("click",()=>openSearch());
 document.addEventListener("click",e=>{ if(!$("#acctMenu").hidden&&!e.target.closest(".acct-wrap")) setMenu(false); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ setMenu(false); $("#sheet").hidden=true; } });
 $("#acctMenu").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b&&!["pwBtn","pwSave"].includes(b.id)) setMenu(false); });
+
+/* ---------- route checker ---------- */
+const shortPlace=p=>String(p||"").replace(/\s*\(.*\)/,"");
+function homeFlight(tid){ // the leg that lands back home (same airport as the first departure)
+  const fls=state.tasks.filter(t=>t.kind==="flight"&&t.owner===tid&&(t.legs||[]).length);
+  for (const f of fls){ const legs=f.legs, home=String(legs[0].from||"").toUpperCase(); const back=legs.find((l,i)=>i>0&&String(l.to||"").toUpperCase()===home&&l.date); if (back) return {date:back.date,from:back.from,to:back.to}; }
+  return null; }
+function routeIssues(tid){
+  const ss=stopsOf(tid).filter(s=>s.start&&s.end), out=[];
+  for (let i=0;i<ss.length;i++) for (let j=i+1;j<ss.length;j++){ const a=ss[i], b=ss[j]; if (b.start<a.end) out.push({lvl:"bad",id:b.id,t:shortPlace(b.place)+" ("+fmt(b.start)+"–"+fmt(b.end)+") overlaps "+shortPlace(a.place)+" ("+fmt(a.start)+"–"+fmt(a.end)+")"}); }
+  let last=ss[0];
+  for (let i=1;i<ss.length;i++){ const a=last, b=ss[i], gap=Math.round((D(b.start)-D(a.end))/864e5); if (b.end>last.end) last=b; if (b.start<a.end) continue;
+    if (gap>0) out.push({lvl:"warn",id:b.id,t:gap+" night"+(gap>1?"s":"")+" with nowhere to stay: "+fmt(a.end)+" → "+fmt(b.start)+" between "+shortPlace(a.place)+" and "+shortPlace(b.place)});
+    else if (gap===0&&!(b.hop&&b.hop.name)) out.push({lvl:"info",id:b.id,t:"How are you getting from "+shortPlace(a.place)+" to "+shortPlace(b.place)+" on "+fmt(b.start)+"?"}); }
+  ss.forEach(s=>{ if (s.start===s.end) out.push({lvl:"info",id:s.id,t:shortPlace(s.place)+" has 0 nights. Is that a day trip?"}); });
+  const hf=homeFlight(tid); if (hf){ const late=ss.filter(s=>s.end>hf.date); if (late.length) out.push({lvl:"bad",id:late[0].id,t:"Your flight home is "+fmt(hf.date)+" ("+hf.from+" → "+hf.to+"), but "+late.map(s=>shortPlace(s.place)).join(", ")+" run"+(late.length>1?"":"s")+" past it"}); }
+  const rank={bad:0,warn:1,info:2}; return out.sort((x,y)=>rank[x.lvl]-rank[y.lvl]); }
+function routeCheckBox(tid,compact){
+  const is=routeIssues(tid); if (!stopsOf(tid).length) return null;
+  const box=el("div",{class:"box rcheck"});
+  const bad=is.filter(i=>i.lvl!=="info").length;
+  box.append(el("div",{class:"h2 rc-h"},el("span",{class:"rc-ic "+(bad?"bad":is.length?"info":"ok")},bad?"!":is.length?"?":"✓"),bad?"Route check · "+bad+" to fix":is.length?"Route check · a few questions":"Route check · all good"));
+  if (!is.length){ box.append(el("div",{class:"sub"},"No overlaps, no gaps, and every move has transport. Nice.")); return box; }
+  const row=i=>el("button",{class:"rc-row "+i.lvl,type:"button",onclick:()=>selectStop(i.id)},el("span",{class:"rc-dot"}),el("span",{},i.t),el("span",{class:"chev"},"›"));
+  const first=compact?is.slice(0,3):is; first.forEach(i=>box.append(row(i)));
+  if (compact&&is.length>3){ const d=el("details",{class:"more","data-k":"rc-"+tid},el("summary",{},(is.length-3)+" more")); is.slice(3).forEach(i=>d.append(row(i))); box.append(d); }
+  return box; }
+
+/* ---------- crew timeline ---------- */
+function renderTimeline(){
+  const box=$("#crewTL"); if(!box) return; box.innerHTML="";
+  const all=state.stops.filter(s=>s.start&&s.end&&tById(s.traveler));
+  box.append(el("div",{class:"h2"},"Crew timeline"),el("p",{class:"sub",style:"margin-top:-6px"},"Everyone's summer on one strip. Tap a stop to see it on the map; ✦ marks where you cross paths."));
+  if (!all.length){ box.append(el("div",{class:"empty"},"Once people add stops, their routes line up here.")); return; }
+  const t0=D([...all.map(s=>s.start),"2027-07-01"].sort()[0]), t1=D([...all.map(s=>s.end),"2027-09-01"].sort().pop());
+  const days=Math.round((t1-t0)/864e5)+1, PX=11, w=days*PX, v=viewing();
+  const px=d=>Math.round((D(d)-t0)/864e5)*PX;
+  const scroll=el("div",{class:"tl-scroll"}), inner=el("div",{class:"tl-inner",style:"width:"+(w+10)+"px"});
+  const axis=el("div",{class:"tl-axis"});
+  for (let d=new Date(t0); d<=t1; d.setDate(d.getDate()+1)){ if (d.getDate()===1||d.getDate()===15||+d===+t0){ const x=Math.round((d-t0)/864e5)*PX; axis.append(el("span",{class:"tl-tick"+(d.getDate()===1?" m":""),style:"left:"+x+"px"},d.getDate()===1?MON[d.getMonth()]:String(d.getDate()))); } }
+  inner.append(axis);
+  const ti=iso(today()); if (ti>=iso(t0)&&ti<=iso(t1)) inner.append(el("div",{class:"tl-today",style:"left:"+px(ti)+"px"},el("span",{},"today")));
+  const ms=v?meetups(v):[];
+  const people=[...state.travelers].sort((a,b)=>(b.id===v)-(a.id===v));
+  const names=el("div",{class:"tl-names"});
+  for (const t of people){ const ss=stopsOf(t.id).filter(s=>s.start&&s.end);
+    names.append(el("div",{class:"tl-name"+(t.id===v?" me":"")},av(t.id),el("span",{},t.name)));
+    const lane=el("div",{class:"tl-lane"+(t.id===v?" me":""),style:"--c:"+tColor(t.id)});
+    if (!ss.length) lane.append(el("span",{class:"tl-none"},"no stops yet"));
+    ss.forEach((s,i)=>{ const x=px(s.start), wd=Math.max(PX,px(s.end)-x); const clash=ss.some((o,j)=>j<i&&s.start<o.end); const meet=t.id!==v&&ms.some(m=>(m.a===t.id||m.b===t.id)&&m.s<s.end&&m.e>s.start&&m.place);
+      lane.append(el("button",{class:"tl-seg"+(i%2?" alt":"")+(meet?" meet":"")+(clash?" clash":""),type:"button",style:"left:"+x+"px;width:"+wd+"px",title:s.place+" · "+fmt(s.start)+"–"+fmt(s.end),onclick:()=>{ selectStop(s.id); }},wd>=30?shortPlace(s.place):"",meet?el("i",{},"✦"):null)); });
+    inner.append(lane); }
+  const wrap=el("div",{class:"tl-wrap"},names,scroll); scroll.append(inner); box.append(wrap);
+  requestAnimationFrame(()=>{ const x=ti>=iso(t0)&&ti<=iso(t1)?px(ti):(v&&stopsOf(v)[0]?px(stopsOf(v)[0].start):0); scroll.scrollLeft=Math.max(0,x-40); });
+}
+
 const pendingR=new Map();
 function typingIn(sel){ const c=document.querySelector(sel), a=document.activeElement; return !!(c&&a&&c.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
 function guard(sel,fn){ return function(){ if (typingIn(sel)){ pendingR.set(sel,fn); return; } pendingR.delete(sel); fn(); }; }
 document.addEventListener("focusout",()=>setTimeout(()=>{ for (const [sel,fn] of [...pendingR]) if(!typingIn(sel)){ pendingR.delete(sel); fn(); } },50));
 renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks);
-function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
+function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTimeline(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
   if (state.sel&&!state.stops.find(x=>x.id===state.sel)){ state.sel=null; $("#stopCard").hidden=true; }
   document.querySelectorAll("#taskForm input,#taskForm select,#taskForm button,#noteForm input,#noteForm button,#stopForm input,#stopForm select,#stopForm button").forEach(x=>x.disabled=!canWrite); }
 
