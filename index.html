@@ -184,6 +184,30 @@ a{color:var(--sea)}
 .attach{font-size:13px}
 .ref{background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px;width:100%;max-width:340px}
 .bklist{display:grid;gap:10px}
+.fl{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px;background:var(--panel);border-left:4px solid var(--c,var(--sea))}
+.fl.done{border-left-color:var(--ok)}
+.fl-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.fl-legs{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px}
+.fl-leg{font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.fl-leg b{font-family:var(--display);font-weight:800;font-size:22px;color:var(--ink);letter-spacing:.02em;margin-right:6px}
+.fl-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+@media (max-width:760px){.fl-grid{grid-template-columns:1fr}}
+.fl h4{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.opt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line-2);font-size:13.5px}
+.opt:first-of-type{border-top:0}
+.opt .d{grid-column:1/-1;color:var(--ink-3);font-size:12.5px}
+.opt .tag{font-family:var(--mono);font-size:10.5px;background:var(--ok-soft);color:var(--ok);border-radius:99px;padding:1px 7px;margin-left:6px}
+.win{position:relative;height:30px;margin:6px 0 2px}
+.win .trk{position:absolute;left:0;right:0;top:12px;height:6px;border-radius:99px;background:var(--line-2)}
+.win .ok{position:absolute;top:10px;height:10px;border-radius:99px;background:var(--ok);opacity:.8}
+.win .now{position:absolute;top:4px;width:2px;height:22px;background:var(--ink)}
+.win .go{position:absolute;top:6px;width:10px;height:18px;border-radius:3px;background:var(--c,var(--sea));transform:translateX(-5px)}
+.win-l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.price{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px}
+.price input{width:110px;background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;text-align:right;font-variant-numeric:tabular-nums}
+.slinks{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.flsum{display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-2);margin-bottom:12px}
+.flsum b{color:var(--ink);font-variant-numeric:tabular-nums}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 
 /* budget */
@@ -689,7 +713,8 @@ function stopCost(s,tier){ const n=nightsOf(s), pick=v=>typeof v==="object"&&v?n
   return {n,stay,food,local,fun,events,hop,total:stay+food+local+fun+events+hop}; }
 function travelerBudget(tid,tier){ const sum={n:0,stay:0,food:0,local:0,fun:0,events:0,hop:0};
   for (const s of stopsOf(tid)){ const c=stopCost(s,tier); for (const k in sum) sum[k]+=c[k]; }
-  const fixed=(tById(tid)?.fixed||[]).reduce((a,f)=>a+num(f.cost),0), ground=sum.stay+sum.food+sum.local+sum.fun+sum.events+sum.hop, buffer=Math.round(ground*.1);
+  const extraFl=state.tasks.filter(x=>x.kind==="flight"&&x.owner===tid&&!x.link).reduce((a,x)=>a+num(x.paid!=null&&x.paid!==""?x.paid:x.est),0);
+  const fixed=(tById(tid)?.fixed||[]).reduce((a,f)=>a+num(f.cost),0)+extraFl, ground=sum.stay+sum.food+sum.local+sum.fun+sum.events+sum.hop, buffer=Math.round(ground*.1);
   return {...sum,fixed,buffer,ground,total:ground+fixed+buffer}; }
 const spentBy=tid=>state.expenses.filter(e=>(e.who||"me")===tid).reduce((a,e)=>a+num(e.amount),0);
 const tasksFor=tid=>state.tasks.filter(t=>!tid||t.owner===tid||!t.owner);
@@ -787,7 +812,7 @@ function renderTasks(){
     const due=el("input",{type:"date",value:t.due||"","aria-label":"Book by",style:"background:none;border:1px dashed var(--line);border-radius:6px;font-size:12px;padding:1px 4px;color:var(--ink-2)"}); due.disabled=!canWrite; due.addEventListener("change",()=>write(()=>db.doc("tasks/"+t.id).update({due:due.value||""})));
     const ref=el("input",{class:"ref",value:t.ref||"",placeholder:"Booking ref, price paid, notes…",maxlength:"160","aria-label":"Booking reference or notes"}); ref.disabled=!canWrite; ref.addEventListener("change",()=>write(()=>db.doc("tasks/"+t.id).update({ref:ref.value.trim()})));
     const files=el("div",{class:"files"}); (t.files||[]).forEach(fl=>files.append(fileChip(fl,t)));
-    if (assets&&canWrite) files.append(el("button",{class:"btn ghost sm attach",id:"att-"+t.id,onclick:()=>{ uploadingFor=t; $("#fileIn").value=""; $("#fileIn").click(); }},"Attach file"));
+    if (assets&&canWrite) files.append(el("button",{class:"btn ghost sm attach",id:"att-"+t.id,"data-att":t.id,onclick:()=>{ uploadingFor=t; $("#fileIn").value=""; $("#fileIn").click(); }},"Attach file"));
     else if (!(t.files||[]).length) files.append(el("span",{class:"muted",style:"font-size:12.5px"},""));
     const del=canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+t.title,onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) write(()=>db.doc("tasks/"+t.id).delete()); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
     box.append(el("div",{class:"bk"+(done?" done":""),style:"--c:"+(t.owner&&tById(t.owner)?tColor(t.owner):"var(--line)")},
@@ -795,17 +820,103 @@ function renderTasks(){
       ref,files)); }
 }
 $("#fileIn").addEventListener("change",async()=>{ const f=$("#fileIn").files[0], t=uploadingFor; if(!f||!t||!assets) return;
-  const btn=document.getElementById("att-"+t.id); if (btn){ btn.disabled=true; btn.textContent="Uploading…"; }
+  const btns=[...document.querySelectorAll('[data-att="'+t.id+'"]')]; btns.forEach(b=>{ b.disabled=true; b.textContent="Uploading…"; });
   const ext=(f.name.split(".").pop()||"").toLowerCase(); const typeMap={pdf:"application/pdf",png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",gif:"image/gif",webp:"image/webp",txt:"text/plain",csv:"text/csv"};
   const type=typeMap[ext]||f.type;
   try{ const r=await assets.upload(f,{type}); const cur=state.tasks.find(x=>x.id===t.id)||t;
     await write(()=>db.doc("tasks/"+t.id).update({files:[...(cur.files||[]),{id:r.id,name:f.name.slice(0,80),type:r.contentType,size:r.sizeBytes}]})); }
   catch(e){ const why={too_large:"That file is over 20 MB.",unsupported_type:"Attach a PDF, image (PNG, JPG, GIF, WebP) or text file.",quota_or_state:"The hub's file storage is full.",rate_limited:"Too many uploads at once. Try again in a minute.",not_granted:"You need edit access to attach files."}[e&&e.code]||"Couldn't upload that file. Try again.";
-    banner(why); if (btn){ btn.disabled=false; btn.textContent="Attach file"; } }
+    banner(why); btns.forEach(b=>{ b.disabled=false; b.textContent=b.dataset.label||"Attach file"; }); }
   uploadingFor=null; });
 $("#taskForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=$("#tTitle").value.trim(); if(!t) return;
   if (await write(()=>db.collection("tasks").add({title:t,due:$("#tDue").value||"",status:"open",owner:$("#tWho").value,files:[],ref:"",createdAt:Date.now()}))){ $("#tTitle").value=""; $("#tDue").value=""; } });
 $("#taskFilters").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(!c) return; state.taskFilter=c.dataset.f; document.querySelectorAll("#taskFilters .chip").forEach(x=>x.setAttribute("aria-pressed",String(x===c))); renderTasks(); });
+
+/* ---------- flights ---------- */
+const eurToCur=e=>state.cur==="AUD"?e*num(state.settings.eurAud||1.622):e;
+const curToEur=v=>state.cur==="AUD"?v/num(state.settings.eurAud||1.622):v;
+const curSym=()=>state.cur==="AUD"?"A$":"€";
+const dayMs=864e5;
+function buyState(t){
+  if (t.status==="done") return {cls:"p-ok",txt:"Booked"};
+  const b=t.buy||{}, now=today(); if (!b.from||!b.to) return null;
+  const f=D(b.from), to=D(b.to), fl=D((t.legs&&t.legs[0]&&t.legs[0].date)||b.to);
+  if (now<f){ const w=Math.round((f-now)/dayMs/7); return {cls:"p-leg",txt:w>=1?"Too early · window opens in "+w+" wk":"Window opens this week"}; }
+  if (now<=to) return {cls:"p-ok",txt:"Good time to buy · until "+fmt(b.to)};
+  if (now<fl) return {cls:"p-late",txt:"Past the best window · buy now"};
+  return {cls:"p-leg",txt:"Flight date passed"};
+}
+function winBar(t,col){
+  const b=t.buy||{}; if (!b.from||!b.to) return null;
+  const legDate=(t.legs&&t.legs[0]&&t.legs[0].date)||b.to;
+  const now=today(), f=D(b.from), to=D(b.to), fl=D(legDate);
+  const start=new Date(Math.min(now, f-30*dayMs)), end=fl, span=Math.max(1,end-start);
+  const pct=d=>Math.max(0,Math.min(100,(d-start)/span*100)).toFixed(2)+"%";
+  const bar=el("div",{class:"win",role:"img","aria-label":"Best time to buy: "+fmt(b.from)+" to "+fmt(b.to)+", flight "+fmt(legDate)},
+    el("div",{class:"trk"}),el("div",{class:"ok",style:"left:"+pct(f)+";width:calc("+pct(to)+" - "+pct(f)+")"}),
+    now<=end?el("div",{class:"now",style:"left:"+pct(now),title:"Today"}):null,el("div",{class:"go",style:"left:"+pct(fl)+";--c:"+col,title:"Flight"}));
+  const lab=el("div",{class:"win-l"},el("span",{},now<f?"Today":fmt(iso(start))),el("span",{style:"color:var(--ok)"},"Buy "+fmt(b.from)+" – "+fmt(b.to)),el("span",{},"Fly "+fmt(legDate)));
+  return el("div",{},bar,lab);
+}
+function searchLinks(leg){
+  const code=s=>String(s||"").split(/[\/ ]/)[0].toUpperCase();
+  const a=code(leg.from), z=code(leg.to), d=leg.date||"";
+  const yymmdd=d.slice(2).replace(/-/g,"");
+  const g="https://www.google.com/travel/flights?q="+encodeURIComponent("one way flights from "+a+" to "+z+(d?" on "+d:""));
+  const s="https://www.skyscanner.com.au/transport/flights/"+a.toLowerCase()+"/"+z.toLowerCase()+"/"+yymmdd+"/";
+  return el("span",{class:"sub"},a+" → "+z+": ",el("a",{href:g,target:"_blank",rel:"noopener"},"Google Flights")," · ",el("a",{href:s,target:"_blank",rel:"noopener"},"Skyscanner"));
+}
+async function savePaid(t,valCur){
+  const eur=valCur===""?null:Math.round(curToEur(Math.max(0,num(valCur)))*100)/100;
+  if (!(await write(()=>db.doc("tasks/"+t.id).update({paid:eur})))) return;
+  const val=eur==null?num(t.est):eur, lk=t.link;
+  if (lk&&lk.type==="hop"&&lk.stop){ const s=state.stops.find(x=>x.id===lk.stop); if (s) await write(()=>db.doc("stops/"+s.id).update({hop:{name:s.hop?.name||"",cost:val}})); }
+  else if (lk&&lk.type==="fixed"){ const tr=tById(t.owner); if (tr){ const fx=[...(tr.fixed||[])]; const i=fx.findIndex(x=>String(x.name||"").startsWith(lk.match||"Flights")); if (i>=0){ fx[i]={...fx[i],cost:val}; await saveTraveler(tr.id,{fixed:fx}); } } }
+}
+function flightCard(t,v){
+  const col=tColor(v), done=t.status==="done", bs=buyState(t);
+  const setStatus=st=>write(()=>db.doc("tasks/"+t.id).update({status:st}));
+  const stBtns=el("div",{class:"status",role:"group","aria-label":"Flight status"},
+    el("button",{class:"nb","aria-pressed":String(!done),disabled:!canWrite||null,onclick:()=>!done||setStatus("open")},"Not booked"),
+    el("button",{class:"bd","aria-pressed":String(done),disabled:!canWrite||null,onclick:()=>done||setStatus("done")},"Booked ✓"));
+  const legs=el("div",{class:"fl-legs"},(t.legs||[]).map(l=>el("span",{class:"fl-leg"},el("b",{},(l.from||"?")+" → "+(l.to||"?")),l.date?fmtW(D(l.date)):"")));
+  const left=el("div",{});
+  if ((t.options||[]).length){ left.append(el("h4",{},"Best options")); t.options.forEach(o=>left.append(el("div",{class:"opt"},el("span",{},el("b",{},o.n),o.tag?el("span",{class:"tag"},o.tag):null),el("span",{class:"num",style:"white-space:nowrap"},o.p||""),o.d?el("span",{class:"d"},o.d):null))); }
+  if (t.tip) left.append(el("p",{class:"sub",style:"margin:8px 0 0"},t.tip));
+  const right=el("div",{});
+  right.append(el("h4",{},"When to buy"));
+  const wb=winBar(t,col); if (wb) right.append(wb);
+  if (t.buy&&t.buy.note) right.append(el("p",{class:"sub",style:"margin:6px 0 0"},t.buy.note));
+  const paidIn=el("input",{type:"number",min:"0",step:"1",placeholder:"Price paid",value:t.paid!=null&&t.paid!==""?String(Math.round(eurToCur(num(t.paid)))):"","aria-label":"Price paid in "+state.cur}); paidIn.disabled=!canWrite;
+  paidIn.addEventListener("change",()=>savePaid(t,paidIn.value.trim()));
+  const price=el("div",{class:"price"},el("span",{},"Estimate ",el("b",{class:"num"},money(num(t.est)))),el("span",{class:"muted"},"·"),el("label",{},"Paid ("+curSym()+") ",paidIn));
+  const ref=el("input",{class:"ref",value:t.ref||"",placeholder:"Booking reference, airline, seat…",maxlength:"160","aria-label":"Booking reference"}); ref.disabled=!canWrite; ref.addEventListener("change",()=>write(()=>db.doc("tasks/"+t.id).update({ref:ref.value.trim()})));
+  const files=el("div",{class:"files"}); (t.files||[]).forEach(fl=>files.append(fileChip(fl,t)));
+  if (assets&&canWrite) files.append(el("button",{class:"btn ghost sm attach","data-att":t.id,"data-label":"Attach ticket",onclick:()=>{ uploadingFor=t; $("#fileIn").value=""; $("#fileIn").click(); }},"Attach ticket"));
+  const links=el("div",{class:"slinks"},(t.legs||[]).map(searchLinks));
+  const del=(canWrite&&!t.link)?el("button",{class:"iconbtn","aria-label":"Delete flight",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) write(()=>db.doc("tasks/"+t.id).delete()); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
+  return el("div",{class:"fl"+(done?" done":""),style:"--c:"+col},
+    el("div",{class:"fl-top"},el("div",{},el("div",{class:"bk-t"},t.title),legs,el("div",{class:"bk-meta"},bs?el("span",{class:"pill "+bs.cls},bs.txt):null,del)),stBtns),
+    el("div",{class:"fl-grid"},left,right),price,links,ref,files);
+}
+function renderFlights(v){
+  const fls=state.tasks.filter(x=>x.kind==="flight"&&x.owner===v).sort((a,b)=>((a.legs||[{}])[0].date||"9").localeCompare((b.legs||[{}])[0].date||"9"));
+  const est=fls.reduce((a,x)=>a+num(x.est),0), paid=fls.filter(x=>x.paid!=null&&x.paid!=="").reduce((a,x)=>a+num(x.paid),0), booked=fls.filter(x=>x.status==="done").length;
+  const box=el("div",{class:"box",style:"margin-bottom:16px"},el("div",{class:"h2"},"Flights"));
+  box.append(el("div",{class:"flsum"},el("span",{},"Flights ",el("b",{},fls.length)),el("span",{},"Booked ",el("b",{},booked+"/"+fls.length)),el("span",{},"Estimated ",el("b",{},money(est))),el("span",{},"Paid so far ",el("b",{},money(paid)))));
+  if (!fls.length) box.append(el("div",{class:"empty"},"No flights yet. Add one below."));
+  const list=el("div",{class:"bklist"}); fls.forEach(x=>list.append(flightCard(x,v))); box.append(list);
+  if (canWrite){
+    const fF=el("input",{placeholder:"From (e.g. VIE)",maxlength:"30",style:"width:130px","aria-label":"From airport",required:""}), fT=el("input",{placeholder:"To (e.g. ATH)",maxlength:"30",style:"width:130px","aria-label":"To airport",required:""});
+    const fD=el("input",{type:"date","aria-label":"Flight date",required:""}), fE=el("input",{type:"number",min:"0",placeholder:"Estimate "+curSym(),style:"width:120px","aria-label":"Estimated price"});
+    const form=el("form",{class:"form",style:"margin:14px 0 0"},el("span",{class:"sub"},"Add a flight:"),fF,fT,fD,fE,el("button",{class:"btn",type:"submit"},"Add flight"));
+    form.addEventListener("submit",e=>{ e.preventDefault(); const a=fF.value.trim(), z=fT.value.trim(), d=fD.value; if(!a||!z||!d) return;
+      const dd=D(d), bf=new Date(dd-120*dayMs), bt=new Date(dd-45*dayMs);
+      write(()=>db.collection("tasks").add({kind:"flight",title:"Flight "+a.toUpperCase()+" → "+z.toUpperCase(),legs:[{from:a.toUpperCase(),to:z.toUpperCase(),date:d}],est:Math.round(curToEur(num(fE.value))),paid:null,status:"open",owner:v,due:iso(bt),buy:{from:iso(bf),to:iso(bt),note:"Short flights within Europe are usually cheapest 6–16 weeks out. Set a price alert on the links above."},options:[],files:[],ref:"",createdAt:Date.now()})); });
+    box.append(form);
+  }
+  return box;
+}
 
 /* ---------- budget view ---------- */
 function numInput(val,onsave,label){ const i=el("input",{type:"number",min:"0",step:"1",value:String(Math.round(num(val))),"aria-label":label}); i.disabled=!canWrite; i.addEventListener("change",()=>onsave(Math.max(0,num(i.value)))); return el("span",{class:"cell"},i); }
@@ -822,6 +933,7 @@ function renderBudget(){
       el("div",{class:"tscroll"},el("table",{},el("thead",{},el("tr",{},el("th",{},"Traveller"),el("th",{class:"r"},"Nights"),el("th",{class:"r"},"Hostels"),el("th",{class:"r"},"Hotels"),el("th",{class:"r"},"Spent"))),tb)))); return; }
   const tier=state.tier, b=travelerBudget(v,tier), ss=stopsOf(v);
   box.append(el("div",{class:"stats"},stat(money(b.total),"expected total",tColor(v)),stat(b.n?money(b.ground/b.n):"—","per day on the ground","var(--t2)"),stat(b.n,"nights","var(--t3)"),stat(money(spentBy(v)),"spent so far","var(--t4)")));
+  box.append(renderFlights(v));
   const tbody=el("tbody");
   if (!ss.length) tbody.append(el("tr",{},el("td",{colspan:"9",class:"muted"},tName(v)+" hasn't added any stops yet. Add them on the Map tab and the budget fills in.")));
   for (const s of ss){ const c=stopCost(s,tier), up=patch=>write(()=>db.doc("stops/"+s.id).update(patch));
@@ -1033,7 +1145,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     db.collection("stops").onSnapshot(s=>{ state.stops=s.docs.map(d=>({id:d.id,...d.data()})); renderAll(); if(!fitted&&state.stops.length&&viewing()){ fitted=true; fitTo(viewing()); } },onErr("stops"));
     db.doc("meta/travelers").onSnapshot(s=>{ const d=s.data(); state.travelers=Array.isArray(d&&d.list)?d.list.filter(t=>t&&t.id&&t.name):[]; renderAll(); },onErr("travellers"));
     db.doc("meta/settings").onSnapshot(s=>{ const d=s.data(); if (d&&d.eurAud) state.settings.eurAud=num(d.eurAud); renderAll(); },()=>{});
-    db.collection("tasks").onSnapshot(s=>{ state.tasks=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); renderTasks(); },onErr("bookings"));
+    db.collection("tasks").onSnapshot(s=>{ state.tasks=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); renderTasks(); renderBudget(); },onErr("bookings"));
     db.collection("notes").onSnapshot(s=>{ state.notes=s.docs.map(d=>({id:d.id,...d.data()})); renderNotes(); renderDash(); },onErr("ideas"));
     db.collection("expenses").onSnapshot(s=>{ state.expenses=s.docs.map(d=>({id:d.id,...d.data()})); renderBudget(); renderDash(); },onErr("spending"));
   }
