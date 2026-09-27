@@ -642,6 +642,13 @@ body{background:var(--ground);isolation:isolate}
 @media (prefers-reduced-motion:reduce){.tseg.now b{animation:none}}
 .stub .big.long{font-size:40px}
 @media (max-width:620px){.stub .big.long{font-size:26px}.stub .lbl{max-width:110px}}
+
+.crew-list{display:grid;gap:2px;max-height:40vh;min-height:min(170px,28vh);overflow-y:auto;align-content:start}
+.crew-row{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2);font-size:14px}
+.crew-form{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.crew-form input{background:var(--line-2);border:1px solid transparent;border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink)}
+.crew-form input:focus{outline:none;border-color:var(--t0);background:var(--panel)}
+.crew-msg{white-space:pre-wrap;font-family:var(--mono);font-size:12px;background:var(--line-2);border-radius:8px;padding:10px;margin:0 0 8px}
 </style>
 </head>
 <body>
@@ -674,7 +681,7 @@ body{background:var(--ground);isolation:isolate}
     <div class="stub"><div class="big num" id="cdBig">—</div><div class="lbl" id="cdLbl">days to go</div></div>
   </header>
 
-  <div class="topbar"><div class="viewas" id="viewas"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="notifBtn" type="button" hidden>Turn on notifications</button><button class="btn ghost sm" id="photoBtn" type="button">Change my photo</button><input type="file" id="photoIn" accept="image/*" hidden><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
+  <div class="topbar"><div class="viewas" id="viewas"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="notifBtn" type="button" hidden>Turn on notifications</button><button class="btn ghost sm" id="photoBtn" type="button">Change my photo</button><button class="btn ghost sm" id="crewBtn" type="button" hidden>Crew & logins</button><input type="file" id="photoIn" accept="image/*" hidden><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
@@ -782,6 +789,19 @@ body{background:var(--ground);isolation:isolate}
 <nav class="bnav" id="bnav" aria-label="Sections"><button type="button" data-go="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button><button type="button" data-go="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Map</span></button><button type="button" data-go="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M8 6V4h8v2M3 11h18"/></svg><span>Bookings</span><b class="dotb" id="bkDot" hidden></b></button><button type="button" data-go="budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v11"/></svg><span>Budget</span></button><button type="button" data-go="more" id="moreBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button></nav>
 <div class="sheet" id="sheet" hidden><div class="card" role="menu"><div class="grab"></div><button type="button" data-go="split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v18M17 3v18M3 8h8M13 16h8"/></svg>Split costs</button><button type="button" data-go="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>Itinerary</button><button type="button" data-go="packing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4.5h6V7M9 11v5M15 11v5"/></svg>Packing</button><button type="button" data-go="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Ideas</button><button type="button" data-go="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.9L19 9.7l-5.2 1.8L12 16.5l-1.8-5L5 9.7l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Ask AI</button><button type="button" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button></div></div>
 <div class="overlay" id="search" hidden><div class="search-card" role="dialog" aria-modal="true" aria-label="Search the hub"><input id="sq" type="search" placeholder="Search stops, bookings, ideas, people…" autocomplete="off" aria-label="Search"><div id="sres"></div><div class="sub" style="padding:8px 14px;border-top:1px solid var(--line)">↑ ↓ to move · Enter to open · Esc to close · press / anywhere to search</div></div></div>
+<div class="overlay" id="crewDlg" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="crewT"><div class="body">
+  <div style="display:flex;justify-content:space-between;align-items:center"><div class="h2" id="crewT" style="margin:0">Crew & logins</div><button class="iconbtn" id="crewClose" type="button" aria-label="Close">✕</button></div>
+  <p class="sub" style="margin:0">Only you see this. Add a friend and they can sign in straight away, with no email needed. Removing someone's access keeps their plans.</p>
+  <div id="crewList" class="crew-list"><div class="sub">Loading…</div></div>
+  <form id="crewForm" class="crew-form">
+    <div class="h2" style="margin:6px 0 0;font-size:15px">Add a friend</div>
+    <input id="cfName" placeholder="Name (e.g. Ruby)" maxlength="40" required aria-label="Name">
+    <input id="cfEmail" type="email" placeholder="Their email" required aria-label="Email" autocomplete="off">
+    <div style="display:flex;gap:8px"><input id="cfPass" placeholder="Starting password (8+ characters)" minlength="8" required aria-label="Starting password" autocomplete="off" style="flex:1"><button type="button" class="btn ghost sm" id="cfGen">Make one</button></div>
+    <button class="btn" type="submit" id="cfAdd">Add to the crew</button>
+    <div id="cfOut" hidden></div>
+  </form>
+</div></div></div>
 <div class="overlay" id="install" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="installT"><div class="body">
   <div class="h2" id="installT" style="margin:0">Put the hub on your phone</div>
   <p class="sub" style="margin:0">It opens full-screen like an app, and your itinerary and bookings stay readable with no signal. Attached tickets still need a connection, so also save those to your phone.</p>
@@ -1975,6 +1995,31 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
       }
     }catch(e){ toast("Couldn't turn on notifications: "+(e.message||e)); }
     b.disabled=false; checkNotif(); });
+
+  /* ---------- crew & logins (organiser only) ---------- */
+  async function crewCall(body){ const {data,error}=await SB.functions.invoke("crew",{body}); if (error){ let msg="Something went wrong."; try{ const j=await error.context.json(); msg=j.error||msg; }catch(e){} throw new Error(msg); } return data; }
+  async function loadCrew(){ const box=$("#crewList"); box.innerHTML=""; box.append(el("div",{class:"sub"},"Loading…"));
+    try{ const {crew}=await crewCall({action:"list"}); box.innerHTML="";
+      crew.forEach(c=>{ const has=c.emails.length, isMe=c.id===state.me;
+        const rm=(!isMe&&has)?el("button",{class:"btn ghost sm",type:"button",onclick:async e=>{ const b=e.currentTarget; if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tap again to remove"; b.style.color="var(--red)"; return; } b.disabled=true; try{ await crewCall({action:"remove",traveler:c.id}); toast(c.name+" can no longer sign in. Their plans are still here."); loadCrew(); }catch(err){ toast(err.message); b.disabled=false; } }},"Remove access"):null;
+        box.append(el("div",{class:"crew-row"},av(c.id),el("span",{},el("b",{},c.name),el("span",{class:"sub",style:"display:block"},has?c.emails.join(", "):"No login yet")),rm||el("span",{class:"pill "+(has?"p-ok":"p-leg")},has?(isMe?"You":"Can sign in"):"—"))); });
+    }catch(e){ box.innerHTML=""; box.append(el("div",{class:"sub"},e.message)); } }
+  function openCrew(){ $("#crewDlg").hidden=false; $("#cfOut").hidden=true; loadCrew(); setTimeout(()=>$("#cfName").focus(),50); }
+  $("#crewBtn").addEventListener("click",openCrew);
+  $("#crewClose").addEventListener("click",()=>$("#crewDlg").hidden=true);
+  $("#crewDlg").addEventListener("click",e=>{ if(e.target.id==="crewDlg") $("#crewDlg").hidden=true; });
+  $("#cfGen").addEventListener("click",()=>{ const w=["Naxos","Paros","Hvar","Kotor","Split","Athens","Prague","Ortisei","Santorini","Dubrovnik"]; const a=new Uint32Array(2); crypto.getRandomValues(a); $("#cfPass").value=w[a[0]%w.length]+"-"+(1000+a[1]%9000)+"!"; });
+  $("#crewForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=$("#cfAdd"); b.disabled=true; b.textContent="Adding…";
+    const name=$("#cfName").value.trim(), email=$("#cfEmail").value.trim(), pw=$("#cfPass").value;
+    try{ const r=await crewCall({action:"add",name,email,password:pw});
+      const site=location.origin+location.pathname.replace(/index\.html$/,"");
+      const msg="You're in the Euro Summer '27 hub! "+site+"\nEmail: "+email+"\nPassword: "+(r.created?pw:"(the one you already use)")+"\nChange your password in the menu (tap your picture, top right). Add it to your Home Screen for the app + notifications.";
+      const out=$("#cfOut"); out.hidden=false; out.innerHTML="";
+      out.append(el("div",{class:"copybox"},el("div",{class:"sub",style:"margin-bottom:6px"},(r.created?"Done! Send "+r.name+" this:":r.name+" already had a login, so they're now linked and can sign in with their existing password. Send them:")),el("pre",{class:"crew-msg"},msg),
+        el("button",{class:"btn sm",type:"button",onclick:async()=>{ try{ await navigator.clipboard.writeText(msg); toast("Copied. Paste it into your chat with "+r.name+"."); }catch(err){ toast("Couldn't copy. Select the text and copy it."); } }},"Copy message")));
+      $("#cfName").value=""; $("#cfEmail").value=""; $("#cfPass").value=""; loadCrew(); logAct("added "+r.name+" to the crew");
+    }catch(err){ toast(err.message,{ms:8000}); }
+    b.disabled=false; b.textContent="Add to the crew"; });
   $("#photoBtn").addEventListener("click",()=>{ if(!state.me){ toast("Your account isn't linked to a traveller yet."); return; } $("#photoIn").value=""; $("#photoIn").click(); });
   $("#photoIn").addEventListener("change",async()=>{ const f=$("#photoIn").files[0]; if(!f||!state.me||!db) return;
     try{ const bmp=await createImageBitmap(f); const S=128, c=document.createElement("canvas"); c.width=S; c.height=S; const side=Math.min(bmp.width,bmp.height);
@@ -2010,7 +2055,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
     $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey(); checkNotif();
     if (CAME_FROM_LINK){ $("#pwBox").hidden=false; $("#acctMenu").hidden=false; banner("Welcome! Choose a password in the menu (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
-    myId=user.id; canWrite=true; userNs=null; state.me=mine;
+    myId=user.id; canWrite=true; userNs=null; state.me=mine; $("#crewBtn").hidden=mine!=="me";
     const be=makeBackend(SB); db=be.db; assets=be.files;
     if (!store.get("view")){ state.view=mine; store.set("view",mine); }
     renderAll();
