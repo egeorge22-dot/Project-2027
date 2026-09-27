@@ -548,6 +548,7 @@ details.box.more>summary .sub{font-weight:400;font-size:13px;margin-left:8px}
 .alert.al2 .bk-meta{margin-top:5px}
 @media (max-width:620px){.eyebrow{display:none}.ticket-main{gap:4px}}
 .flsum{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--ink-2);margin-bottom:10px}
+body:has(#app[hidden]) .bnav,body:has(#app[hidden]) .sheet{display:none!important}
 </style>
 </head>
 <body>
@@ -701,7 +702,9 @@ const GEO = [["Vatican","M515.9,663.7L515.7,663.8L515.7,663.7L515.7,663.6L515.9,
 const $ = s => document.querySelector(s);
 const SVGNS="http://www.w3.org/2000/svg";
 function setA(e,a){ for (const [k,v] of Object.entries(a)){ if(k==="class") e.setAttribute("class",v); else if(k==="style") e.style.cssText=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v); else if(v!=null&&v!==false) e.setAttribute(k,v); } }
-const el=(tag,a={},...kids)=>{ const e=document.createElement(tag); setA(e,a); for (const k of kids.flat()) if(k!=null&&k!==false) e.append(k instanceof Node?k:document.createTextNode(String(k))); return e; };
+const openDet=new Set();
+document.addEventListener("toggle",e=>{ const k=e.target&&e.target.dataset&&e.target.dataset.k; if(k) (e.target.open?openDet.add(k):openDet.delete(k)); },true);
+const el=(tag,a={},...kids)=>{ const e=document.createElement(tag); setA(e,a); if(tag==="details"&&a["data-k"]&&openDet.has(a["data-k"])) e.open=true; for (const k of kids.flat()) if(k!=null&&k!==false) e.append(k instanceof Node?k:document.createTextNode(String(k))); return e; };
 const sv=(tag,a={})=>{ const e=document.createElementNS(SVGNS,tag); setA(e,a); return e; };
 const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], WK=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const D=s=>{ const [y,m,d]=String(s).split("-").map(Number); return new Date(y,(m||1)-1,d||1); };
@@ -990,7 +993,7 @@ $("#scrub").addEventListener("input",()=>{ renderWhere(); renderPins(); });
 function selectStop(id){
   state.sel=id; const s=state.stops.find(x=>x.id===id), card=$("#stopCard");
   if (!s){ card.hidden=true; renderPins(); return; }
-  showTab("map"); card.hidden=false; card.innerHTML="";
+  showTab("map"); card.hidden=false; card.innerHTML=""; if(window.innerWidth<=700) setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"start"}),60);
   const n=nightsOf(s);
   card.append(el("div",{class:"card-stop",style:"--c:"+tColor(s.traveler)},el("div",{class:"sub"},tName(s.traveler)+(s.country?" · "+s.country:"")),el("h3",{},s.place),
     el("div",{class:"sub num"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total)),s.note?el("div",{},s.note):null));
@@ -1087,7 +1090,7 @@ function renderDash(){
     const legsN=tl.children.length, legsCost=fl.reduce((a,f)=>a+num(f.cost),0)+ss.reduce((a,s)=>a+(s.hop?.name?num(s.hop.cost):0),0);
     const flow=el("div",{class:"rflow",style:"--c:"+tColor(v)}); ss.forEach((s,i)=>{ if(i) flow.append(el("span",{class:"ar"},"→")); flow.append(el("span",{class:"rs"+(s.start<=ti&&ti<s.end?" now":"")},s.place.replace(/\s*\(.*\)/,""),el("small",{class:"num"},fmt(s.start)+" · "+nightsOf(s)+"n"))); });
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),flow,
-      legsN?el("details",{class:"more"},el("summary",{},"Flights & transport · "+legsN+" legs · "+money(legsCost)),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
+      legsN?el("details",{class:"more","data-k":"dashTransport"},el("summary",{},"Flights & transport · "+legsN+" legs · "+money(legsCost)),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
       el("div",{class:"actions"},el("button",{class:"btn ghost sm",onclick:()=>showTab("trips")},"Full itinerary"),el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add to my calendar")))); }
   right.append(activityBox(4));
   const ms=meetups(v); if (ms.length) right.append(el("div",{class:"box"},el("div",{class:"h2"},"Crossing paths"),ms.slice(0,5).map(m=>el("div",{class:"meet"},`${tName(m.a===v?m.b:m.a)} · ${m.place} · ${fmt(m.s)}–${fmt(m.e)}`))));
@@ -1222,7 +1225,7 @@ function flightCard(t,v){
     more);
 }
 function renderFlights(v){
-  const fls=state.tasks.filter(x=>x.kind==="flight"&&x.owner===v).sort((a,b)=>((a.legs||[{}])[0].date||"9").localeCompare((b.legs||[{}])[0].date||"9"));
+  const fls=state.tasks.filter(x=>x.kind==="flight"&&x.owner===v).sort((a,b)=>(a.legs?.[0]?.date||"9").localeCompare(b.legs?.[0]?.date||"9"));
   const est=fls.reduce((a,x)=>a+num(x.est),0), paid=fls.filter(x=>x.paid!=null&&x.paid!=="").reduce((a,x)=>a+num(x.paid),0), booked=fls.filter(x=>x.status==="done").length;
   const box=el("div",{class:"box",style:"margin-bottom:16px"},el("div",{class:"h2"},"Flights"));
   box.append(el("div",{class:"flsum"},el("span",{},"Flights ",el("b",{},fls.length)),el("span",{},"Booked ",el("b",{},booked+"/"+fls.length)),el("span",{},"Estimated ",el("b",{},money(est))),el("span",{},"Paid so far ",el("b",{},money(paid)))));
@@ -1235,7 +1238,7 @@ function renderFlights(v){
     form.addEventListener("submit",e=>{ e.preventDefault(); const a=fF.value.trim(), z=fT.value.trim(), d=fD.value; if(!a||!z||!d) return;
       const dd=D(d), bf=new Date(dd-120*dayMs), bt=new Date(dd-45*dayMs);
       write(()=>db.collection("tasks").add({kind:"flight",title:"Flight "+a.toUpperCase()+" → "+z.toUpperCase(),legs:[{from:a.toUpperCase(),to:z.toUpperCase(),date:d}],est:Math.round(curToEur(num(fE.value))),paid:null,status:"open",owner:v,due:iso(bt),buy:{from:iso(bf),to:iso(bt),note:"Short flights within Europe are usually cheapest 6–16 weeks out. Set a price alert on the links above."},options:[],files:[],ref:"",createdAt:Date.now()})); });
-    box.append(el("details",{class:"more"},el("summary",{},"+ Add another flight"),form));
+    box.append(el("details",{class:"more","data-k":"addFlight"},el("summary",{},"+ Add another flight"),form));
   }
   return box;
 }
@@ -1247,7 +1250,7 @@ function toggles(){ const tier=el("div",{class:"seg"},["h","p"].map(x=>el("butto
   return el("div",{class:"form"},tier,cur,el("span",{class:"sub"},"€1 = A$"+num(state.settings.eurAud).toFixed(3)+" (ECB, 25 Sep 2026)")); }
 function renderBudget(){
   const box=$("#budget"); box.innerHTML=""; box.append(toggles()); const v=viewing();
-  { const cv=converterBox(); const d=el("details",{class:"box more"},el("summary",{},el("span",{},"Currency converter",el("span",{class:"sub"},"AUD · EUR · CZK")))); [...cv.children].slice(1).forEach(c=>d.append(c)); d.children[1]&&(d.children[1].style.marginTop="12px"); box.append(d); }
+  { const cv=converterBox(); const d=el("details",{class:"box more","data-k":"conv"},el("summary",{},el("span",{},"Currency converter",el("span",{class:"sub"},"AUD · EUR · CZK")))); [...cv.children].slice(1).forEach(c=>d.append(c)); d.children[1]&&(d.children[1].style.marginTop="12px"); box.append(d); }
   if (!v){ const tb=el("tbody");
     for (const t of state.travelers){ const ss=stopsOf(t.id), bh=travelerBudget(t.id,"h"), bp=travelerBudget(t.id,"p");
       tb.append(el("tr",{class:"click",onclick:()=>setView(t.id)},el("td",{},el("span",{class:"who",style:"font-size:14px;color:var(--ink)"},el("span",{class:"dotc",style:"--c:"+tColor(t.id)}),t.name)),
@@ -1271,7 +1274,7 @@ function renderBudget(){
       el("td",{class:"r"},numInput(s.hop?.cost,x=>up({hop:{name:s.hop?.name||"",cost:x}}),"Getting to "+s.place),s.hop?.name?el("div",{class:"muted",style:"font-size:11.5px;max-width:130px;margin-left:auto"},s.hop.name):null),
       el("td",{},ev),el("td",{class:"r num"},money(c.total)))); }
   if (ss.length) tbody.append(el("tr",{class:"total"},el("td",{},"On the ground"),el("td",{class:"r num"},b.n),el("td",{colspan:"6"}),el("td",{class:"r num"},money(b.ground))));
-  const left=el("details",{class:"box more"},el("summary",{},el("span",{},"Stop by stop",el("span",{class:"sub"},ss.length+" stops · edit daily costs"))),el("p",{class:"sub",style:"margin-top:12px"},"Per person, in euros. Stay is per night (dorm bed, or your half of a hotel double); food, local transport and nights out are per day. Edit any number."),
+  const left=el("details",{class:"box more","data-k":"stopByStop"},el("summary",{},el("span",{},"Stop by stop",el("span",{class:"sub"},ss.length+" stops · edit daily costs"))),el("p",{class:"sub",style:"margin-top:12px"},"Per person, in euros. Stay is per night (dorm bed, or your half of a hotel double); food, local transport and nights out are per day. Edit any number."),
     el("div",{class:"tscroll"},el("table",{},el("thead",{},el("tr",{},...["Stop","Nts","Stay","Food","Local","Fun","Getting there","Events & tickets","Subtotal"].map((h,i)=>el("th",{class:[1,2,3,4,5,6,8].includes(i)?"r":""},h)))),tbody)));
   const parts=[["Stays",b.stay,"var(--t0)"],["Food",b.food,"var(--t4)"],["Events & tickets",b.events,"var(--t5)"],["Getting between stops",b.hop,"var(--t2)"],["Nights out & extras",b.fun,"var(--t1)"],["Local transport",b.local,"var(--t6)"],["Flights & fixed",b.fixed,"var(--t8)"],["Buffer (10%)",b.buffer,"var(--t7)"]];
   const max=Math.max(1,...parts.map(p=>p[1])); const bars=el("div");
@@ -1289,7 +1292,7 @@ function renderBudget(){
   if (!ex.length) xl.append(el("div",{class:"muted",style:"font-size:13px"},"Log deposits and bookings as you pay them."));
   ex.slice(0,12).forEach(e=>xl.append(el("div",{class:"wrow",style:"grid-template-columns:1fr auto auto"},el("span",{},e.what),el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>softDelete("expenses",e,e.what)},"✕"):el("span"))));
   if (!canWrite){ fForm.hidden=true; eForm.hidden=true; }
-  box.append(el("div",{class:"grid2",style:"margin-bottom:16px"},el("div",{class:"box"},el("div",{class:"h2"},"Where the money goes"),bars),el("div",{class:"stack"},el("div",{class:"box"},el("div",{class:"h2"},"Log real spending"),eForm,xl),el("details",{class:"box more"},el("summary",{},el("span",{},"Fixed costs",el("span",{class:"sub"},fx.length+" items · insurance, visas…"))),el("div",{style:"margin-top:10px"},fl,fForm)))));
+  box.append(el("div",{class:"grid2",style:"margin-bottom:16px"},el("div",{class:"box"},el("div",{class:"h2"},"Where the money goes"),bars),el("div",{class:"stack"},el("div",{class:"box"},el("div",{class:"h2"},"Log real spending"),eForm,xl),el("details",{class:"box more","data-k":"fixed"},el("summary",{},el("span",{},"Fixed costs",el("span",{class:"sub"},fx.length+" items · insurance, visas…"))),el("div",{style:"margin-top:10px"},fl,fForm)))));
   box.append(renderFlights(v));
   box.append(left);
 }
@@ -1404,7 +1407,7 @@ document.addEventListener("keydown",e=>{ const typing=/INPUT|TEXTAREA|SELECT/.te
 function icsEsc(s){ return String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
 function icsDate(s){ return s.replace(/-/g,""); }
 function plusDay(s,n){ const d=D(s); d.setDate(d.getDate()+(n||1)); return iso(d); }
-function downloadIcs(tid){ tid=tid||state.me; const t=tById(tid); if(!t){ toast("Pick a person first."); return; }
+function downloadIcs(tid){ tid=tid||state.me; const t=tById(tid); if(!t){ toast("Pick a person first."); return; } if(!stopsOf(tid).length){ toast("Add some stops on the Map first, then the calendar has something in it."); return; }
   const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
   const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Euro Summer 27//Trip hub//EN","CALSCALE:GREGORIAN","X-WR-CALNAME:"+icsEsc("Euro Summer '27 · "+t.name)];
   for (const s of stopsOf(tid)){ const desc=[s.hop?.name?"Getting there: "+s.hop.name:"",(s.events||[]).length?"Planned: "+s.events.map(e=>e.name).join(", "):"",s.note||""].filter(Boolean).join("\n");
@@ -1569,8 +1572,8 @@ function renderHeader(){
 }
 function fillSelects(){ const v=viewing();
   for (const [id,withGroup] of [["#sfWho",false],["#tWho",true]]){ const sel=$(id), keep=sel.value; sel.innerHTML=""; if (withGroup) sel.append(el("option",{value:""},"Group")); for (const t of state.travelers) sel.append(el("option",{value:t.id},t.name));
-    sel.value=v||(state.travelers.some(t=>t.id===keep)?keep:(withGroup?"":(state.travelers[0]?.id||""))); } }
-function showTab(name){ document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===name))); const inMore=["split","trips","packing","notes","ask"].includes(name); document.querySelectorAll("#bnav [data-go],#sheet [data-go]").forEach(b=>{ const on=b.dataset.go===name||(b.dataset.go==="more"&&inMore); on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"); }); $("#sheet").hidden=true; if(window.innerWidth<=700) window.scrollTo({top:0}); document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name); store.set("hubTab",name); }
+    sel.value=(sel.dataset.touched&&(keep===""?withGroup:state.travelers.some(t=>t.id===keep)))?keep:(v||(withGroup?"":(state.travelers[0]?.id||""))); if(!sel.dataset.l){ sel.dataset.l="1"; sel.addEventListener("change",()=>sel.dataset.touched="1"); } } }
+function showTab(name){ document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===name))); const inMore=["split","trips","packing","notes","ask"].includes(name); document.querySelectorAll("#bnav [data-go],#sheet [data-go]").forEach(b=>{ const on=b.dataset.go===name||(b.dataset.go==="more"&&inMore); on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"); }); $("#sheet").hidden=true; if(window.innerWidth<=700&&showTab.cur!==name) window.scrollTo({top:0}); showTab.cur=name; document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name); store.set("hubTab",name); }
 $("#tabs").addEventListener("click",e=>{ const b=e.target.closest(".tab"); if(b) showTab(b.dataset.tab); });
 $("#bnav").addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b) return; if(b.dataset.go==="more"){ $("#sheet").hidden=false; return; } showTab(b.dataset.go); });
 $("#sheet").addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b){ if(e.target.id==="sheet") $("#sheet").hidden=true; return; } if(b.dataset.go==="search"){ $("#sheet").hidden=true; openSearch(); return; } showTab(b.dataset.go); });
@@ -1580,6 +1583,11 @@ $("#searchIcon").addEventListener("click",()=>openSearch());
 document.addEventListener("click",e=>{ if(!$("#acctMenu").hidden&&!e.target.closest(".acct-wrap")) setMenu(false); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ setMenu(false); $("#sheet").hidden=true; } });
 $("#acctMenu").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b&&!["pwBtn","pwSave"].includes(b.id)) setMenu(false); });
+const pendingR=new Map();
+function typingIn(sel){ const c=document.querySelector(sel), a=document.activeElement; return !!(c&&a&&c.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+function guard(sel,fn){ return function(){ if (typingIn(sel)){ pendingR.set(sel,fn); return; } pendingR.delete(sel); fn(); }; }
+document.addEventListener("focusout",()=>setTimeout(()=>{ for (const [sel,fn] of [...pendingR]) if(!typingIn(sel)){ pendingR.delete(sel); fn(); } },50));
+renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks);
 function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
   if (state.sel&&!state.stops.find(x=>x.id===state.sel)){ state.sel=null; $("#stopCard").hidden=true; }
   document.querySelectorAll("#taskForm input,#taskForm select,#taskForm button,#noteForm input,#noteForm button,#stopForm input,#stopForm select,#stopForm button").forEach(x=>x.disabled=!canWrite); }
@@ -1685,8 +1693,10 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     showLogin(error?("Couldn't send the email: "+error.message):"If that email has an account, a reset link is on its way. It can take a few minutes.",!!error); });
   async function setNewPassword(){ const pw=$("#lgPass").value; if (pw.length<8) return showLogin("Choose a new password of at least 8 characters.",true);
     const {error}=await SB.auth.updateUser({password:pw}); if (error) return showLogin(error.message,true); recovering=false; $("#lgIn").textContent="Sign in"; $("#lgUp").hidden=false; $("#lgForgot").hidden=false; location.hash=""; boot(); }
-  $("#lgOut").addEventListener("click",()=>SB.auth.signOut());
-  $("#signOut").addEventListener("click",()=>SB.auth.signOut());
+  async function leave(){ try{ if("serviceWorker" in navigator){ const reg=await navigator.serviceWorker.getRegistration(); const sub=reg&&await reg.pushManager.getSubscription(); if(sub){ await SB.from("push_subs").delete().eq("endpoint",sub.endpoint); await sub.unsubscribe(); } } }catch(e){}
+    ["view","hidden","hubTab","notifAsked","keyAsked"].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); SB.auth.signOut(); }
+  $("#lgOut").addEventListener("click",leave);
+  $("#signOut").addEventListener("click",leave);
   const canKey=!!(window.PublicKeyCredential&&SB.auth&&typeof SB.auth.signInWithPasskey==="function");
   const bioName=/iPhone|iPad|Macintosh/.test(navigator.userAgent)?"Face ID":"fingerprint";
   const keyErr=e=>{ const c=(e&&(e.code||e.error_code))||"", m=String(e&&e.message||"");
@@ -1720,7 +1730,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     let sub=null; try{ sub=await currentSub(); }catch(e){}
     const on=!!sub&&Notification.permission==="granted";
     b.hidden=false; b.textContent=on?"Turn off notifications":"Turn on notifications";
-    if (on){ try{ await SB.from("push_subs").upsert({endpoint:sub.endpoint,sub:sub.toJSON()}); }catch(e){} }
+    if (on){ try{ const {error}=await SB.from("push_subs").upsert({endpoint:sub.endpoint,sub:sub.toJSON()}); if(error){ await sub.unsubscribe(); b.textContent="Turn on notifications"; } }catch(e){} }
     else if (standalone&&Notification.permission==="default"&&!store.get("notifAsked")){ store.set("notifAsked","1"); toast("Want a buzz when someone adds a stop to the map?",{ms:12000,action:"Turn on",onAction:()=>b.click()}); } }
   $("#notifBtn").addEventListener("click",async()=>{ const b=$("#notifBtn");
     if (!canPush){ toast(isIOS?"On iPhone, notifications only work in the app. Add the hub to your Home Screen first, open it from there, then turn them on.":"This browser can't show notifications.",{ms:9000}); if(isIOS) openInstall(); return; }
