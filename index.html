@@ -1971,7 +1971,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
         else { const reg=await navigator.serviceWorker.ready;
           const s2=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});
           const {error}=await SB.from("push_subs").upsert({endpoint:s2.endpoint,sub:s2.toJSON()});
-          toast(error?"Couldn't save that, try again.":"Notifications on. You'll hear when someone adds a stop to the map."); }
+          toast(error?"Couldn't save that, try again.":"Notifications on. Sending you a test now…"); if(!error) setTimeout(()=>SB.rpc("push_test").then(()=>{},()=>{}),1500); }
       }
     }catch(e){ toast("Couldn't turn on notifications: "+(e.message||e)); }
     b.disabled=false; checkNotif(); });
