@@ -649,6 +649,23 @@ body{background:var(--ground);isolation:isolate}
 .crew-form input{background:var(--line-2);border:1px solid transparent;border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink)}
 .crew-form input:focus{outline:none;border-color:var(--t0);background:var(--panel)}
 .crew-msg{white-space:pre-wrap;font-family:var(--mono);font-size:12px;background:var(--line-2);border-radius:8px;padding:10px;margin:0 0 8px}
+
+/* comments */
+.thread{border-top:1px solid var(--line-2);padding-top:6px;margin-top:4px}
+.thread>summary{cursor:pointer;list-style:none;font-size:13px;color:var(--ink-2);padding:4px 0;font-weight:500}
+.thread>summary::-webkit-details-marker{display:none}
+.th-list{display:grid;gap:8px;margin:6px 0}
+.th-c{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start}
+.th-b{background:var(--line-2);border-radius:4px 12px 12px 12px;padding:6px 10px;min-width:0}
+.th-c.mine .th-b{background:color-mix(in srgb,var(--vc,var(--t0)) 10%,var(--panel))}
+.th-m{display:flex;gap:8px;align-items:baseline;font-size:12.5px}
+.th-m .sub{font-size:11.5px}
+.th-t{font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.th-x{margin-left:auto;background:none;border:0;color:var(--ink-3);cursor:pointer;font-size:12px}
+.th-f{display:flex;gap:6px;margin-top:4px}
+.th-f input{flex:1;min-width:0;background:var(--line-2);border:1px solid transparent;border-radius:99px;padding:7px 12px;font:inherit;font-size:14px;color:var(--ink)}
+.th-f input:focus{outline:none;border-color:var(--vc,var(--t0));background:var(--panel)}
+.th-f .btn{border-radius:99px}
 </style>
 </head>
 <body>
@@ -965,7 +982,7 @@ Bucharest|Romania|44.4268|26.1025|HU`.split("\n").map(l=>{ const [name,country,l
 
 const GAZBY=Object.fromEntries(GAZ.map(g=>[g.name.toLowerCase(),g]));
 
-let state={ avatars:{}, travelers:[], stops:[], tasks:[], notes:[], expenses:[], packing:[], activity:[], me:null, noteSort:"new", settings:{eurAud:1.622},
+let state={ comments:[], avatars:{}, travelers:[], stops:[], tasks:[], notes:[], expenses:[], packing:[], activity:[], me:null, noteSort:"new", settings:{eurAud:1.622},
   view:store.get("view")||"all", hidden:new Set(JSON.parse(store.get("hidden")||"[]")), sel:null,
   tier:store.get("tier")||"h", cur:store.get("cur")||"AUD", taskFilter:"open" };
 let db=null, assets=null, userNs=null, myId=null, canWrite=true, uploadingFor=null;
@@ -1119,6 +1136,7 @@ function selectStop(id){
         el("button",{class:"btn sm",onclick:()=>{ if(inS.value&&inE.value&&inS.value<inE.value) write(()=>db.doc("stops/"+s.id).update({start:inS.value,end:inE.value})); }},"Save dates"),
         el("button",{class:"btn ghost sm",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c){ softDelete("stops",s,s.place); state.sel=null; card.hidden=true; } else { b.dataset.c="1"; b.textContent="Tap again to delete"; b.className="btn danger sm"; } }},"Delete stop"),
         el("button",{class:"btn ghost sm",onclick:()=>{ state.sel=null; card.hidden=true; renderPins(); }},"Close"))); }
+  card.append(thread("stops/"+s.id,s.place));
   renderPins();
 }
 $("#sfPlace").addEventListener("input",()=>{ const g=GAZBY[$("#sfPlace").value.trim().toLowerCase()]; if(g){ picked=null; $("#sfGeo").textContent=g.country+" · on the map"; renderPins(); } else if(!picked) $("#sfGeo").textContent="Not in the list. Drop a pin on the map for it."; });
@@ -1253,12 +1271,12 @@ function renderTasks(){
     else if (!(t.files||[]).length) files.append(el("span",{class:"muted",style:"font-size:12.5px"},""));
     const del=canWrite?el("button",{class:"btn ghost sm del","aria-label":"Delete "+t.title,onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) softDelete("tasks",t,t.title); else { b.dataset.c="1"; b.textContent="Tap again to delete"; b.style.color="var(--red)"; } }},"Delete"):null;
     const isOpen=openBk.has(t.id), nf=(t.files||[]).length;
-    const more=el("div",{class:"bk-more"},el("div",{class:"bk-edit"},el("label",{class:"who"},el("span",{class:"dotc",style:"--c:"+(tById(t.owner)?tColor(t.owner):"var(--ink-3)")}),owner),el("label",{class:"who"},"Book by ",due),del),ref,files); more.hidden=!isOpen;
+    const more=el("div",{class:"bk-more"},el("div",{class:"bk-edit"},el("label",{class:"who"},el("span",{class:"dotc",style:"--c:"+(tById(t.owner)?tColor(t.owner):"var(--ink-3)")}),owner),el("label",{class:"who"},"Book by ",due),del),ref,files,thread("tasks/"+t.id,t.title)); more.hidden=!isOpen;
     const chev=el("button",{class:"chevb",type:"button","aria-expanded":String(isOpen),"aria-label":"Details for "+t.title},"›");
     const toggle=()=>{ const o=more.hidden; more.hidden=!o; chev.setAttribute("aria-expanded",String(o)); o?openBk.add(t.id):openBk.delete(t.id); };
     chev.addEventListener("click",toggle);
     box.append(el("div",{class:"bk"+(done?" done":""),id:"bk-"+t.id},
-      el("div",{class:"bk-top"},el("div",{class:"bk-main",onclick:toggle},el("div",{class:"bk-t"},t.title),el("div",{class:"bk-meta"},el("span",{class:"pill "+di.cls},di.txt),el("span",{class:"who"},el("span",{class:"dotc",style:"--c:"+(tById(t.owner)?tColor(t.owner):"var(--ink-3)")}),t.owner&&tById(t.owner)?tName(t.owner):"Group"),nf?el("span",{class:"clip"},"📎 "+nf):null,t.ref?el("span",{class:"clip"},"📝"):null)),stBtns,chev),
+      el("div",{class:"bk-top"},el("div",{class:"bk-main",onclick:toggle},el("div",{class:"bk-t"},t.title),el("div",{class:"bk-meta"},el("span",{class:"pill "+di.cls},di.txt),el("span",{class:"who"},el("span",{class:"dotc",style:"--c:"+(tById(t.owner)?tColor(t.owner):"var(--ink-3)")}),t.owner&&tById(t.owner)?tName(t.owner):"Group"),nf?el("span",{class:"clip"},"📎 "+nf):null,t.ref?el("span",{class:"clip"},"📝"):null,cCount("tasks/"+t.id))),stBtns,chev),
       more)); }
 }
 $("#fileIn").addEventListener("change",async()=>{ const f=$("#fileIn").files[0], t=uploadingFor; if(!f||!t||!assets) return;
@@ -1339,7 +1357,7 @@ function flightCard(t,v){
   const links=el("div",{class:"slinks"},(t.legs||[]).map(searchLinks));
   const del=(canWrite&&!t.link)?el("button",{class:"btn ghost sm del","aria-label":"Delete flight",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) softDelete("tasks",t,t.title); else { b.dataset.c="1"; b.textContent="Tap again to delete"; b.style.color="var(--red)"; } }},"Delete flight"):null;
   const isOpen=openBk.has(t.id), nf=(t.files||[]).length;
-  const more=el("div",{class:"bk-more"},el("div",{class:"fl-grid"},left,right),price,links,ref,files,del?el("div",{class:"bk-edit"},del):null); more.hidden=!isOpen;
+  const more=el("div",{class:"bk-more"},el("div",{class:"fl-grid"},left,right),price,links,ref,files,thread("tasks/"+t.id,t.title),del?el("div",{class:"bk-edit"},del):null); more.hidden=!isOpen;
   const chev=el("button",{class:"chevb",type:"button","aria-expanded":String(isOpen),"aria-label":"Details for "+t.title},"›");
   const toggle=()=>{ const o=more.hidden; more.hidden=!o; chev.setAttribute("aria-expanded",String(o)); o?openBk.add(t.id):openBk.delete(t.id); };
   chev.addEventListener("click",toggle);
@@ -1437,7 +1455,7 @@ function renderTrips(){
       if (Array.isArray(s.days)&&s.days.length){ const days=el("div",{class:"days"}); s.days.forEach((d,j)=>{ const dd=D(s.start); dd.setDate(dd.getDate()+j); days.append(el("div",{class:"day"},el("div",{class:"dh"},"Day "+(j+1)+" · "+fmtW(dd)),el("div",{class:"t"},d.t||""),el("p",{},d.p||""))); }); body.append(days); }
       if (Array.isArray(s.highlights)&&s.highlights.length) body.append(el("div",{class:"hl"},s.highlights.map(h=>el("span",{},h))));
       if ((s.events||[]).length) body.append(el("div",{class:"sub"},"In the budget: "+s.events.map(e=>e.name+" €"+num(e.cost)).join(" · ")));
-      body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")));
+      body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")),thread("stops/"+s.id,s.place));
       const n=nightsOf(s);
       const det=el("details",{class:"leg",style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); box.append(det); }); }
 }
@@ -1456,13 +1474,13 @@ function renderNotes(){ const box=$("#noteList"); box.innerHTML=""; const me=act
         list.append(el("button",{class:"popt"+(mine?" mine":""),type:"button",disabled:!canWrite||!me||null,onclick:()=>{ const next=opts.map((x,j)=>({t:x.t,votes:(x.votes||[]).filter(v=>v!==me).concat(j===i&&!mine?[me]:[])})); write(()=>db.doc("notes/"+n.id).update({options:next})); }},
           el("span",{class:"pbar",style:"width:"+pct+"%"}),el("span",{class:"pl"},o.t),el("span",{class:"pv num"},(o.votes||[]).map(v=>el("span",{class:"dotc",title:tName(v),style:"--c:"+tColor(v)})),c?" "+pct+"%":""))); });
       box.append(el("div",{class:"note poll-card",style:tById(n.who)?"--c:"+tColor(n.who):""},el("div",{class:"sk",style:"justify-self:start"},"Poll"),el("p",{style:"font-weight:600"},n.text),list,
-        el("div",{class:"nf"},el("span",{},who+" · "+total+" vote"+(total===1?"":"s")+(me?"":" · pick who you are to vote")),del))); continue; }
+        el("div",{class:"nf"},el("span",{},who+" · "+total+" vote"+(total===1?"":"s")+(me?"":" · pick who you are to vote")),del),thread("notes/"+n.id,"poll"))); continue; }
     const votes=n.votes||[], loved=votes.includes(me);
     const heart=el("button",{class:"heart"+(loved?" on":""),type:"button","aria-pressed":String(loved),"aria-label":(loved?"Unlike":"Like")+" this idea",disabled:!canWrite||!me||null,
       onclick:()=>write(()=>db.doc("notes/"+n.id).update({votes:loved?votes.filter(v=>v!==me):votes.concat([me])}))},"♥ "+(votes.length||""));
     box.append(el("div",{class:"note",style:tById(n.who)?"--c:"+tColor(n.who):""},el("p",{},n.text),
       votes.length?el("div",{class:"voters"},votes.map(v=>el("span",{class:"dotc",title:tName(v),style:"--c:"+tColor(v)}))):null,
-      el("div",{class:"nf"},el("span",{},who+" · "+ago(n.at||0)),el("span",{style:"display:flex;gap:4px;align-items:center"},heart,del)))); } }
+      el("div",{class:"nf"},el("span",{},who+" · "+ago(n.at||0)),el("span",{style:"display:flex;gap:4px;align-items:center"},heart,del)),thread("notes/"+n.id,"idea"))); } }
 $("#noteSort").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(!c) return; state.noteSort=c.dataset.s; renderNotes(); });
 $("#noteMode").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; noteMode=b.dataset.m; document.querySelectorAll("#noteMode button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
   $("#nOpts").hidden=noteMode!=="poll"; $("#nText").placeholder=noteMode==="poll"?"Ask the group, e.g. Which night for the sunset cruise?":"Drop an idea, link, restaurant, question…"; });
@@ -1710,6 +1728,23 @@ document.addEventListener("click",e=>{ if(!$("#acctMenu").hidden&&!e.target.clos
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ setMenu(false); $("#sheet").hidden=true; } });
 $("#acctMenu").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b&&!["pwBtn","pwSave"].includes(b.id)) setMenu(false); });
 
+/* ---------- comments ---------- */
+const commentsOn=on=>state.comments.filter(c=>c.on===on).sort((a,b)=>(a.at||0)-(b.at||0));
+function thread(on,label){
+  const d=el("details",{class:"thread","data-k":"th-"+on}), sum=el("summary",{}), list=el("div",{class:"th-list"});
+  const draw=()=>{ const cs=commentsOn(on); sum.textContent=cs.length?"💬 "+cs.length+" comment"+(cs.length>1?"s":""):"💬 Comment"; list.innerHTML="";
+    cs.forEach(c=>{ const mine=c.who===actor();
+      list.append(el("div",{class:"th-c"+(mine?" mine":"")},av(c.who),el("div",{class:"th-b"},el("div",{class:"th-m"},el("b",{},tById(c.who)?tName(c.who):"Someone"),el("span",{class:"sub"},ago(c.at||0)),
+        (mine&&canWrite)?el("button",{class:"th-x",type:"button","aria-label":"Delete comment",onclick:()=>softDelete("comments",c,"comment")},"✕"):null),el("div",{class:"th-t"},c.text)))); }); };
+  d._refresh=draw; draw(); d.append(sum,list);
+  if (canWrite){ const inp=el("input",{placeholder:"Write a comment…",maxlength:"300","aria-label":"Comment on "+(label||"this")});
+    const f=el("form",{class:"th-f"},inp,el("button",{class:"btn sm",type:"submit"},"Send"));
+    f.addEventListener("submit",async e=>{ e.preventDefault(); const t=inp.value.trim(); if(!t) return; inp.value="";
+      if (!(await write(()=>db.collection("comments").add({on,text:t,who:actor(),at:Date.now()})))) inp.value=t; });
+    d.append(f); }
+  return d; }
+const cCount=on=>{ const n=commentsOn(on).length; return n?el("span",{class:"clip"},"💬 "+n):null; };
+
 /* ---------- trip mode ---------- */
 function tripBar(tid){ // one segment per stop, proportional to nights; past = filled, today = pulsing
   const ss=stopsOf(tid).filter(s=>s.start&&s.end); if(!ss.length) return null;
@@ -1834,7 +1869,7 @@ const pendingR=new Map();
 function typingIn(sel){ const c=document.querySelector(sel), a=document.activeElement; return !!(c&&a&&c.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
 function guard(sel,fn){ return function(){ if (typingIn(sel)){ pendingR.set(sel,fn); return; } pendingR.delete(sel); fn(); }; }
 document.addEventListener("focusout",()=>setTimeout(()=>{ for (const [sel,fn] of [...pendingR]) if(!typingIn(sel)){ pendingR.delete(sel); fn(); } },50));
-renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks);
+renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks); renderNotes=guard("#noteList",renderNotes);
 function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTimeline(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
   if (state.sel&&!state.stops.find(x=>x.id===state.sel)){ state.sel=null; $("#stopCard").hidden=true; }
   document.querySelectorAll("#taskForm input,#taskForm select,#taskForm button,#noteForm input,#noteForm button,#stopForm input,#stopForm select,#stopForm button").forEach(x=>x.disabled=!canWrite); }
@@ -2038,13 +2073,13 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
   const {data:{session}}=await SB.auth.getSession();
   if (!session&&!recovering) showLogin();
   function offlineBoot(){ let c=null; try{ c=JSON.parse(localStorage.getItem("cache:v1")||"null"); }catch(e){} if(!c) return false;
-      Object.assign(state,{stops:c.stops||[],tasks:c.tasks||[],notes:c.notes||[],expenses:c.expenses||[],travelers:c.travelers||[],packing:c.packing||[],avatars:c.avatars||{},activity:c.activity||[]}); if (c.settings) state.settings=c.settings; state.me=c.me||null;
+      Object.assign(state,{stops:c.stops||[],tasks:c.tasks||[],notes:c.notes||[],expenses:c.expenses||[],travelers:c.travelers||[],packing:c.packing||[],avatars:c.avatars||{},comments:c.comments||[],activity:c.activity||[]}); if (c.settings) state.settings=c.settings; state.me=c.me||null;
       canWrite=false; db=null; $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=c.email||"";
       if (!store.get("view")&&c.me) state.view=c.me;
       renderAll(); if (viewing()) fitTo(viewing());
       banner("You're offline, so this is your saved copy from "+new Date(c.savedAt).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})+". You can make changes again once you're back online.");
       addEventListener("online",()=>location.reload(),{once:true}); return true; }
-  function saveCache(){ clearTimeout(saveCache.t); saveCache.t=setTimeout(()=>{ try{ localStorage.setItem("cache:v1",JSON.stringify({savedAt:Date.now(),email:$("#acctEmail").textContent,me:state.me,stops:state.stops,tasks:state.tasks,notes:state.notes,expenses:state.expenses,travelers:state.travelers,packing:state.packing,avatars:state.avatars,activity:[...state.activity].sort((a,b)=>b.at-a.at).slice(0,40),settings:state.settings})); }catch(e){} },800); }
+  function saveCache(){ clearTimeout(saveCache.t); saveCache.t=setTimeout(()=>{ try{ localStorage.setItem("cache:v1",JSON.stringify({savedAt:Date.now(),email:$("#acctEmail").textContent,me:state.me,stops:state.stops,tasks:state.tasks,notes:state.notes,expenses:state.expenses,travelers:state.travelers,packing:state.packing,avatars:state.avatars,comments:state.comments.slice(-200),activity:[...state.activity].sort((a,b)=>b.at-a.at).slice(0,40),settings:state.settings})); }catch(e){} },800); }
   async function boot(){
     let user=null, netFail=false;
     try{ const r=await SB.auth.getUser(); user=r.data&&r.data.user; if (!user&&r.error&&(!navigator.onLine||/fetch|network|Load failed/i.test(r.error.message||""))) netFail=true; }catch(e){ netFail=true; }
@@ -2069,6 +2104,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     db.collection("notes").onSnapshot(s=>{ saveCache(); state.notes=s.docs.map(d=>({id:d.id,...d.data()})); renderNotes(); renderDash(); },onErr("ideas"));
     db.collection("expenses").onSnapshot(s=>{ saveCache(); state.expenses=s.docs.map(d=>({id:d.id,...d.data()})); renderBudget(); renderSplit(); renderDash(); },onErr("spending"));
     db.collection("packing").onSnapshot(s=>{ saveCache(); state.packing=s.docs.map(d=>({id:d.id,...d.data()})); renderPacking(); },onErr("packing"));
+    db.collection("comments").onSnapshot(s=>{ saveCache(); state.comments=s.docs.map(d=>({id:d.id,...d.data()})); renderTasks(); renderNotes(); document.querySelectorAll(".thread").forEach(t=>t._refresh&&t._refresh()); },()=>{});
     db.collection("activity").onSnapshot(s=>{ saveCache(); state.activity=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); },()=>{});
   }
 })();
