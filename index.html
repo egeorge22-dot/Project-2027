@@ -340,6 +340,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-b
       <label>Email<input type="email" id="lgEmail" autocomplete="email" required></label>
       <label>Password<input type="password" id="lgPass" autocomplete="current-password" minlength="8" required></label>
       <div class="row2"><button class="btn" type="submit" id="lgIn">Sign in</button><button class="btn ghost" type="button" id="lgUp">Create account</button></div>
+      <button class="btn ghost" type="button" id="lgKey" hidden>Sign in with Face ID</button>
       <button class="linkbtn" type="button" id="lgForgot">Forgot password?</button>
       <button class="btn ghost" type="button" id="lgOut" hidden>Sign out</button>
     </form>
@@ -356,7 +357,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-b
     <div class="stub"><div class="big num" id="cdBig">—</div><div class="lbl" id="cdLbl">days to go</div></div>
   </header>
 
-  <div class="viewas" style="margin-top:14px"><div class="viewas" id="viewas" role="group" aria-label="Whose view" style="margin-top:0"></div><div class="acct"><span id="acctEmail"></span><span id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password" style="background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;width:190px"> <button class="btn sm" id="pwSave" type="button">Save</button></span><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div>
+  <div class="viewas" style="margin-top:14px"><div class="viewas" id="viewas" role="group" aria-label="Whose view" style="margin-top:0"></div><div class="acct"><span id="acctEmail"></span><span id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password" style="background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;width:190px"> <button class="btn sm" id="pwSave" type="button">Save</button></span><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
@@ -1406,7 +1407,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
 (async()=>{
   if (!window.supabase||!CFG.SUPABASE_URL||!CFG.SUPABASE_KEY||/PASTE/.test(CFG.SUPABASE_URL+CFG.SUPABASE_KEY)){
     showLogin("This hub isn't connected to its database yet. Open config.js and paste in your Supabase URL and key (see README).",true); $("#loginForm").querySelectorAll("input,button").forEach(x=>x.disabled=true); return; }
-  SB=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  SB=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,experimental:{passkey:true}}});
   let started=false, recovering=false;
   $("#loginForm").addEventListener("submit",async e=>{ e.preventDefault(); if (recovering) return setNewPassword();
     loginBusy(true); const {error}=await SB.auth.signInWithPassword({email:$("#lgEmail").value.trim(),password:$("#lgPass").value}); loginBusy(false);
@@ -1423,6 +1424,27 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {error}=await SB.auth.updateUser({password:pw}); if (error) return showLogin(error.message,true); recovering=false; $("#lgIn").textContent="Sign in"; $("#lgUp").hidden=false; $("#lgForgot").hidden=false; location.hash=""; boot(); }
   $("#lgOut").addEventListener("click",()=>SB.auth.signOut());
   $("#signOut").addEventListener("click",()=>SB.auth.signOut());
+  const canKey=!!(window.PublicKeyCredential&&SB.auth&&typeof SB.auth.signInWithPasskey==="function");
+  const bioName=/iPhone|iPad|Macintosh/.test(navigator.userAgent)?"Face ID":"fingerprint";
+  const keyErr=e=>{ const c=(e&&(e.code||e.error_code))||"", m=String(e&&e.message||"");
+    if (/passkey_disabled/.test(c+m)) return "Face ID sign-in isn't switched on for the hub yet. Ask the organiser.";
+    if (/credential_not_found/.test(c+m)) return "This device doesn't have a "+bioName+" login for the hub yet. Sign in with your password, then tap “Turn on "+bioName+"”.";
+    if (/credential_exists/.test(c+m)) return bioName+" is already set up on this device.";
+    if (/NotAllowed|abort|cancel/i.test(c+m)) return "Cancelled.";
+    return "That didn't work ("+(c||m||"unknown error")+"). You can still sign in with your password."; };
+  if (canKey){ $("#lgKey").hidden=false; $("#lgKey").textContent="Sign in with "+bioName; $("#keyBtn").textContent="Turn on "+bioName; }
+  $("#lgKey").addEventListener("click",async()=>{ loginBusy(true); $("#lgKey").disabled=true;
+    try{ const {error}=await SB.auth.signInWithPasskey(); if (error) showLogin(keyErr(error),!/Cancelled/.test(keyErr(error))); }
+    catch(e){ showLogin(keyErr(e),!/Cancelled/.test(keyErr(e))); }
+    loginBusy(false); $("#lgKey").disabled=false; });
+  $("#keyBtn").addEventListener("click",async()=>{ const b=$("#keyBtn"); b.disabled=true;
+    try{ const {error}=await SB.auth.registerPasskey(); if (error) toast(keyErr(error)); else { store.set("hasKey","1"); b.hidden=true; toast(bioName+" is on. Next time, tap “Sign in with "+bioName+"”."); } }
+    catch(e){ toast(keyErr(e)); }
+    b.disabled=false; });
+  async function checkKey(){ if (!canKey) return; let has=store.get("hasKey")==="1";
+    try{ const r=await SB.auth.passkey.list(); if (r&&!r.error&&Array.isArray(r.data)){ has=r.data.length>0; store.set("hasKey",has?"1":""); } }catch(e){}
+    $("#keyBtn").hidden=has;
+    if (!has&&matchMedia("(display-mode: standalone)").matches&&!store.get("keyAsked")){ store.set("keyAsked","1"); toast("Tip: tap “Turn on "+bioName+"” at the top to skip your password next time.",{ms:9000}); } }
   $("#pwBtn").addEventListener("click",()=>{ $("#pwBox").hidden=!$("#pwBox").hidden; if(!$("#pwBox").hidden) $("#pwNew").focus(); });
   $("#pwSave").addEventListener("click",async()=>{ const pw=$("#pwNew").value; if (pw.length<8){ banner("Choose a password of at least 8 characters."); return; }
     const {error}=await SB.auth.updateUser({password:pw}); if (error) banner("Couldn't change your password: "+error.message); else { $("#pwNew").value=""; $("#pwBox").hidden=true; banner("Password changed."); } });
@@ -1449,7 +1471,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {data:mine,error}=await SB.rpc("my_traveler");
     if (error&&/fetch|network|Load failed/i.test(error.message||"")&&offlineBoot()) return;
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
-    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email;
+    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey();
     if (CAME_FROM_LINK){ $("#pwBox").hidden=false; banner("Welcome! Choose a password next to your email (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
     myId=user.id; canWrite=true; userNs=null; state.me=mine;
     const be=makeBackend(SB); db=be.db; assets=be.files;
