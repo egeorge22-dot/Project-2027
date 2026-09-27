@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16202B">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Euro '27">
 <title>Euro Summer '27</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -279,6 +284,50 @@ img{max-width:100%}
 .linkbtn{background:none;border:0;color:var(--sea);cursor:pointer;padding:0;font-size:13px;text-decoration:underline;justify-self:start}
 .acct{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3)}
 .copybox{width:100%;min-height:90px;background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:10px}
+kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;margin-left:4px;color:var(--ink-3)}
+.toasts{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:grid;gap:8px;z-index:60;width:max-content;max-width:92vw}
+.toast{background:var(--ink);color:var(--ground);border-radius:10px;padding:10px 14px;display:flex;gap:14px;align-items:center;justify-content:space-between;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.toast-btn{background:none;border:0;color:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;font-size:14px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+.overlay{position:fixed;inset:0;background:rgba(10,15,20,.5);z-index:55;display:flex;align-items:flex-start;justify-content:center;padding:10vh 16px 16px}
+.search-card,.dialog{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:min(640px,100%);max-height:78vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+#sq{border:0;border-bottom:1px solid var(--line);padding:16px;font-size:17px;background:var(--panel);outline:none;width:100%}
+#sres{overflow-y:auto;padding:6px}
+.sr{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14.5px;color:var(--ink)}
+.sr.on,.sr:hover{background:var(--line-2)}
+.sk{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.dialog .body{padding:18px 20px;display:grid;gap:12px;overflow-y:auto}
+.dialog ol{margin:4px 0 0;padding-left:20px;display:grid;gap:3px;color:var(--ink-2)}
+.act{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line-2);font-size:14px}
+.h2 + .act{border-top:0}
+.ready{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.ready-n{font-family:var(--display);font-weight:800;font-size:40px;line-height:1}
+.owe{display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line-2);font-size:14.5px}
+.bal{position:relative;height:10px;background:var(--line-2);border-radius:99px}
+.bal b{position:absolute;top:0;height:100%;border-radius:99px}
+.bal::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-3)}
+.pcat{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 2px}
+.prow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line-2);font-size:14.5px}
+.prow.done .pt{text-decoration:line-through;color:var(--ink-3)}
+.mini{background:none;border:1px dashed var(--line);border-radius:6px;font-size:12px;padding:2px 4px;color:var(--ink-2);max-width:150px}
+.chip.sug{border-color:var(--ok);color:var(--ok)}
+.chip .tag{font-family:var(--mono);font-size:10px;background:var(--ok-soft);color:var(--ok);border-radius:99px;padding:1px 6px;margin-left:6px}
+.chip:disabled{opacity:.5;cursor:default}
+.heart{background:none;border:1px solid var(--line);border-radius:99px;padding:2px 10px;cursor:pointer;color:var(--ink-3);font-size:13px;min-width:38px}
+.heart.on{background:var(--red-soft);color:var(--red);border-color:transparent}
+.heart:disabled{cursor:default}
+.voters{display:flex;gap:3px;flex-wrap:wrap}
+.poll{display:grid;gap:6px}
+.popt{position:relative;display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);cursor:pointer;overflow:hidden;text-align:left;color:var(--ink);font-size:14px;width:100%}
+.popt.mine{border-color:var(--c,var(--sea));border-width:2px}
+.popt .pbar{position:absolute;left:0;top:0;bottom:0;background:var(--sea-soft);z-index:0}
+.popt .pl,.popt .pv{position:relative;z-index:1}
+.popt .pv{display:flex;gap:3px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.wx{font-size:13px;color:var(--sea);background:var(--sea-soft);border-radius:8px;padding:6px 10px}
+.cv-out{display:flex;gap:16px;flex-wrap:wrap;font-size:15px}
+.bk.flash{outline:3px solid var(--vc,var(--t0));outline-offset:2px}
+@media (max-width:620px){.acct{margin-left:0;width:100%}}
+
 </style>
 </head>
 <body>
@@ -307,14 +356,16 @@ img{max-width:100%}
     <div class="stub"><div class="big num" id="cdBig">—</div><div class="lbl" id="cdLbl">days to go</div></div>
   </header>
 
-  <div class="viewas" style="margin-top:14px"><div class="viewas" id="viewas" role="group" aria-label="Whose view" style="margin-top:0"></div><div class="acct"><span id="acctEmail"></span><span id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password" style="background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;width:190px"> <button class="btn sm" id="pwSave" type="button">Save</button></span><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div>
+  <div class="viewas" style="margin-top:14px"><div class="viewas" id="viewas" role="group" aria-label="Whose view" style="margin-top:0"></div><div class="acct"><span id="acctEmail"></span><span id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password" style="background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;width:190px"> <button class="btn sm" id="pwSave" type="button">Save</button></span><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
     <button class="tab" role="tab" data-tab="map" aria-selected="false">Map</button>
     <button class="tab" role="tab" data-tab="bookings" aria-selected="false">Bookings<span class="badge" id="bkBadge">0</span></button>
     <button class="tab" role="tab" data-tab="budget" aria-selected="false">Budget</button>
+    <button class="tab" role="tab" data-tab="split" aria-selected="false">Split costs</button>
     <button class="tab" role="tab" data-tab="trips" aria-selected="false">Itinerary</button>
+    <button class="tab" role="tab" data-tab="packing" aria-selected="false">Packing</button>
     <button class="tab" role="tab" data-tab="notes" aria-selected="false">Ideas</button>
     <button class="tab" role="tab" data-tab="ask" aria-selected="false">Ask AI</button>
   </div>
@@ -380,13 +431,18 @@ img{max-width:100%}
   </section>
 
   <section class="panel" data-panel="budget" hidden><div id="budget"></div></section>
+  <section class="panel" data-panel="split" hidden><div id="split"></div></section>
   <section class="panel" data-panel="trips" hidden><div id="trips"></div></section>
+  <section class="panel" data-panel="packing" hidden><div id="packing"></div></section>
 
   <section class="panel" data-panel="notes" hidden>
     <form class="form" id="noteForm">
-      <input id="nText" class="grow" placeholder="Drop an idea, link, restaurant, question…" maxlength="400" aria-label="Idea" required>
+      <div class="seg" id="noteMode"><button type="button" data-m="idea" aria-pressed="true">Idea</button><button type="button" data-m="poll" aria-pressed="false">Poll</button></div>
+      <input id="nText" class="grow" placeholder="Drop an idea, link, restaurant, question…" maxlength="400" aria-label="Idea or poll question" required>
+      <input id="nOpts" class="grow" placeholder="Options, separated by commas (e.g. Tue, Wed, Thu)" maxlength="400" aria-label="Poll options" hidden>
       <button class="btn" type="submit">Post</button>
     </form>
+    <div class="filters" id="noteSort"><button class="chip" data-s="new" aria-pressed="true">Newest</button><button class="chip" data-s="love" aria-pressed="false">Most loved</button></div>
     <div class="notes" id="noteList"></div>
   </section>
 
@@ -402,6 +458,16 @@ img{max-width:100%}
   </section>
   <input type="file" id="fileIn" accept="image/png,image/jpeg,image/gif,image/webp,application/pdf,text/plain,text/csv" hidden>
 </div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div class="overlay" id="search" hidden><div class="search-card" role="dialog" aria-modal="true" aria-label="Search the hub"><input id="sq" type="search" placeholder="Search stops, bookings, ideas, people…" autocomplete="off" aria-label="Search"><div id="sres"></div><div class="sub" style="padding:8px 14px;border-top:1px solid var(--line)">↑ ↓ to move · Enter to open · Esc to close · press / anywhere to search</div></div></div>
+<div class="overlay" id="install" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="installT"><div class="body">
+  <div class="h2" id="installT" style="margin:0">Put the hub on your phone</div>
+  <p class="sub" style="margin:0">It opens full-screen like an app, and your itinerary and bookings stay readable with no signal. Attached tickets still need a connection, so also save those to your phone.</p>
+  <div><b>iPhone (Safari)</b><ol><li>Open this page in Safari.</li><li>Tap the Share button.</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol></div>
+  <div><b>Android (Chrome)</b><ol><li>Tap the ⋮ menu, top right.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol></div>
+  <div style="display:flex;gap:8px"><button class="btn" id="installNow" type="button" hidden>Install now</button><button class="btn ghost" id="installClose" type="button">Close</button></div>
+</div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
@@ -556,7 +622,7 @@ Bucharest|Romania|44.4268|26.1025|HU`.split("\n").map(l=>{ const [name,country,l
 
 const GAZBY=Object.fromEntries(GAZ.map(g=>[g.name.toLowerCase(),g]));
 
-let state={ travelers:[], stops:[], tasks:[], notes:[], expenses:[], settings:{eurAud:1.622},
+let state={ travelers:[], stops:[], tasks:[], notes:[], expenses:[], packing:[], activity:[], me:null, noteSort:"new", settings:{eurAud:1.622},
   view:store.get("view")||"all", hidden:new Set(JSON.parse(store.get("hidden")||"[]")), sel:null,
   tier:store.get("tier")||"h", cur:store.get("cur")||"AUD", taskFilter:"open" };
 let db=null, assets=null, userNs=null, myId=null, canWrite=true, uploadingFor=null;
@@ -694,7 +760,7 @@ function selectStop(id){
     card.append(el("div",{class:"two",style:"margin-top:10px"},el("label",{class:"sub"},"Arrive",inS),el("label",{class:"sub"},"Leave",inE)),
       el("div",{style:"display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"},
         el("button",{class:"btn sm",onclick:()=>{ if(inS.value&&inE.value&&inS.value<inE.value) write(()=>db.doc("stops/"+s.id).update({start:inS.value,end:inE.value})); }},"Save dates"),
-        el("button",{class:"btn ghost sm",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c){ write(()=>db.doc("stops/"+s.id).delete()); state.sel=null; card.hidden=true; } else { b.dataset.c="1"; b.textContent="Tap again to delete"; b.className="btn danger sm"; } }},"Delete stop"),
+        el("button",{class:"btn ghost sm",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c){ softDelete("stops",s,s.place); state.sel=null; card.hidden=true; } else { b.dataset.c="1"; b.textContent="Tap again to delete"; b.className="btn danger sm"; } }},"Delete stop"),
         el("button",{class:"btn ghost sm",onclick:()=>{ state.sel=null; card.hidden=true; renderPins(); }},"Close"))); }
   renderPins();
 }
@@ -705,6 +771,7 @@ $("#stopForm").addEventListener("submit",async e=>{ e.preventDefault();
   const g=GAZBY[place.toLowerCase()], loc=g?{lat:g.lat,lng:g.lng}:picked; if (!loc){ $("#sfGeo").textContent="Pick a place from the list or drop a pin first."; return; }
   const r=REG[g?.reg||"DEF"];
   if (await write(()=>db.collection("stops").add({traveler:who,place,country:g?.country||"",lat:loc.lat,lng:loc.lng,start:a,end:b,note:$("#sfNote").value.trim(),stay:{h:r[0],p:r[1]},food:{h:r[2],p:r[3]},local:r[4],fun:{h:12,p:20},events:[],hop:{name:"",cost:0},createdAt:Date.now()}))){
+    logAct("added "+place+" to "+(who===actor()?"their":tName(who)+"'s")+" route ("+fmt(a)+"–"+fmt(b)+")");
     picked=null; $("#sfPlace").value=""; $("#sfNote").value=""; $("#sfStart").value=b; const nb=D(b); nb.setDate(nb.getDate()+3); $("#sfEnd").value=iso(nb); $("#sfGeo").textContent="Added. Next stop's dates are pre-filled."; } });
 
 /* ---------- budget math ---------- */
@@ -716,7 +783,7 @@ function travelerBudget(tid,tier){ const sum={n:0,stay:0,food:0,local:0,fun:0,ev
   const extraFl=state.tasks.filter(x=>x.kind==="flight"&&x.owner===tid&&!x.link).reduce((a,x)=>a+num(x.paid!=null&&x.paid!==""?x.paid:x.est),0);
   const fixed=(tById(tid)?.fixed||[]).reduce((a,f)=>a+num(f.cost),0)+extraFl, ground=sum.stay+sum.food+sum.local+sum.fun+sum.events+sum.hop, buffer=Math.round(ground*.1);
   return {...sum,fixed,buffer,ground,total:ground+fixed+buffer}; }
-const spentBy=tid=>state.expenses.filter(e=>(e.who||"me")===tid).reduce((a,e)=>a+num(e.amount),0);
+const spentBy=tid=>state.expenses.reduce((a,e)=>{ if (e.shared) return a+(Array.isArray(e.split)&&e.split.includes(tid)?num(e.amount)/e.split.length:0); if (e.kind==="settle") return a; return a+((e.who||"me")===tid?num(e.amount):0); },0);
 const tasksFor=tid=>state.tasks.filter(t=>!tid||t.owner===tid||!t.owner);
 
 /* ---------- dashboard ---------- */
@@ -748,8 +815,10 @@ function renderDash(){
         el("span",{class:"ln"},nowS?"Now in "+nowS.place:(nxt?"Next: "+nxt.place+" · "+fmt(nxt.start):"")),
         el("span",{class:"ln"},ss.length?`Budget ≈ ${money(b.total)} · ${op} to book`:"Open to add stops"))); }
     left.append(el("div",{class:"box"},el("div",{class:"h2"},"The crew"),el("p",{class:"sub",style:"margin-top:0"},"Tap someone to open their dashboard."),cards));
+    left.append(activityBox(8));
     const d=today(), td=iso(d)>="2027-07-01"&&iso(d)<="2027-09-30"?d:D(firsts[0]?.start||"2027-07-15");
     const where=el("div"); for (const t of state.travelers){ const s=locOn(t.id,td); where.append(el("div",{class:"wrow"},el("span",{class:"dotc",style:"--c:"+tColor(t.id)}),el("span",{},el("b",{},t.name)," · ",s?s.place:"—"),el("span"))); }
+    right.append(readinessBox(state.tasks,"Trip readiness"));
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Where everyone is · "+fmtW(td)),where,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("map")},"Open the map")));
     const ms=meetups(); right.append(el("div",{class:"box"},el("div",{class:"h2"},"Meet-ups"),ms.length?el("div",{},ms.slice(0,8).map(m=>el("div",{class:"meet"},`${tName(m.a)} + ${tName(m.b)} · ${m.place} · ${fmt(m.s)}–${fmt(m.e)}`))):el("div",{class:"sub"},"As friends add stops, overlaps show up here.")));
     const tot=state.travelers.reduce((a,t)=>a+(stopsOf(t.id).length?travelerBudget(t.id,state.tier).total:0),0);
@@ -767,8 +836,9 @@ function renderDash(){
   const left=el("div",{class:"stack"}), right=el("div",{class:"stack"});
   if (nxt){ const n=nightsOf(nxt); left.append(el("div",{class:"box"},el("div",{class:"h2"},cur?"You're in":"Next up"),
     el("div",{class:"next",style:"--c:"+tColor(v)},el("h3",{},nxt.place),el("div",{class:"sub num"},fmtW(D(nxt.start))+" – "+fmtW(D(nxt.end))+" · "+n+" nights"),
-      nxt.hop?.name?el("div",{class:"sub"},"Getting there: "+nxt.hop.name):null,(nxt.events||[]).length?el("div",{class:"sub"},"Planned: "+nxt.events.map(e=>e.name).join(", ")):null,nxt.note?el("div",{},nxt.note):null))); }
+      nxt.hop?.name?el("div",{class:"sub"},"Getting there: "+nxt.hop.name):null,(nxt.events||[]).length?el("div",{class:"sub"},"Planned: "+nxt.events.map(e=>e.name).join(", ")):null,nxt.note?el("div",{},nxt.note):null,wxLine(nxt)))); }
   else left.append(el("div",{class:"box"},el("div",{class:"h2"},"Start your route"),el("p",{class:"sub"},"Add your stops on the Map tab. Your budget, itinerary and countdown build themselves from them."),el("button",{class:"btn",onclick:()=>{ showTab("map"); $("#sfWho").value=v; }},"Add my first stop")));
+  left.append(readinessBox(mine,"Your readiness"));
   left.append(el("div",{class:"box"},el("div",{class:"h2"},"Your bookings"),attentionList(tasksFor(v),6),el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("bookings")},"Manage bookings + files")));
   if (ss.length){ const tl=el("div",{class:"tl"}); const ti=iso(today());
     const fl=(t.fixed||[]).filter(f=>/flight/i.test(f.name));
@@ -777,7 +847,7 @@ function renderDash(){
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Flights & transport"),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget"))); }
   if (ss.length){ const tl=el("div",{class:"tl"}); const ti=iso(today());
     ss.forEach(s=>tl.append(el("div",{class:"it"+(s.start<=ti&&ti<s.end?" now":"")},el("span",{class:"d"},fmt(s.start)),el("span",{},s.place),el("span",{class:"muted num",style:"font-size:12px"},nightsOf(s)+"n"))));
-    right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("trips")},"Full itinerary"))); }
+    right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),tl,el("div",{style:"display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"},el("button",{class:"btn ghost sm",onclick:()=>showTab("trips")},"Full itinerary"),el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add to my calendar")))); }
   const sp=spentBy(v), pct=b.total?Math.min(100,sp/b.total*100):0;
   right.append(el("div",{class:"box"},el("div",{class:"h2"},"Spending"),el("div",{class:"sub num"},money(sp)+" logged of "+money(b.total)),el("div",{class:"meter"},el("b",{style:"width:"+pct.toFixed(1)+"%"})),el("button",{class:"btn ghost sm",style:"margin-top:6px",onclick:()=>showTab("budget")},"Open budget")));
   const ms=meetups(v); if (ms.length) right.append(el("div",{class:"box"},el("div",{class:"h2"},"Crossing paths"),ms.slice(0,5).map(m=>el("div",{class:"meet"},`${tName(m.a===v?m.b:m.a)} · ${m.place} · ${fmt(m.s)}–${fmt(m.e)}`))));
@@ -803,7 +873,7 @@ function renderTasks(){
   const box=$("#taskList"); box.innerHTML="";
   if (!list.length) box.append(el("div",{class:"empty"},f==="done"?"Nothing booked yet.":"Nothing waiting. Add a booking above."));
   for (const t of list){ const di=dueInfo(t), done=t.status==="done";
-    const setStatus=st=>write(()=>db.doc("tasks/"+t.id).update({status:st}));
+    const setStatus=st=>markStatus(t,st);
     const stBtns=el("div",{class:"status",role:"group","aria-label":"Booking status"},
       el("button",{class:"nb","aria-pressed":String(!done),disabled:!canWrite||null,onclick:()=>!done||setStatus("open")},"Not booked"),
       el("button",{class:"bd","aria-pressed":String(done),disabled:!canWrite||null,onclick:()=>done||setStatus("done")},"Booked ✓"));
@@ -814,8 +884,8 @@ function renderTasks(){
     const files=el("div",{class:"files"}); (t.files||[]).forEach(fl=>files.append(fileChip(fl,t)));
     if (assets&&canWrite) files.append(el("button",{class:"btn ghost sm attach",id:"att-"+t.id,"data-att":t.id,onclick:()=>{ uploadingFor=t; $("#fileIn").value=""; $("#fileIn").click(); }},"Attach file"));
     else if (!(t.files||[]).length) files.append(el("span",{class:"muted",style:"font-size:12.5px"},""));
-    const del=canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+t.title,onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) write(()=>db.doc("tasks/"+t.id).delete()); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
-    box.append(el("div",{class:"bk"+(done?" done":""),style:"--c:"+(t.owner&&tById(t.owner)?tColor(t.owner):"var(--line)")},
+    const del=canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+t.title,onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) softDelete("tasks",t,t.title); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
+    box.append(el("div",{class:"bk"+(done?" done":""),id:"bk-"+t.id,style:"--c:"+(t.owner&&tById(t.owner)?tColor(t.owner):"var(--line)")},
       el("div",{class:"bk-top"},el("div",{},el("div",{class:"bk-t"},t.title),el("div",{class:"bk-meta"},el("span",{class:"pill "+di.cls},di.txt),el("span",{class:"who"},el("span",{class:"dotc",style:"--c:"+(tById(t.owner)?tColor(t.owner):"var(--ink-3)")}),owner),el("span",{class:"who"},"by ",due),del)),stBtns),
       ref,files)); }
 }
@@ -829,7 +899,7 @@ $("#fileIn").addEventListener("change",async()=>{ const f=$("#fileIn").files[0],
     banner(why); btns.forEach(b=>{ b.disabled=false; b.textContent=b.dataset.label||"Attach file"; }); }
   uploadingFor=null; });
 $("#taskForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=$("#tTitle").value.trim(); if(!t) return;
-  if (await write(()=>db.collection("tasks").add({title:t,due:$("#tDue").value||"",status:"open",owner:$("#tWho").value,files:[],ref:"",createdAt:Date.now()}))){ $("#tTitle").value=""; $("#tDue").value=""; } });
+  if (await write(()=>db.collection("tasks").add({title:t,due:$("#tDue").value||"",status:"open",owner:$("#tWho").value,files:[],ref:"",createdAt:Date.now()}))){ logAct("added a booking: "+t); $("#tTitle").value=""; $("#tDue").value=""; } });
 $("#taskFilters").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(!c) return; state.taskFilter=c.dataset.f; document.querySelectorAll("#taskFilters .chip").forEach(x=>x.setAttribute("aria-pressed",String(x===c))); renderTasks(); });
 
 /* ---------- flights ---------- */
@@ -875,7 +945,7 @@ async function savePaid(t,valCur){
 }
 function flightCard(t,v){
   const col=tColor(v), done=t.status==="done", bs=buyState(t);
-  const setStatus=st=>write(()=>db.doc("tasks/"+t.id).update({status:st}));
+  const setStatus=st=>markStatus(t,st);
   const stBtns=el("div",{class:"status",role:"group","aria-label":"Flight status"},
     el("button",{class:"nb","aria-pressed":String(!done),disabled:!canWrite||null,onclick:()=>!done||setStatus("open")},"Not booked"),
     el("button",{class:"bd","aria-pressed":String(done),disabled:!canWrite||null,onclick:()=>done||setStatus("done")},"Booked ✓"));
@@ -894,7 +964,7 @@ function flightCard(t,v){
   const files=el("div",{class:"files"}); (t.files||[]).forEach(fl=>files.append(fileChip(fl,t)));
   if (assets&&canWrite) files.append(el("button",{class:"btn ghost sm attach","data-att":t.id,"data-label":"Attach ticket",onclick:()=>{ uploadingFor=t; $("#fileIn").value=""; $("#fileIn").click(); }},"Attach ticket"));
   const links=el("div",{class:"slinks"},(t.legs||[]).map(searchLinks));
-  const del=(canWrite&&!t.link)?el("button",{class:"iconbtn","aria-label":"Delete flight",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) write(()=>db.doc("tasks/"+t.id).delete()); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
+  const del=(canWrite&&!t.link)?el("button",{class:"iconbtn","aria-label":"Delete flight",onclick:e=>{ const b=e.currentTarget; if(b.dataset.c) softDelete("tasks",t,t.title); else { b.dataset.c="1"; b.textContent="Delete?"; b.style.color="var(--red)"; } }},"✕"):null;
   return el("div",{class:"fl"+(done?" done":""),style:"--c:"+col},
     el("div",{class:"fl-top"},el("div",{},el("div",{class:"bk-t"},t.title),legs,el("div",{class:"bk-meta"},bs?el("span",{class:"pill "+bs.cls},bs.txt):null,del)),stBtns),
     el("div",{class:"fl-grid"},left,right),price,links,ref,files);
@@ -924,7 +994,7 @@ function toggles(){ const tier=el("div",{class:"seg"},["h","p"].map(x=>el("butto
   const cur=el("div",{class:"seg"},["AUD","EUR"].map(x=>el("button",{"aria-pressed":String(state.cur===x),onclick:()=>{ state.cur=x; store.set("cur",x); renderAll(); }},x)));
   return el("div",{class:"form"},tier,cur,el("span",{class:"sub"},"€1 = A$"+num(state.settings.eurAud).toFixed(3)+" (ECB, 25 Sep 2026)")); }
 function renderBudget(){
-  const box=$("#budget"); box.innerHTML=""; box.append(toggles()); const v=viewing();
+  const box=$("#budget"); box.innerHTML=""; box.append(toggles()); box.append(converterBox()); const v=viewing();
   if (!v){ const tb=el("tbody");
     for (const t of state.travelers){ const ss=stopsOf(t.id), bh=travelerBudget(t.id,"h"), bp=travelerBudget(t.id,"p");
       tb.append(el("tr",{class:"click",onclick:()=>setView(t.id)},el("td",{},el("span",{class:"who",style:"font-size:14px;color:var(--ink)"},el("span",{class:"dotc",style:"--c:"+tColor(t.id)}),t.name)),
@@ -965,7 +1035,7 @@ function renderBudget(){
   const eForm=el("form",{class:"form"},eW,eA,el("button",{class:"btn",type:"submit"},"Log")); eForm.addEventListener("submit",e=>{ e.preventDefault(); const w=eW.value.trim(), a=parseFloat(eA.value); if(w&&a>=0) write(()=>db.collection("expenses").add({what:w,amount:Math.round(a*100)/100,who:v,at:Date.now()})); });
   const xl=el("div"); const ex=state.expenses.filter(e=>(e.who||"me")===v).sort((a,b)=>(b.at||0)-(a.at||0));
   if (!ex.length) xl.append(el("div",{class:"muted",style:"font-size:13px"},"Log deposits and bookings as you pay them."));
-  ex.slice(0,12).forEach(e=>xl.append(el("div",{class:"wrow",style:"grid-template-columns:1fr auto auto"},el("span",{},e.what),el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>write(()=>db.doc("expenses/"+e.id).delete())},"✕"):el("span"))));
+  ex.slice(0,12).forEach(e=>xl.append(el("div",{class:"wrow",style:"grid-template-columns:1fr auto auto"},el("span",{},e.what),el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>softDelete("expenses",e,e.what)},"✕"):el("span"))));
   if (!canWrite){ fForm.hidden=true; eForm.hidden=true; }
   box.append(el("div",{class:"grid2"},left,el("div",{class:"stack"},el("div",{class:"box"},el("div",{class:"h2"},"Where the money goes"),bars),el("div",{class:"box"},el("div",{class:"h2"},"Flights & fixed costs"),fl,fForm),el("div",{class:"box"},el("div",{class:"h2"},"Log real spending"),eForm,xl))));
 }
@@ -974,6 +1044,7 @@ function saveTraveler(tid,patch){ const list=state.travelers.map(t=>t.id===tid?{
 /* ---------- itinerary ---------- */
 function renderTrips(){
   const box=$("#trips"); box.innerHTML=""; const v=viewing();
+  if (v&&stopsOf(v).length) box.append(el("div",{class:"form"},el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add "+(v===state.me?"my":tName(v)+"'s")+" trip to a calendar"),el("span",{class:"sub"},"Downloads a calendar file with every stop, flight and booking deadline. Open each stop to see the weather.")));
   const who=v?[tById(v)]:state.travelers;
   for (const t of who){ const ss=stopsOf(t.id), col=tColor(t.id);
     if (!v) box.append(el("div",{class:"person-h"},el("span",{class:"dotc",style:"--c:"+col}),t.name,el("span",{class:"sub",style:"font-weight:400"},ss.length?`${ss.length} stops · ${fmt(ss[0].start)} – ${fmt(ss[ss.length-1].end)}`:"no stops yet")));
@@ -986,14 +1057,245 @@ function renderTrips(){
       if ((s.events||[]).length) body.append(el("div",{class:"sub"},"In the budget: "+s.events.map(e=>e.name+" €"+num(e.cost)).join(" · ")));
       body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")));
       const n=nightsOf(s);
-      box.append(el("details",{class:"leg",style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body)); }); }
+      const det=el("details",{class:"leg",style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); box.append(det); }); }
 }
 
-/* ---------- notes ---------- */
-function renderNotes(){ const box=$("#noteList"); box.innerHTML=""; const ns=[...state.notes].sort((a,b)=>(b.at||0)-(a.at||0));
-  if (!ns.length) box.append(el("div",{class:"empty"},"No ideas yet. Post the first one."));
-  for (const n of ns) box.append(el("div",{class:"note",style:tById(n.who)?"--c:"+tColor(n.who):""},el("p",{},n.text),el("div",{class:"nf"},el("span",{},n.who==="claude"?"Claude":(tById(n.who)?.name||"Someone")),canWrite?el("button",{class:"iconbtn","aria-label":"Delete idea",onclick:()=>write(()=>db.doc("notes/"+n.id).delete())},"✕"):el("span")))); }
-$("#noteForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=$("#nText").value.trim(); if(!t) return; if (await write(()=>db.collection("notes").add({text:t,who:viewing()||"",at:Date.now()}))) $("#nText").value=""; });
+/* ---------- notes (ideas, hearts, polls) ---------- */
+let noteMode="idea";
+function renderNotes(){ const box=$("#noteList"); box.innerHTML=""; const me=actor();
+  const sortBy=state.noteSort||"new";
+  const ns=[...state.notes].sort((a,b)=>sortBy==="love"?((b.votes||[]).length+(b.options||[]).reduce((x,o)=>x+(o.votes||[]).length,0))-((a.votes||[]).length+(a.options||[]).reduce((x,o)=>x+(o.votes||[]).length,0))||(b.at||0)-(a.at||0):(b.at||0)-(a.at||0));
+  document.querySelectorAll("#noteSort .chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.s===sortBy)));
+  if (!ns.length) box.append(el("div",{class:"empty"},"No ideas yet. Post the first one, or start a poll."));
+  for (const n of ns){ const who=n.who==="claude"?"Claude":(tById(n.who)?.name||"Someone");
+    const del=canWrite?el("button",{class:"iconbtn","aria-label":"Delete",onclick:()=>softDelete("notes",n,n.type==="poll"?"poll":"idea")},"✕"):el("span");
+    if (n.type==="poll"){ const opts=n.options||[], total=opts.reduce((a,o)=>a+(o.votes||[]).length,0);
+      const list=el("div",{class:"poll"}); opts.forEach((o,i)=>{ const c=(o.votes||[]).length, pct=total?Math.round(c/total*100):0, mine=(o.votes||[]).includes(me);
+        list.append(el("button",{class:"popt"+(mine?" mine":""),type:"button",disabled:!canWrite||!me||null,onclick:()=>{ const next=opts.map((x,j)=>({t:x.t,votes:(x.votes||[]).filter(v=>v!==me).concat(j===i&&!mine?[me]:[])})); write(()=>db.doc("notes/"+n.id).update({options:next})); }},
+          el("span",{class:"pbar",style:"width:"+pct+"%"}),el("span",{class:"pl"},o.t),el("span",{class:"pv num"},(o.votes||[]).map(v=>el("span",{class:"dotc",title:tName(v),style:"--c:"+tColor(v)})),c?" "+pct+"%":""))); });
+      box.append(el("div",{class:"note poll-card",style:tById(n.who)?"--c:"+tColor(n.who):""},el("div",{class:"sk",style:"justify-self:start"},"Poll"),el("p",{style:"font-weight:600"},n.text),list,
+        el("div",{class:"nf"},el("span",{},who+" · "+total+" vote"+(total===1?"":"s")+(me?"":" · pick who you are to vote")),del))); continue; }
+    const votes=n.votes||[], loved=votes.includes(me);
+    const heart=el("button",{class:"heart"+(loved?" on":""),type:"button","aria-pressed":String(loved),"aria-label":(loved?"Unlike":"Like")+" this idea",disabled:!canWrite||!me||null,
+      onclick:()=>write(()=>db.doc("notes/"+n.id).update({votes:loved?votes.filter(v=>v!==me):votes.concat([me])}))},"♥ "+(votes.length||""));
+    box.append(el("div",{class:"note",style:tById(n.who)?"--c:"+tColor(n.who):""},el("p",{},n.text),
+      votes.length?el("div",{class:"voters"},votes.map(v=>el("span",{class:"dotc",title:tName(v),style:"--c:"+tColor(v)}))):null,
+      el("div",{class:"nf"},el("span",{},who+" · "+ago(n.at||0)),el("span",{style:"display:flex;gap:4px;align-items:center"},heart,del)))); } }
+$("#noteSort").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(!c) return; state.noteSort=c.dataset.s; renderNotes(); });
+$("#noteMode").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; noteMode=b.dataset.m; document.querySelectorAll("#noteMode button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  $("#nOpts").hidden=noteMode!=="poll"; $("#nText").placeholder=noteMode==="poll"?"Ask the group, e.g. Which night for the sunset cruise?":"Drop an idea, link, restaurant, question…"; });
+$("#noteForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=$("#nText").value.trim(); if(!t) return;
+  if (noteMode==="poll"){ const opts=$("#nOpts").value.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,8);
+    if (opts.length<2){ toast("Add at least two options, separated by commas."); return; }
+    if (await write(()=>db.collection("notes").add({type:"poll",text:t,options:opts.map(o=>({t:o.slice(0,60),votes:[]})),who:actor(),at:Date.now()}))){ logAct("started a poll: "+t); $("#nText").value=""; $("#nOpts").value=""; } return; }
+  if (await write(()=>db.collection("notes").add({text:t,who:actor(),votes:[],at:Date.now()}))){ logAct("posted an idea: "+t); $("#nText").value=""; } });
+
+/* ---------- toasts, undo, activity ---------- */
+function toast(msg,opts={}){ const box=$("#toasts"); if(!box) return; const t=el("div",{class:"toast",role:"status"},el("span",{},msg));
+  if (opts.undo) t.append(el("button",{class:"toast-btn",type:"button",onclick:()=>{ opts.undo(); t.remove(); }},"Undo"));
+  box.append(t); while (box.children.length>3) box.firstChild.remove(); setTimeout(()=>t.remove(),opts.ms||6500); }
+async function softDelete(col,obj,label){ const {id,...data}=obj; if (await write(()=>db.doc(col+"/"+id).delete())) toast("Deleted "+label,{undo:()=>write(()=>db.doc(col+"/"+id).set(data)).then(ok=>ok&&toast("Restored"))}); }
+const actor=()=>state.me||viewing()||"";
+function logAct(text){ if(!db||!canWrite) return; db.collection("activity").add({who:actor(),text:String(text).slice(0,160),at:Date.now()}).catch(()=>{});
+  const old=[...state.activity].sort((a,b)=>a.at-b.at); if (old.length>200) old.slice(0,old.length-200).forEach(a=>db.doc("activity/"+a.id).delete().catch(()=>{})); }
+function ago(ms){ const s=(Date.now()-ms)/1000; if(s<60) return "just now"; if(s<3600) return Math.floor(s/60)+"m ago"; if(s<86400) return Math.floor(s/3600)+"h ago"; const d=Math.floor(s/86400); return d<30?d+"d ago":fmt(iso(new Date(ms))); }
+function activityBox(limit,onlyWho){ const list=[...state.activity].filter(a=>!onlyWho||a.who===onlyWho).sort((a,b)=>b.at-a.at).slice(0,limit);
+  const box=el("div",{class:"box"},el("div",{class:"h2"},"What's new"));
+  if (!list.length) box.append(el("div",{class:"sub"},"When anyone adds a stop, books something or posts an idea, it shows up here."));
+  list.forEach(a=>box.append(el("div",{class:"act"},el("span",{class:"dotc",style:"--c:"+(tById(a.who)?tColor(a.who):"var(--ink-3)")}),el("span",{},el("b",{},tById(a.who)?tName(a.who):"Someone")," "+a.text),el("span",{class:"muted",style:"font-size:12px;white-space:nowrap"},ago(a.at)))));
+  return box; }
+async function markStatus(t,st){ if (await write(()=>db.doc("tasks/"+t.id).update({status:st}))){ if (st==="done"){ confetti(); logAct("booked "+t.title); toast("Nice! "+t.title+" is booked."); } } }
+function confetti(){ if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; const c=el("canvas",{class:"confetti","aria-hidden":"true"}); document.body.append(c);
+  const ctx=c.getContext("2d"), W=c.width=innerWidth, H=c.height=innerHeight, cols=["#C0302F","#2B72B8","#2A8C5E","#C7760E","#6F51B8","#C93A78","#15838D"];
+  const ps=Array.from({length:150},()=>({x:W/2+(Math.random()-.5)*W*.35,y:H*.32,vx:(Math.random()-.5)*13,vy:-Math.random()*13-4,r:Math.random()*7+4,c:cols[Math.random()*cols.length|0],a:Math.random()*6.28,s:(Math.random()-.5)*.35}));
+  const t0=performance.now(); (function f(t){ ctx.clearRect(0,0,W,H); for (const p of ps){ p.vy+=.34; p.vx*=.99; p.x+=p.vx; p.y+=p.vy; p.a+=p.s; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); ctx.restore(); }
+    if (t-t0<2600) requestAnimationFrame(f); else c.remove(); })(t0); }
+function readinessBox(tasks,title,sub){ const tot=tasks.length, done=tasks.filter(t=>t.status==="done").length, pct=tot?Math.round(done/tot*100):0;
+  const nxt=tasks.filter(t=>t.status!=="done"&&t.due).sort(sortTasks)[0];
+  return el("div",{class:"box"},el("div",{class:"h2"},title),el("div",{class:"ready"},el("span",{class:"ready-n num"},pct+"%"),el("span",{class:"sub"},sub||(done+" of "+tot+" bookings done"))),
+    el("div",{class:"meter",style:"height:12px"},el("b",{style:"width:"+pct+"%"})),
+    el("div",{class:"sub",style:"margin-top:6px"},tot&&done===tot?"Everything's booked. Time to pack!":(nxt?"Next deadline: "+nxt.title+" · "+fmt(nxt.due)+" "+nxt.due.slice(0,4):"Add booking dates so deadlines show here."))); }
+
+/* ---------- search ---------- */
+let sIdx=0, sItems=[];
+function openSearch(){ $("#search").hidden=false; $("#sq").value=""; runSearch(); setTimeout(()=>$("#sq").focus(),20); }
+function closeSearch(){ $("#search").hidden=true; }
+function searchPool(){ const out=[];
+  const cmds=[["Dashboard","dash"],["Map","map"],["Bookings","bookings"],["Budget & flights","budget"],["Split costs","split"],["Itinerary","trips"],["Packing list","packing"],["Ideas & polls","notes"],["Ask AI","ask"]];
+  cmds.forEach(([l,tab])=>out.push({k:"Go to",label:l,go:()=>showTab(tab)}));
+  out.push({k:"Action",label:"Add my trip to my calendar",go:()=>downloadIcs(viewing()||state.me)});
+  out.push({k:"Action",label:"Get the app on my phone",go:openInstall});
+  state.travelers.forEach(t=>out.push({k:"Person",label:t.name,sub:"Open "+t.name+"'s dashboard",c:tColor(t.id),go:()=>{ setView(t.id); showTab("dash"); }}));
+  state.stops.forEach(s=>out.push({k:"Stop",label:s.place,sub:tName(s.traveler)+" · "+fmt(s.start)+"–"+fmt(s.end),c:tColor(s.traveler),go:()=>selectStop(s.id)}));
+  state.tasks.forEach(t=>out.push({k:t.kind==="flight"?"Flight":"Booking",label:t.title,sub:(t.status==="done"?"Booked":"Not booked")+(t.owner?" · "+tName(t.owner):""),go:()=>{ showTab("bookings"); state.taskFilter="all"; document.querySelectorAll("#taskFilters .chip").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.f==="all"))); renderTasks(); const e=document.getElementById("bk-"+t.id); if(e){ e.scrollIntoView({block:"center"}); e.classList.add("flash"); setTimeout(()=>e.classList.remove("flash"),1600); } }}));
+  state.notes.forEach(n=>out.push({k:n.type==="poll"?"Poll":"Idea",label:n.text,go:()=>showTab("notes")}));
+  state.packing.forEach(p=>out.push({k:"Packing",label:p.text,sub:p.who==="group"?"Group gear":tName(p.who),go:()=>{ if(p.who!=="group") setView(p.who); showTab("packing"); }}));
+  state.expenses.filter(e=>e.shared).forEach(e=>out.push({k:"Shared cost",label:e.what,sub:money(num(e.amount))+" · paid by "+tName(e.paidBy),go:()=>showTab("split")}));
+  return out; }
+function runSearch(){ const q=$("#sq").value.trim().toLowerCase(), words=q.split(/\s+/).filter(Boolean);
+  const pool=searchPool(); sItems=(words.length?pool.filter(i=>words.every(w=>(i.label+" "+(i.sub||"")+" "+i.k).toLowerCase().includes(w))):pool.filter(i=>i.k==="Go to"||i.k==="Action")).slice(0,40);
+  sIdx=0; const box=$("#sres"); box.innerHTML="";
+  if (!sItems.length) box.append(el("div",{class:"empty",style:"margin:10px"},"Nothing matches “"+q+"”."));
+  sItems.forEach((it,i)=>box.append(el("button",{class:"sr"+(i===0?" on":""),type:"button",onclick:()=>{ closeSearch(); it.go(); }},
+    el("span",{class:"sk"},it.k),el("span",{},it.c?el("span",{class:"dotc",style:"--c:"+it.c+";margin-right:6px"}):null,it.label,it.sub?el("span",{class:"muted",style:"margin-left:8px;font-size:12.5px"},it.sub):null)))); }
+function moveSearch(d){ const rs=[...document.querySelectorAll("#sres .sr")]; if(!rs.length) return; sIdx=(sIdx+d+rs.length)%rs.length; rs.forEach((r,i)=>r.classList.toggle("on",i===sIdx)); rs[sIdx].scrollIntoView({block:"nearest"}); }
+document.addEventListener("keydown",e=>{ const typing=/INPUT|TEXTAREA|SELECT/.test((e.target&&e.target.tagName)||"");
+  if ((e.key==="k"&&(e.metaKey||e.ctrlKey))||(e.key==="/"&&!typing)){ if($("#app").hidden) return; e.preventDefault(); openSearch(); return; }
+  if ($("#search").hidden) { if (e.key==="Escape"&&!$("#install").hidden) closeInstall(); return; }
+  if (e.key==="Escape") closeSearch(); else if (e.key==="ArrowDown"){ e.preventDefault(); moveSearch(1); } else if (e.key==="ArrowUp"){ e.preventDefault(); moveSearch(-1); }
+  else if (e.key==="Enter"&&sItems[sIdx]){ e.preventDefault(); const it=sItems[sIdx]; closeSearch(); it.go(); } });
+
+/* ---------- calendar export ---------- */
+function icsEsc(s){ return String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+function icsDate(s){ return s.replace(/-/g,""); }
+function plusDay(s,n){ const d=D(s); d.setDate(d.getDate()+(n||1)); return iso(d); }
+function downloadIcs(tid){ tid=tid||state.me; const t=tById(tid); if(!t){ toast("Pick a person first."); return; }
+  const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Euro Summer 27//Trip hub//EN","CALSCALE:GREGORIAN","X-WR-CALNAME:"+icsEsc("Euro Summer '27 · "+t.name)];
+  for (const s of stopsOf(tid)){ const desc=[s.hop?.name?"Getting there: "+s.hop.name:"",(s.events||[]).length?"Planned: "+s.events.map(e=>e.name).join(", "):"",s.note||""].filter(Boolean).join("\n");
+    L.push("BEGIN:VEVENT","UID:"+s.id+"@euro27","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+icsDate(s.start),"DTEND;VALUE=DATE:"+icsDate(s.end),"SUMMARY:"+icsEsc(s.place),"LOCATION:"+icsEsc(s.place+(s.country?", "+s.country:"")),"DESCRIPTION:"+icsEsc(desc),"TRANSP:TRANSPARENT","END:VEVENT"); }
+  for (const f of state.tasks.filter(x=>x.kind==="flight"&&x.owner===tid)) (f.legs||[]).forEach((l,i)=>{ if(!l.date) return;
+    L.push("BEGIN:VEVENT","UID:"+f.id+"-"+i+"@euro27","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+icsDate(l.date),"DTEND;VALUE=DATE:"+icsDate(plusDay(l.date)),"SUMMARY:"+icsEsc("Flight "+l.from+" → "+l.to),"DESCRIPTION:"+icsEsc((f.status==="done"?"Booked":"Not booked yet")+(f.ref?"\nRef: "+f.ref:"")),"END:VEVENT"); });
+  for (const b of state.tasks.filter(x=>x.owner===tid&&x.status!=="done"&&x.due&&x.kind!=="flight"))
+    L.push("BEGIN:VEVENT","UID:due-"+b.id+"@euro27","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+icsDate(b.due),"DTEND;VALUE=DATE:"+icsDate(plusDay(b.due)),"SUMMARY:"+icsEsc("Book: "+b.title),"END:VEVENT");
+  L.push("END:VCALENDAR");
+  const blob=new Blob([L.join("\r\n")],{type:"text/calendar"}), a=el("a",{href:URL.createObjectURL(blob),download:"euro-summer-27-"+t.name.replace(/[^A-Za-z0-9]+/g,"-").toLowerCase()+".ics"});
+  document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+  toast("Calendar file downloaded. Open it to add "+stopsOf(tid).length+" stops to your calendar."); }
+
+/* ---------- weather (last summer + live forecast) ---------- */
+const wxP={};
+function wxFor(s){ if(!isFinite(s.lat)||!isFinite(s.lng)) return Promise.resolve(null); const key="wx:"+num(s.lat).toFixed(2)+","+num(s.lng).toFixed(2)+":"+s.start+":"+s.end; if (!wxP[key]) wxP[key]=wxFetch(s,key); return wxP[key]; }
+async function wxFetch(s,key){
+  try{ const c=JSON.parse(store.get(key)||"null"); if (c&&c.v===1) return c; }catch(e){}
+  const days=Math.max(1,nightsOf(s)), soon=daysTo(s.start)<=14&&daysTo(s.end)>=0;
+  let out=null;
+  try{ if (soon){ const u="https://api.open-meteo.com/v1/forecast?latitude="+s.lat+"&longitude="+s.lng+"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&start_date="+(daysTo(s.start)<0?iso(today()):s.start)+"&end_date="+s.end;
+      const r=await fetch(u); const j=await r.json(); out={kind:"forecast",...wxSum(j.daily)}; }
+    else { const y=new Date().getFullYear()-(D(s.start.replace(/^\d{4}/,String(new Date().getFullYear())))>today()?1:0);
+      const a=s.start.replace(/^\d{4}/,String(y)), b=s.end.replace(/^\d{4}/,String(y));
+      const u="https://archive-api.open-meteo.com/v1/archive?latitude="+s.lat+"&longitude="+s.lng+"&start_date="+a+"&end_date="+b+"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto";
+      const r=await fetch(u); const j=await r.json(); out={kind:"history",year:y,...wxSum(j.daily)}; } }
+  catch(e){ return null; }
+  if (!out||out.n===0) return null; out.v=1; if (out.kind==="history") store.set(key,JSON.stringify(out)); return out; }
+function wxSum(d){ const hi=(d&&d.temperature_2m_max||[]).filter(x=>x!=null), lo=(d&&d.temperature_2m_min||[]).filter(x=>x!=null), pr=(d&&d.precipitation_sum||[]).filter(x=>x!=null);
+  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null; return {n:hi.length,hi:avg(hi),lo:avg(lo),wet:pr.filter(x=>x>=1).length,days:pr.length}; }
+function wxLine(s){ const span=el("div",{class:"wx"},"Checking the weather…");
+  wxFor(s).then(w=>{ if(!w){ span.textContent=""; span.hidden=true; return; }
+    const feel=w.hi>=32?"hot":w.hi>=26?"warm":w.hi>=18?"mild":"cool";
+    span.textContent=(w.kind==="forecast"?"Forecast: ":"Last summer on these dates: ")+"highs around "+w.hi+"°C, lows "+w.lo+"°C, "+(w.wet?w.wet+" of "+w.days+" days with rain":"no rain")+" · "+feel+"."; });
+  return span; }
+
+/* ---------- currency converter ---------- */
+let fx=null;
+async function loadFx(){ if (fx) return fx; try{ const c=JSON.parse(store.get("fx")||"null"); if (c&&Date.now()-c.at<864e5) return (fx=c); }catch(e){}
+  for (const u of ["https://api.frankfurter.dev/v1/latest?base=EUR&symbols=AUD,CZK,USD,GBP","https://api.frankfurter.app/latest?from=EUR&to=AUD,CZK,USD,GBP"]){
+    try{ const j=await (await fetch(u)).json(); if (j&&j.rates&&j.rates.AUD){ fx={at:Date.now(),date:j.date,live:true,r:{EUR:1,...j.rates}}; store.set("fx",JSON.stringify(fx)); return fx; } }catch(e){} }
+  fx={at:Date.now(),live:false,r:{EUR:1,AUD:num(state.settings.eurAud)||1.622,CZK:24.4,USD:1.1,GBP:0.85}}; return fx; }
+function converterBox(){ const amt=el("input",{type:"number",min:"0",step:"any",value:store.get("cvAmt")||"50","aria-label":"Amount",style:"width:100px"});
+  const from=el("select",{"aria-label":"From currency"},["AUD","EUR","CZK","USD","GBP"].map(c=>el("option",{value:c},c))); from.value=store.get("cvFrom")||"EUR";
+  const out=el("div",{class:"cv-out num"}), note=el("div",{class:"sub",style:"margin-top:6px"});
+  const sym={AUD:"A$",EUR:"€",CZK:"Kč ",USD:"US$",GBP:"£"};
+  const draw=()=>{ if(!fx) return; const v=num(amt.value), eur=v/fx.r[from.value]; out.innerHTML="";
+    ["AUD","EUR","CZK"].filter(c=>c!==from.value).concat(from.value==="AUD"||from.value==="EUR"||from.value==="CZK"?[]:[]).forEach(c=>out.append(el("span",{},el("b",{},sym[c]+(eur*fx.r[c]).toLocaleString("en-AU",{maximumFractionDigits:c==="CZK"?0:2})),el("span",{class:"muted"}," "+c))));
+    note.textContent=fx.live?"Live ECB rates, "+fx.date+". Czechia uses koruna (Kč); everywhere else on your route uses euro.":"Approximate rates (couldn't load live ones)."; store.set("cvAmt",amt.value); store.set("cvFrom",from.value); };
+  amt.addEventListener("input",draw); from.addEventListener("change",draw); loadFx().then(draw);
+  return el("div",{class:"box",style:"margin-bottom:16px"},el("div",{class:"h2"},"Quick convert"),el("div",{class:"form",style:"margin:0"},amt,from,el("span",{class:"muted"},"="),out),note); }
+
+/* ---------- split costs ---------- */
+function balances(){ const bal={}; state.travelers.forEach(t=>bal[t.id]=0);
+  for (const e of state.expenses){ const a=num(e.amount);
+    if (e.shared&&Array.isArray(e.split)&&e.split.length){ bal[e.paidBy]=(bal[e.paidBy]||0)+a; const sh=a/e.split.length; e.split.forEach(p=>bal[p]=(bal[p]||0)-sh); }
+    else if (e.kind==="settle"){ bal[e.from]=(bal[e.from]||0)+a; bal[e.to]=(bal[e.to]||0)-a; } }
+  return bal; }
+function settleUp(bal){ const cr=[],db_=[]; for (const [k,v] of Object.entries(bal)){ if (v>0.5) cr.push({k,v}); else if (v<-0.5) db_.push({k,v:-v}); }
+  cr.sort((a,b)=>b.v-a.v); db_.sort((a,b)=>b.v-a.v); const out=[];
+  let i=0,j=0; while(i<db_.length&&j<cr.length){ const m=Math.min(db_[i].v,cr[j].v); out.push({from:db_[i].k,to:cr[j].k,amt:Math.round(m*100)/100}); db_[i].v-=m; cr[j].v-=m; if(db_[i].v<0.5) i++; if(cr[j].v<0.5) j++; }
+  return out; }
+let splitSel=new Set(), splitTouched=false;
+function renderSplit(){ const box=$("#split"); if(!box) return; box.innerHTML="";
+  const shared=state.expenses.filter(e=>e.shared).sort((a,b)=>(b.at||0)-(a.at||0)), bal=balances(), plan=settleUp(bal);
+  if (!splitTouched) splitSel=new Set(state.travelers.map(t=>t.id));
+  const left=el("div",{class:"stack"}), right=el("div",{class:"stack"});
+  if (canWrite){ const w=el("input",{class:"grow",placeholder:"What was it? e.g. Dinner in Naxos",maxlength:"80",required:"","aria-label":"What was it"}), a=el("input",{type:"number",min:"0",step:"0.01",placeholder:curSym(),style:"width:110px",required:"","aria-label":"Amount in "+state.cur});
+    const pb=el("select",{"aria-label":"Paid by"}); state.travelers.forEach(t=>pb.append(el("option",{value:t.id},t.name))); pb.value=actor()||state.travelers[0]?.id||"";
+    const chips=el("div",{class:"filters",style:"margin:4px 0 0"}); const drawChips=()=>{ chips.innerHTML=""; state.travelers.forEach(t=>chips.append(el("button",{type:"button",class:"pchip",style:"--c:"+tColor(t.id),"aria-pressed":String(splitSel.has(t.id)),onclick:()=>{ splitTouched=true; splitSel.has(t.id)?splitSel.delete(t.id):splitSel.add(t.id); drawChips(); }},el("span",{class:"sw"}),t.name)));
+      chips.append(el("button",{type:"button",class:"chip",onclick:()=>{ splitTouched=false; splitSel=new Set(state.travelers.map(t=>t.id)); drawChips(); }},"Everyone")); }; drawChips();
+    const f=el("form",{class:"fstack"},el("div",{class:"form",style:"margin:0"},w,a),el("label",{},"Paid by",pb),el("div",{class:"sub"},"Split equally between"),chips,el("button",{class:"btn",type:"submit",style:"justify-self:start"},"Add shared cost"));
+    f.addEventListener("submit",async e=>{ e.preventDefault(); const what=w.value.trim(), v=num(a.value); const split=[...splitSel].filter(id=>tById(id));
+      if (!what||!(v>0)) return; if (!split.length){ toast("Pick at least one person to split with."); return; }
+      const eur=Math.round(curToEur(v)*100)/100;
+      if (await write(()=>db.collection("expenses").add({shared:true,what,amount:eur,paidBy:pb.value,split,at:Date.now()}))){ logAct("added a shared cost: "+what+" ("+money(eur)+", split "+split.length+" ways)"); toast("Added "+what); w.value=""; a.value=""; } });
+    left.append(el("div",{class:"box"},el("div",{class:"h2"},"Add a shared cost"),el("p",{class:"sub",style:"margin-top:0"},"Dinners, ferries, apartments, car hire: log who paid and who it's for, and the hub works out who owes who."),f)); }
+  const list=el("div");
+  if (!shared.length) list.append(el("div",{class:"empty"},"No shared costs yet."));
+  shared.forEach(e=>list.append(el("div",{class:"wrow",style:"grid-template-columns:14px 1fr auto auto"},el("span",{class:"dotc",style:"--c:"+tColor(e.paidBy)}),
+    el("span",{},el("b",{},e.what),el("div",{class:"muted",style:"font-size:12.5px"},tName(e.paidBy)+" paid · split "+e.split.length+" ways ("+money(num(e.amount)/e.split.length)+" each) · "+ago(e.at||0))),
+    el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>softDelete("expenses",e,e.what)},"✕"):el("span"))));
+  left.append(el("div",{class:"box"},el("div",{class:"h2"},"Shared costs"),list));
+  const pl=el("div");
+  if (!plan.length) pl.append(el("div",{class:"empty"},shared.length?"Everyone's square.":"Nothing to settle yet."));
+  plan.forEach(p=>pl.append(el("div",{class:"owe"},el("span",{class:"dotc",style:"--c:"+tColor(p.from)}),el("span",{},el("b",{},tName(p.from))," pays ",el("b",{},tName(p.to))),el("span",{class:"num",style:"font-weight:600"},money(p.amt)),
+    canWrite?el("button",{class:"btn ghost sm",onclick:async()=>{ if (await write(()=>db.collection("expenses").add({kind:"settle",from:p.from,to:p.to,amount:p.amt,at:Date.now()}))){ confetti(); logAct("paid "+tName(p.to)+" back "+money(p.amt)); toast(tName(p.from)+" paid "+tName(p.to)+" "+money(p.amt)); } }},"Mark paid"):el("span"))));
+  right.append(el("div",{class:"box"},el("div",{class:"h2"},"Settle up"),el("p",{class:"sub",style:"margin-top:0"},"The fewest payments to square everyone up."),pl));
+  const mx=Math.max(1,...Object.values(bal).map(Math.abs)); const bl=el("div");
+  state.travelers.forEach(t=>{ const v=bal[t.id]||0; bl.append(el("div",{class:"brow",style:"grid-template-columns:110px 1fr 90px"},el("span",{},t.name),
+    el("div",{class:"bal"},el("b",{style:(v>=0?"left:50%;":"right:50%;")+"width:"+(Math.abs(v)/mx*50).toFixed(1)+"%;background:"+(v>=0?"var(--ok)":"var(--red)")})),el("span",{class:"num",style:"text-align:right;color:"+(v>0.5?"var(--ok)":v<-0.5?"var(--red)":"var(--ink-3)")},(v>0.5?"+":"")+money(v)))); });
+  right.append(el("div",{class:"box"},el("div",{class:"h2"},"Balances"),el("p",{class:"sub",style:"margin-top:0"},"Green is owed money, red owes money."),bl));
+  const settles=state.expenses.filter(e=>e.kind==="settle").sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,8);
+  if (settles.length) right.append(el("div",{class:"box"},el("div",{class:"h2"},"Paid back"),settles.map(s=>el("div",{class:"wrow",style:"grid-template-columns:1fr auto auto"},el("span",{},tName(s.from)+" → "+tName(s.to)),el("span",{class:"num"},money(num(s.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Undo payment",onclick:()=>softDelete("expenses",s,"payment")},"✕"):el("span")))));
+  box.append(el("div",{class:"grid2"},left,right)); }
+
+/* ---------- packing ---------- */
+const PACK={
+  essentials:{n:"Essentials",items:["Passport (6+ months validity)","Travel insurance details","Bank card + a backup card","EU plug adaptors (type C/F)","Phone charger + power bank","eSIM set up before leaving","Driver's licence + international permit","Medication + prescriptions","Daypack","Reusable water bottle","Earplugs + eye mask"]},
+  beach:{n:"Beach & islands",items:["Swimmers ×2","Reef-safe sunscreen","Sunglasses","Hat","Quick-dry towel","Thongs / sandals","Dry bag","After-sun","Snorkel mask"]},
+  hike:{n:"Dolomites hiking",items:["Hiking boots (broken in)","Rain jacket","Warm fleece or down layer","Hiking socks ×3","Blister kit","Head torch (for the mountain hut)","Sleeping-bag liner (huts require one)","Trekking poles"]},
+  wedding:{n:"Wedding",items:["Wedding outfit","Dress shoes","Gift + card","Accessories","Garment bag"]},
+  city:{n:"City days",items:["Comfy walking shoes","Scarf / cover-up for churches","Crossbody bag","Light jacket for evenings"]},
+  group:{n:"Shared gear",items:["Portable speaker","Card games","First-aid kit","Power board","Snorkel set","Beach umbrella"]}};
+function packSuggest(tid){ const ss=stopsOf(tid), txt=ss.map(s=>(s.place+" "+(s.country||"")+" "+(s.note||"")+" "+(s.highlights||[]).join(" "))).join(" ").toLowerCase(), sug=new Set(["essentials","city"]);
+  if (/greece|croatia|montenegro|malta|beach|island|santorini|naxos|paros|hvar|split|amalfi|nice/.test(txt)) sug.add("beach");
+  if (/dolomit|hik|alps|interlaken|bled|plitvice/.test(txt)) sug.add("hike"); if (/wedding/.test(txt)) sug.add("wedding"); return sug; }
+async function addPack(who,items,cat){ const have=new Set(state.packing.filter(p=>p.who===who).map(p=>p.text.toLowerCase())); const add=items.filter(i=>!have.has(i.toLowerCase()));
+  if (!add.length){ toast("Those are already on the list."); return; }
+  const ok=await write(()=>Promise.all(add.map((text,i)=>db.collection("packing").add({who,text,cat,done:false,bringer:"",at:Date.now()+i}))));
+  if (ok) toast("Added "+add.length+" item"+(add.length===1?"":"s")); }
+function packRow(p){ const chk=el("button",{class:"check"+(p.done?" on":""),"aria-label":(p.done?"Unpack ":"Packed ")+p.text,disabled:!canWrite||null,onclick:()=>write(()=>db.doc("packing/"+p.id).update({done:!p.done}))},p.done?"✓":"");
+  const extra=[]; if (p.who==="group"){ const s=el("select",{"aria-label":"Who's bringing it",class:"mini"}); s.append(el("option",{value:""},"Who's bringing it?")); state.travelers.forEach(t=>s.append(el("option",{value:t.id},t.name))); s.value=p.bringer||""; s.disabled=!canWrite; s.addEventListener("change",()=>write(()=>db.doc("packing/"+p.id).update({bringer:s.value}))); extra.push(s); }
+  return el("div",{class:"prow"+(p.done?" done":"")},chk,el("span",{class:"pt"},p.text),...extra,canWrite?el("button",{class:"iconbtn","aria-label":"Remove "+p.text,onclick:()=>softDelete("packing",p,p.text)},"✕"):el("span")); }
+function packList(who,title){ const items=state.packing.filter(p=>p.who===who).sort((a,b)=>(a.cat||"").localeCompare(b.cat||"")||(a.at||0)-(b.at||0));
+  const done=items.filter(p=>p.done).length, pct=items.length?Math.round(done/items.length*100):0;
+  const box=el("div",{class:"box"},el("div",{class:"h2"},title),el("div",{class:"ready"},el("span",{class:"ready-n num",style:"font-size:28px"},done+"/"+items.length),el("span",{class:"sub"},"packed")),el("div",{class:"meter"},el("b",{style:"width:"+pct+"%"})));
+  const byCat={}; items.forEach(p=>(byCat[p.cat||"Other"]=byCat[p.cat||"Other"]||[]).push(p));
+  if (!items.length) box.append(el("div",{class:"empty",style:"margin-top:10px"},who==="group"?"Add shared gear so you don't end up with four speakers and no first-aid kit.":"Start with a ready-made list above, or add your own."));
+  Object.entries(byCat).forEach(([c,ps])=>{ box.append(el("div",{class:"pcat"},c)); ps.forEach(p=>box.append(packRow(p))); });
+  if (canWrite){ const i=el("input",{class:"grow",placeholder:who==="group"?"Add shared gear…":"Add an item…",maxlength:"80","aria-label":"New packing item"}); const f=el("form",{class:"form",style:"margin:12px 0 0"},i,el("button",{class:"btn",type:"submit"},"Add"));
+    f.addEventListener("submit",e=>{ e.preventDefault(); const t=i.value.trim(); if(t) addPack(who,[t],"Mine").then(()=>{ i.value=""; }); }); box.append(f); }
+  return box; }
+function renderPacking(){ const box=$("#packing"); if(!box) return; box.innerHTML=""; const v=viewing()||state.me;
+  const left=el("div",{class:"stack"}), right=el("div",{class:"stack"});
+  if (v&&tById(v)){ const sug=packSuggest(v);
+    const tpl=el("div",{class:"filters",style:"margin:0"}); Object.entries(PACK).filter(([k])=>k!=="group").forEach(([k,p])=>tpl.append(el("button",{class:"chip"+(sug.has(k)?" sug":""),type:"button",disabled:!canWrite||null,onclick:()=>addPack(v,p.items,p.n)},"+ "+p.n+" ("+p.items.length+")",sug.has(k)?el("span",{class:"tag"},"for your route"):null)));
+    left.append(el("div",{class:"box"},el("div",{class:"h2"},"Ready-made lists"),el("p",{class:"sub",style:"margin-top:0"},"Tap a list to add it to "+tName(v)+"'s packing. Items already on the list are skipped."),tpl));
+    left.append(packList(v,tName(v)+"'s packing")); }
+  else left.append(el("div",{class:"box"},el("div",{class:"sub"},"Pick a person under “View as” to see their packing list.")));
+  const gt=el("button",{class:"chip",type:"button",disabled:!canWrite||null,onclick:()=>addPack("group",PACK.group.items,"Shared gear")},"+ Suggested shared gear");
+  right.append(el("div",{class:"box"},el("div",{class:"h2"},"Group gear"),el("p",{class:"sub",style:"margin-top:0"},"Things only one person needs to bring. Claim an item so nobody doubles up."),gt));
+  right.append(packList("group","Shared gear list"));
+  box.append(el("div",{class:"grid2"},left,right)); }
+
+/* ---------- install as an app ---------- */
+let installEvt=null; addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
+function openInstall(){ const d=$("#install"); d.hidden=false; $("#installNow").hidden=!installEvt; setTimeout(()=>$("#installClose").focus(),20); }
+function closeInstall(){ $("#install").hidden=true; }
+
+$("#searchBtn").addEventListener("click",openSearch); $("#appBtn").addEventListener("click",openInstall);
+$("#installClose").addEventListener("click",closeInstall);
+$("#install").addEventListener("click",e=>{ if(e.target.id==="install") closeInstall(); });
+$("#search").addEventListener("click",e=>{ if(e.target.id==="search") closeSearch(); });
+$("#sq").addEventListener("input",runSearch);
+$("#installNow").addEventListener("click",async()=>{ if(installEvt){ installEvt.prompt(); installEvt=null; closeInstall(); } });
 
 /* ---------- header, tabs ---------- */
 function renderHeader(){
@@ -1015,7 +1317,7 @@ function fillSelects(){ const v=viewing();
     sel.value=v||(state.travelers.some(t=>t.id===keep)?keep:(withGroup?"":(state.travelers[0]?.id||""))); } }
 function showTab(name){ document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===name))); document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name); store.set("hubTab",name); }
 $("#tabs").addEventListener("click",e=>{ const b=e.target.closest(".tab"); if(b) showTab(b.dataset.tab); });
-function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTasks(); renderBudget(); renderTrips(); renderNotes();
+function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
   if (state.sel&&!state.stops.find(x=>x.id===state.sel)){ state.sel=null; $("#stopCard").hidden=true; }
   document.querySelectorAll("#taskForm input,#taskForm select,#taskForm button,#noteForm input,#noteForm button,#stopForm input,#stopForm select,#stopForm button").forEach(x=>x.disabled=!canWrite); }
 
@@ -1096,6 +1398,7 @@ async function signedUrl(path){ const c=signedCache.get(path); if (c&&c.exp>Date
   signedCache.set(path,{url:data.signedUrl,exp:Date.now()+50*60*1000}); return data.signedUrl; }
 
 const CFG=window.HUB_CONFIG||{};
+if ("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 const CAME_FROM_LINK=/type=(invite|magiclink|signup)/.test(location.hash);
 let SB=null;
 function showLogin(msg,bad){ $("#app").hidden=true; $("#login").hidden=false; if(msg!=null){ $("#loginMsg").textContent=msg; $("#loginMsg").classList.toggle("bad",!!bad); } }
@@ -1125,29 +1428,43 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {error}=await SB.auth.updateUser({password:pw}); if (error) banner("Couldn't change your password: "+error.message); else { $("#pwNew").value=""; $("#pwBox").hidden=true; banner("Password changed."); } });
   SB.auth.onAuthStateChange((ev,session)=>{
     if (ev==="PASSWORD_RECOVERY"){ recovering=true; showLogin("Choose a new password for "+(session?.user?.email||"your account")+".",false); $("#lgIn").textContent="Save new password"; $("#lgUp").hidden=true; $("#lgForgot").hidden=true; $("#lgPass").value=""; return; }
-    if (ev==="SIGNED_OUT"){ started=false; $("#lgOut").hidden=true; showLogin("Signed out.",false); location.reload(); return; }
+    if (ev==="SIGNED_OUT"){ try{ localStorage.removeItem("cache:v1"); }catch(e){} started=false; $("#lgOut").hidden=true; showLogin("Signed out.",false); location.reload(); return; }
     if (session&&!started&&!recovering){ started=true; setTimeout(boot,0); }
   });
   const {data:{session}}=await SB.auth.getSession();
   if (!session&&!recovering) showLogin();
+  function offlineBoot(){ let c=null; try{ c=JSON.parse(localStorage.getItem("cache:v1")||"null"); }catch(e){} if(!c) return false;
+      Object.assign(state,{stops:c.stops||[],tasks:c.tasks||[],notes:c.notes||[],expenses:c.expenses||[],travelers:c.travelers||[],packing:c.packing||[],activity:c.activity||[]}); if (c.settings) state.settings=c.settings; state.me=c.me||null;
+      canWrite=false; db=null; $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=c.email||"";
+      if (!store.get("view")&&c.me) state.view=c.me;
+      renderAll(); if (viewing()) fitTo(viewing());
+      banner("You're offline, so this is your saved copy from "+new Date(c.savedAt).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})+". You can make changes again once you're back online.");
+      addEventListener("online",()=>location.reload(),{once:true}); return true; }
+  function saveCache(){ clearTimeout(saveCache.t); saveCache.t=setTimeout(()=>{ try{ localStorage.setItem("cache:v1",JSON.stringify({savedAt:Date.now(),email:$("#acctEmail").textContent,me:state.me,stops:state.stops,tasks:state.tasks,notes:state.notes,expenses:state.expenses,travelers:state.travelers,packing:state.packing,activity:[...state.activity].sort((a,b)=>b.at-a.at).slice(0,40),settings:state.settings})); }catch(e){} },800); }
   async function boot(){
-    const {data:{user}}=await SB.auth.getUser(); if (!user){ started=false; return showLogin(); }
+    let user=null, netFail=false;
+    try{ const r=await SB.auth.getUser(); user=r.data&&r.data.user; if (!user&&r.error&&(!navigator.onLine||/fetch|network|Load failed/i.test(r.error.message||""))) netFail=true; }catch(e){ netFail=true; }
+    if (!user&&netFail&&offlineBoot()) return;
+    if (!user){ started=false; return showLogin(); }
     const {data:mine,error}=await SB.rpc("my_traveler");
+    if (error&&/fetch|network|Load failed/i.test(error.message||"")&&offlineBoot()) return;
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
     $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email;
     if (CAME_FROM_LINK){ $("#pwBox").hidden=false; banner("Welcome! Choose a password next to your email (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
-    myId=user.id; canWrite=true; userNs=null;
+    myId=user.id; canWrite=true; userNs=null; state.me=mine;
     const be=makeBackend(SB); db=be.db; assets=be.files;
     if (!store.get("view")){ state.view=mine; store.set("view",mine); }
     renderAll();
     let fitted=false;
     const onErr=n=>err=>banner("Couldn't load "+n+" ("+(err&&err.message||"error")+"). Check your connection and reload.");
-    db.collection("stops").onSnapshot(s=>{ state.stops=s.docs.map(d=>({id:d.id,...d.data()})); renderAll(); if(!fitted&&state.stops.length&&viewing()){ fitted=true; fitTo(viewing()); } },onErr("stops"));
-    db.doc("meta/travelers").onSnapshot(s=>{ const d=s.data(); state.travelers=Array.isArray(d&&d.list)?d.list.filter(t=>t&&t.id&&t.name):[]; renderAll(); },onErr("travellers"));
-    db.doc("meta/settings").onSnapshot(s=>{ const d=s.data(); if (d&&d.eurAud) state.settings.eurAud=num(d.eurAud); renderAll(); },()=>{});
-    db.collection("tasks").onSnapshot(s=>{ state.tasks=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); renderTasks(); renderBudget(); },onErr("bookings"));
-    db.collection("notes").onSnapshot(s=>{ state.notes=s.docs.map(d=>({id:d.id,...d.data()})); renderNotes(); renderDash(); },onErr("ideas"));
-    db.collection("expenses").onSnapshot(s=>{ state.expenses=s.docs.map(d=>({id:d.id,...d.data()})); renderBudget(); renderDash(); },onErr("spending"));
+    db.collection("stops").onSnapshot(s=>{ saveCache(); state.stops=s.docs.map(d=>({id:d.id,...d.data()})); renderAll(); if(!fitted&&state.stops.length&&viewing()){ fitted=true; fitTo(viewing()); } },onErr("stops"));
+    db.doc("meta/travelers").onSnapshot(s=>{ saveCache(); const d=s.data(); state.travelers=Array.isArray(d&&d.list)?d.list.filter(t=>t&&t.id&&t.name):[]; renderAll(); },onErr("travellers"));
+    db.doc("meta/settings").onSnapshot(s=>{ saveCache(); const d=s.data(); if (d&&d.eurAud) state.settings.eurAud=num(d.eurAud); renderAll(); },()=>{});
+    db.collection("tasks").onSnapshot(s=>{ saveCache(); state.tasks=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); renderTasks(); renderBudget(); },onErr("bookings"));
+    db.collection("notes").onSnapshot(s=>{ saveCache(); state.notes=s.docs.map(d=>({id:d.id,...d.data()})); renderNotes(); renderDash(); },onErr("ideas"));
+    db.collection("expenses").onSnapshot(s=>{ saveCache(); state.expenses=s.docs.map(d=>({id:d.id,...d.data()})); renderBudget(); renderSplit(); renderDash(); },onErr("spending"));
+    db.collection("packing").onSnapshot(s=>{ saveCache(); state.packing=s.docs.map(d=>({id:d.id,...d.data()})); renderPacking(); },onErr("packing"));
+    db.collection("activity").onSnapshot(s=>{ saveCache(); state.activity=s.docs.map(d=>({id:d.id,...d.data()})); renderDash(); },()=>{});
   }
 })();
 
