@@ -1477,7 +1477,7 @@ function renderTrips(){
       if ((s.events||[]).length) body.append(el("div",{class:"sub"},"In the budget: "+s.events.map(e=>e.name+" €"+num(e.cost)).join(" · ")));
       body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")),thread("stops/"+s.id,s.place));
       const n=nightsOf(s);
-      const det=el("details",{class:"leg",style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); box.append(det); }); }
+      const det=el("details",{class:"leg","data-k":"leg-"+s.id,style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); box.append(det); }); }
 }
 
 /* ---------- notes (ideas, hearts, polls) ---------- */
@@ -1753,14 +1753,14 @@ const commentsOn=on=>state.comments.filter(c=>c.on===on).sort((a,b)=>(a.at||0)-(
 function thread(on,label){
   const d=el("details",{class:"thread","data-k":"th-"+on}), sum=el("summary",{}), list=el("div",{class:"th-list"});
   const draw=()=>{ const cs=commentsOn(on); sum.textContent=cs.length?"💬 "+cs.length+" comment"+(cs.length>1?"s":""):"💬 Comment"; list.innerHTML="";
-    cs.forEach(c=>{ const mine=c.who===actor();
+    cs.forEach(c=>{ const mine=!!state.me&&c.who===state.me;
       list.append(el("div",{class:"th-c"+(mine?" mine":"")},av(c.who),el("div",{class:"th-b"},el("div",{class:"th-m"},el("b",{},tById(c.who)?tName(c.who):"Someone"),el("span",{class:"sub"},ago(c.at||0)),
         (mine&&canWrite)?el("button",{class:"th-x",type:"button","aria-label":"Delete comment",onclick:()=>softDelete("comments",c,"comment")},"✕"):null),el("div",{class:"th-t"},c.text)))); }); };
   d._refresh=draw; draw(); d.append(sum,list);
-  if (canWrite){ const inp=el("input",{placeholder:"Write a comment…",maxlength:"300","aria-label":"Comment on "+(label||"this")});
+  if (canWrite&&state.me){ const inp=el("input",{placeholder:"Write a comment…",maxlength:"300","aria-label":"Comment on "+(label||"this")});
     const f=el("form",{class:"th-f"},inp,el("button",{class:"btn sm",type:"submit"},"Send"));
     f.addEventListener("submit",async e=>{ e.preventDefault(); const t=inp.value.trim(); if(!t) return; inp.value="";
-      if (!(await write(()=>db.collection("comments").add({on,text:t,who:actor(),at:Date.now()})))) inp.value=t; });
+      if (!(await write(()=>db.collection("comments").add({on,text:t,who:state.me,at:Date.now()})))) inp.value=t; });
     d.append(f); }
   return d; }
 const cCount=on=>{ const n=commentsOn(on).length; return n?el("span",{class:"clip"},"💬 "+n):null; };
@@ -1784,7 +1784,7 @@ function todayBox(v){
   box.append(el("div",{class:"td-top"},el("span",{class:"td-day num"},"Day "+st.day),el("span",{class:"sub"},"of "+st.total+" · "+fmtW(t))),tripBar(v));
   if (cur){ const n=nightsOf(cur), k=Math.round((t-D(cur.start))/864e5)+1, left=Math.round((D(cur.end)-t)/864e5);
     box.append(el("div",{class:"td-here"},el("div",{class:"td-lbl"},"You're in"),el("h3",{},shortPlace(cur.place)),el("div",{class:"sub"},"Night "+Math.min(k,n)+" of "+n+(cur.country?" · "+cur.country:"")),wxLine(cur)));
-    if (nxt&&left<=1) box.append(el("div",{class:"td-move"},el("b",{},left===0?"Moving on today → ":"Pack up, tomorrow you head to "),shortPlace(nxt.place),nxt.hop?.name?el("div",{class:"sub"},nxt.hop.name):null)); }
+    if (nxt&&left<=1) box.append(el("div",{class:"td-move"},el("b",{},"Pack up, tomorrow you head to "),shortPlace(nxt.place),nxt.hop?.name?el("div",{class:"sub"},nxt.hop.name):null)); }
   else box.append(el("div",{class:"td-here"},el("div",{class:"td-lbl"},"In between stops"),el("h3",{},"On the move")));
   if (nxt&&!(cur&&Math.round((D(cur.end)-t)/864e5)<=1)){ const dn=Math.round((D(nxt.start)-t)/864e5); box.append(el("div",{class:"td-next"},el("span",{class:"sub"},"Next"),el("b",{},shortPlace(nxt.place)),el("span",{class:"sub"},fmtW(D(nxt.start))+" · in "+dn+" day"+(dn===1?"":"s")+(nxt.hop?.name?" · "+nxt.hop.name:"")))); }
   if (!nxt) box.append(el("div",{class:"td-next"},el("span",{class:"sub"},"Last stop"),el("b",{},"Home soon"),el("span",{class:"sub"},"Trip ends "+fmtW(st.e0))));
@@ -1803,12 +1803,12 @@ function recapBox(v){ const st=tripState(v); if(!st||!st.done) return null; cons
     el("div",{class:"sum-row",style:"margin-top:10px"},fig(ss.length,"stops"),fig(crew.size,"friends crossed paths"),fig(money(spent),"logged spending"))); }
 
 /* ---------- passport stamps ---------- */
-const FLAG={Czechia:"🇨🇿","Czech Republic":"🇨🇿",Slovakia:"🇸🇰",Greece:"🇬🇷",Montenegro:"🇲🇪",Croatia:"🇭🇷",Italy:"🇮🇹",Germany:"🇩🇪",Austria:"🇦🇹",Hungary:"🇭🇺",Poland:"🇵🇱",France:"🇫🇷",Spain:"🇪🇸",Portugal:"🇵🇹",Monaco:"🇲🇨",Switzerland:"🇨🇭",Netherlands:"🇳🇱",Belgium:"🇧🇪",Denmark:"🇩🇰",Sweden:"🇸🇪",Norway:"🇳🇴",Finland:"🇫🇮",Albania:"🇦🇱","Bosnia and Herzegovina":"🇧🇦",Slovenia:"🇸🇮",Serbia:"🇷🇸",Turkey:"🇹🇷",Türkiye:"🇹🇷","United Kingdom":"🇬🇧",Ireland:"🇮🇪",Iceland:"🇮🇸",Malta:"🇲🇹",Cyprus:"🇨🇾",Romania:"🇷🇴",Bulgaria:"🇧🇬",Estonia:"🇪🇪",Latvia:"🇱🇻",Lithuania:"🇱🇹",Luxembourg:"🇱🇺","North Macedonia":"🇲🇰"};
+const FLAG={Czechia:"🇨🇿","Czech Republic":"🇨🇿",Slovakia:"🇸🇰",Greece:"🇬🇷",Montenegro:"🇲🇪",Croatia:"🇭🇷",Italy:"🇮🇹",Germany:"🇩🇪",Austria:"🇦🇹",Hungary:"🇭🇺",Poland:"🇵🇱",France:"🇫🇷",Spain:"🇪🇸",Portugal:"🇵🇹",Monaco:"🇲🇨",Switzerland:"🇨🇭",Netherlands:"🇳🇱",Belgium:"🇧🇪",Denmark:"🇩🇰",Sweden:"🇸🇪",Norway:"🇳🇴",Finland:"🇫🇮",Albania:"🇦🇱","Bosnia and Herzegovina":"🇧🇦",Slovenia:"🇸🇮",Serbia:"🇷🇸",Turkey:"🇹🇷",Türkiye:"🇹🇷","United Kingdom":"🇬🇧",Ireland:"🇮🇪",Iceland:"🇮🇸",Malta:"🇲🇹",Cyprus:"🇨🇾",Romania:"🇷🇴",Bulgaria:"🇧🇬",Estonia:"🇪🇪",Latvia:"🇱🇻",Lithuania:"🇱🇹",Luxembourg:"🇱🇺","North Macedonia":"🇲🇰","Bosnia and Herz.":"🇧🇦",Bosnia:"🇧🇦"};
 function hashStr(t){ let h=2166136261; for (const c of String(t)) { h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
 const INKS=["#B23A48","#1F5E8C","#2D6A4F","#7B3F9E","#B5651D","#1C6E6E","#8C2F39","#3A4F9E"];
 function stampSVG(country,cities,date,seed,inked){
   const h=hashStr(country+seed), ink=INKS[h%INKS.length], rot=((h>>3)%23)-11, shape=(h>>7)%4, id="sp"+(h%1e6);
-  const up=String(country).toUpperCase(), fl=FLAG[country]||"✈", d=D(date), dd=String(d.getDate()).padStart(2,"0")+" "+MON[d.getMonth()].toUpperCase()+" "+d.getFullYear();
+  const up=esc(String(country).toUpperCase().slice(0,22)), fl=FLAG[country]||"✈", d=D(date), dd=String(d.getDate()).padStart(2,"0")+" "+MON[d.getMonth()].toUpperCase()+" "+d.getFullYear();
   const city=String(cities[0]||"").toUpperCase().slice(0,16);
   let frame="";
   if (shape===0) frame=`<circle cx="60" cy="60" r="54" fill="none" stroke="${ink}" stroke-width="3"/><circle cx="60" cy="60" r="47" fill="none" stroke="${ink}" stroke-width="1.2"/><path id="${id}" d="M60,60 m-38,0 a38,38 0 1,1 76,0" fill="none"/><text font-size="11" font-weight="700" letter-spacing="2" fill="${ink}"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${up}</textPath></text><text x="60" y="84" text-anchor="middle" font-size="8.5" font-weight="600" fill="${ink}">${dd}</text>`;
@@ -1826,19 +1826,19 @@ function passportBox(tid){
   const grid=el("div",{class:"stamps"});
   for (const [c,info] of by){ const inked=info.first<=ti;
     const st=el("button",{class:"stamp"+(inked?" inked":""),type:"button",title:c+": "+info.cities.join(", "),onclick:e=>{ const b=e.currentTarget; b.classList.remove("thunk"); void b.offsetWidth; b.classList.add("thunk"); toast(c+" · "+info.cities.join(", ")+" · from "+fmt(info.first)); }});
-    st.innerHTML=stampSVG(esc(c),info.cities.map(esc),info.first,tid,inked); grid.append(st); }
+    st.innerHTML=stampSVG(c,info.cities,info.first,tid,inked); grid.append(st); }
   return el("div",{class:"box passport"},el("div",{class:"pp-h"},el("div",{},el("div",{class:"h2",style:"margin:0"},"Passport"),el("div",{class:"sub"},by.size+" countries · "+ss.length+" stops · ≈ "+(Math.round(km/10)*10).toLocaleString("en-AU")+" km between stops")),el("span",{class:"pp-count num"},stamped+"/"+by.size)),grid,
     el("div",{class:"sub",style:"margin-top:8px"},stamped?"Stamps ink in as you arrive. Tap one for the cities.":"Faded stamps ink in the day you arrive. Tap one for the cities.")); }
 
 /* ---------- route checker ---------- */
 const shortPlace=p=>String(p||"").replace(/\s*\(.*\)/,"");
 function homeFlight(tid){ // the leg that lands back home (same airport as the first departure)
-  const fls=state.tasks.filter(t=>t.kind==="flight"&&t.owner===tid&&(t.legs||[]).length);
-  for (const f of fls){ const legs=f.legs, home=String(legs[0].from||"").toUpperCase(); const back=legs.find((l,i)=>i>0&&String(l.to||"").toUpperCase()===home&&l.date); if (back) return {date:back.date,from:back.from,to:back.to}; }
-  return null; }
+  const legs=state.tasks.filter(t=>t.kind==="flight"&&t.owner===tid).flatMap(t=>t.legs||[]).filter(l=>l.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if (legs.length<2) return null; const home=String(legs[0].from||"").toUpperCase().split(/[\/ ]/)[0];
+  const back=[...legs].reverse().find((l,i)=>String(l.to||"").toUpperCase().split(/[\/ ]/)[0]===home&&l!==legs[0]); return back?{date:back.date,from:back.from,to:back.to}:null; }
 function routeIssues(tid){
   const ss=stopsOf(tid).filter(s=>s.start&&s.end), out=[];
-  for (let i=0;i<ss.length;i++) for (let j=i+1;j<ss.length;j++){ const a=ss[i], b=ss[j]; if (b.start<a.end) out.push({lvl:"bad",id:b.id,t:shortPlace(b.place)+" ("+fmt(b.start)+"–"+fmt(b.end)+") overlaps "+shortPlace(a.place)+" ("+fmt(a.start)+"–"+fmt(a.end)+")"}); }
+  for (let i=0;i<ss.length;i++) for (let j=i+1;j<ss.length;j++){ const a=ss[i], b=ss[j]; if (a.start===a.end||b.start===b.end) continue; if (b.start<a.end) out.push({lvl:"bad",id:b.id,t:shortPlace(b.place)+" ("+fmt(b.start)+"–"+fmt(b.end)+") overlaps "+shortPlace(a.place)+" ("+fmt(a.start)+"–"+fmt(a.end)+")"}); }
   let last=ss[0];
   for (let i=1;i<ss.length;i++){ const a=last, b=ss[i], gap=Math.round((D(b.start)-D(a.end))/864e5); if (b.end>last.end) last=b; if (b.start<a.end) continue;
     if (gap>0) out.push({lvl:"warn",id:b.id,t:gap+" night"+(gap>1?"s":"")+" with nowhere to stay: "+fmt(a.end)+" → "+fmt(b.start)+" between "+shortPlace(a.place)+" and "+shortPlace(b.place)});
@@ -1889,7 +1889,7 @@ const pendingR=new Map();
 function typingIn(sel){ const c=document.querySelector(sel), a=document.activeElement; return !!(c&&a&&c.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
 function guard(sel,fn){ return function(){ if (typingIn(sel)){ pendingR.set(sel,fn); return; } pendingR.delete(sel); fn(); }; }
 document.addEventListener("focusout",()=>setTimeout(()=>{ for (const [sel,fn] of [...pendingR]) if(!typingIn(sel)){ pendingR.delete(sel); fn(); } },50));
-renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks); renderNotes=guard("#noteList",renderNotes);
+renderBudget=guard("#budget",renderBudget); renderSplit=guard("#split",renderSplit); renderPacking=guard("#packing",renderPacking); renderTasks=guard("#taskList",renderTasks); renderNotes=guard("#noteList",renderNotes); renderTrips=guard("#trips",renderTrips);
 function renderAll(){ applyViewColor(); renderViewAs(); fillSelects(); renderHeader(); renderDash(); renderPeople(); renderMap(); renderWhere(); renderTimeline(); renderTasks(); renderBudget(); renderSplit(); renderTrips(); renderPacking(); renderNotes();
   if (state.sel&&!state.stops.find(x=>x.id===state.sel)){ state.sel=null; $("#stopCard").hidden=true; }
   document.querySelectorAll("#taskForm input,#taskForm select,#taskForm button,#noteForm input,#noteForm button,#stopForm input,#stopForm select,#stopForm button").forEach(x=>x.disabled=!canWrite); }
@@ -2054,7 +2054,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
   /* ---------- crew & logins (organiser only) ---------- */
   async function crewCall(body){ const {data,error}=await SB.functions.invoke("crew",{body}); if (error){ let msg="Something went wrong."; try{ const j=await error.context.json(); msg=j.error||msg; }catch(e){} throw new Error(msg); } return data; }
   async function loadCrew(){ const box=$("#crewList"); box.innerHTML=""; box.append(el("div",{class:"sub"},"Loading…"));
-    try{ const {crew}=await crewCall({action:"list"}); box.innerHTML="";
+    try{ const r=await crewCall({action:"list"}); const crew=(r&&r.crew)||[]; box.innerHTML="";
       crew.forEach(c=>{ const has=c.emails.length, isMe=c.id===state.me;
         const rm=(!isMe&&has)?el("button",{class:"btn ghost sm",type:"button",onclick:async e=>{ const b=e.currentTarget; if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tap again to remove"; b.style.color="var(--red)"; return; } b.disabled=true; try{ await crewCall({action:"remove",traveler:c.id}); toast(c.name+" can no longer sign in. Their plans are still here."); loadCrew(); }catch(err){ toast(err.message); b.disabled=false; } }},"Remove access"):null;
         box.append(el("div",{class:"crew-row"},av(c.id),el("span",{},el("b",{},c.name),el("span",{class:"sub",style:"display:block"},has?c.emails.join(", "):"No login yet")),rm||el("span",{class:"pill "+(has?"p-ok":"p-leg")},has?(isMe?"You":"Can sign in"):"—"))); });
@@ -2075,7 +2075,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
       $("#cfName").value=""; $("#cfEmail").value=""; $("#cfPass").value=""; loadCrew(); logAct("added "+r.name+" to the crew");
     }catch(err){ toast(err.message,{ms:8000}); }
     b.disabled=false; b.textContent="Add to the crew"; });
-  const THEMES=["auto","light","dark"], applyTheme=t=>{ if(t==="auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t; $("#themeBtn").textContent="Theme: "+t[0].toUpperCase()+t.slice(1); };
+  const THEMES=["auto","light","dark"], applyTheme=t=>{ if(t==="auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t; const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=(t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches))?"#0D1218":"#16202B"; $("#themeBtn").textContent="Theme: "+t[0].toUpperCase()+t.slice(1); };
   applyTheme(store.get("theme")||"auto");
   $("#themeBtn").addEventListener("click",()=>{ const cur=store.get("theme")||"auto", nx=THEMES[(THEMES.indexOf(cur)+1)%3]; store.set("theme",nx); applyTheme(nx); });
   $("#photoBtn").addEventListener("click",()=>{ if(!state.me){ toast("Your account isn't linked to a traveller yet."); return; } $("#photoIn").value=""; $("#photoIn").click(); });
@@ -2102,7 +2102,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
       renderAll(); if (viewing()) fitTo(viewing());
       banner("You're offline, so this is your saved copy from "+new Date(c.savedAt).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})+". You can make changes again once you're back online.");
       addEventListener("online",()=>location.reload(),{once:true}); return true; }
-  function saveCache(){ clearTimeout(saveCache.t); saveCache.t=setTimeout(()=>{ try{ localStorage.setItem("cache:v1",JSON.stringify({savedAt:Date.now(),email:$("#acctEmail").textContent,me:state.me,stops:state.stops,tasks:state.tasks,notes:state.notes,expenses:state.expenses,travelers:state.travelers,packing:state.packing,avatars:state.avatars,comments:state.comments.slice(-200),activity:[...state.activity].sort((a,b)=>b.at-a.at).slice(0,40),settings:state.settings})); }catch(e){} },800); }
+  function saveCache(){ clearTimeout(saveCache.t); saveCache.t=setTimeout(()=>{ try{ localStorage.setItem("cache:v1",JSON.stringify({savedAt:Date.now(),email:$("#acctEmail").textContent,me:state.me,stops:state.stops,tasks:state.tasks,notes:state.notes,expenses:state.expenses,travelers:state.travelers,packing:state.packing,avatars:state.avatars,comments:[...state.comments].sort((a,b)=>(a.at||0)-(b.at||0)).slice(-200),activity:[...state.activity].sort((a,b)=>b.at-a.at).slice(0,40),settings:state.settings})); }catch(e){} },800); }
   async function boot(){
     let user=null, netFail=false;
     try{ const r=await SB.auth.getUser(); user=r.data&&r.data.user; if (!user&&r.error&&(!navigator.onLine||/fetch|network|Load failed/i.test(r.error.message||""))) netFail=true; }catch(e){ netFail=true; }
