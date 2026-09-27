@@ -504,7 +504,7 @@ body{font-size:15px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:g
     <div class="stub"><div class="big num" id="cdBig">—</div><div class="lbl" id="cdLbl">days to go</div></div>
   </header>
 
-  <div class="topbar"><div class="viewas" id="viewas" role="group" aria-label="Whose view"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
+  <div class="topbar"><div class="viewas" id="viewas" role="group" aria-label="Whose view"></div><div class="acct-wrap"><button class="iconbtn2" id="searchIcon" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="iconbtn2 mebtn" id="meBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">•</button><div class="acct" id="acctMenu" role="menu" hidden><span id="acctEmail"></span><div id="pwBox" hidden><input type="password" id="pwNew" placeholder="New password (8+ characters)" minlength="8" aria-label="New password"> <button class="btn sm" id="pwSave" type="button">Save</button></div><button class="btn ghost sm" id="searchBtn" type="button">Search <kbd>/</kbd></button><button class="btn ghost sm" id="appBtn" type="button">Get the app</button><button class="btn ghost sm" id="keyBtn" type="button" hidden>Turn on Face ID</button><button class="btn ghost sm" id="notifBtn" type="button" hidden>Turn on notifications</button><button class="btn ghost sm" id="pwBtn" type="button">Change password</button><button class="btn ghost sm" id="signOut" type="button">Sign out</button></div></div></div>
 
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
@@ -1245,6 +1245,7 @@ $("#noteForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=
 /* ---------- toasts, undo, activity ---------- */
 function toast(msg,opts={}){ const box=$("#toasts"); if(!box) return; const t=el("div",{class:"toast",role:"status"},el("span",{},msg));
   if (opts.undo) t.append(el("button",{class:"toast-btn",type:"button",onclick:()=>{ opts.undo(); t.remove(); }},"Undo"));
+  if (opts.onAction) t.append(el("button",{class:"toast-btn",type:"button",onclick:()=>{ opts.onAction(); t.remove(); }},opts.action||"OK"));
   box.append(t); while (box.children.length>3) box.firstChild.remove(); setTimeout(()=>t.remove(),opts.ms||6500); }
 async function softDelete(col,obj,label){ const {id,...data}=obj; if (await write(()=>db.doc(col+"/"+id).delete())) toast("Deleted "+label,{undo:()=>write(()=>db.doc(col+"/"+id).set(data)).then(ok=>ok&&toast("Restored"))}); }
 const actor=()=>state.me||viewing()||"";
@@ -1510,7 +1511,8 @@ $("#copyBtn").addEventListener("click",copyForClaude);
 /* ---------- boot ---------- */
 $("#gaz").append(...GAZ.map(g=>el("option",{value:g.name},g.country)));
 { const off=Math.round((today()-SCRUB0)/864e5); $("#scrub").value=String(off>=0&&off<=91?off:14); }
-const savedTab=store.get("hubTab"); if (savedTab&&document.querySelector('[data-panel="'+savedTab+'"]')) showTab(savedTab);
+const savedTab=location.hash==="#map"?"map":store.get("hubTab"); if (savedTab&&document.querySelector('[data-panel="'+savedTab+'"]')) showTab(savedTab);
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message",e=>{ if(e.data&&e.data.go) showTab(e.data.go); });
 if (location.hash&&document.querySelector('[data-panel="'+location.hash.slice(1)+'"]')) showTab(location.hash.slice(1));
 setVB(); renderAll();
 /* ---------- Supabase backend (replaces the Claude runtime) ---------- */
@@ -1604,6 +1606,36 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     try{ const r=await SB.auth.passkey.list(); if (r&&!r.error&&Array.isArray(r.data)){ has=r.data.length>0; store.set("hasKey",has?"1":""); } }catch(e){}
     $("#keyBtn").hidden=has;
     if (!has&&matchMedia("(display-mode: standalone)").matches&&!store.get("keyAsked")){ store.set("keyAsked","1"); toast("Tip: tap “Turn on "+bioName+"” at the top to skip your password next time.",{ms:9000}); } }
+  /* ---------- push notifications (new stops on the map) ---------- */
+  const VAPID_PUB="BP1nNYWeSplA0lUENz8KBVkM7l_my1AgxKeeK7RNkUAFXcbPrtt4JmfwqKUMQxt-jQXCAtdZWeS9lEtMaQDFW4A";
+  const isIOS=/iPhone|iPad/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  const canPush=("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window)&&location.protocol==="https:";
+  const b64u=s=>{ const p="=".repeat((4-s.length%4)%4), b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/")); return Uint8Array.from(b,c=>c.charCodeAt(0)); };
+  async function currentSub(){ if(!canPush) return null; const reg=await navigator.serviceWorker.ready; return reg.pushManager.getSubscription(); }
+  async function checkNotif(){ const b=$("#notifBtn");
+    if (!canPush){ b.hidden=!isIOS; b.textContent="Turn on notifications"; return; }   // iPhone in Safari: explain they need the app
+    let sub=null; try{ sub=await currentSub(); }catch(e){}
+    const on=!!sub&&Notification.permission==="granted";
+    b.hidden=false; b.textContent=on?"Turn off notifications":"Turn on notifications";
+    if (on){ try{ await SB.from("push_subs").upsert({endpoint:sub.endpoint,sub:sub.toJSON()}); }catch(e){} }
+    else if (standalone&&Notification.permission==="default"&&!store.get("notifAsked")){ store.set("notifAsked","1"); toast("Want a buzz when someone adds a stop to the map?",{ms:12000,action:"Turn on",onAction:()=>b.click()}); } }
+  $("#notifBtn").addEventListener("click",async()=>{ const b=$("#notifBtn");
+    if (!canPush){ toast(isIOS?"On iPhone, notifications only work in the app. Add the hub to your Home Screen first, open it from there, then turn them on.":"This browser can't show notifications.",{ms:9000}); if(isIOS) openInstall(); return; }
+    b.disabled=true;
+    try{
+      const sub=await currentSub();
+      if (sub&&Notification.permission==="granted"){ await SB.from("push_subs").delete().eq("endpoint",sub.endpoint); await sub.unsubscribe(); toast("Notifications off."); }
+      else {
+        const perm=await Notification.requestPermission();
+        if (perm!=="granted"){ toast(perm==="denied"?"Notifications are blocked. Allow them in your phone's settings for this app, then try again.":"No problem, maybe later."); }
+        else { const reg=await navigator.serviceWorker.ready;
+          const s2=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});
+          const {error}=await SB.from("push_subs").upsert({endpoint:s2.endpoint,sub:s2.toJSON()});
+          toast(error?"Couldn't save that, try again.":"Notifications on. You'll hear when someone adds a stop to the map."); }
+      }
+    }catch(e){ toast("Couldn't turn on notifications: "+(e.message||e)); }
+    b.disabled=false; checkNotif(); });
   $("#pwBtn").addEventListener("click",()=>{ $("#pwBox").hidden=!$("#pwBox").hidden; if(!$("#pwBox").hidden) $("#pwNew").focus(); });
   $("#pwSave").addEventListener("click",async()=>{ const pw=$("#pwNew").value; if (pw.length<8){ banner("Choose a password of at least 8 characters."); return; }
     const {error}=await SB.auth.updateUser({password:pw}); if (error) banner("Couldn't change your password: "+error.message); else { $("#pwNew").value=""; $("#pwBox").hidden=true; banner("Password changed."); } });
@@ -1630,7 +1662,7 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {data:mine,error}=await SB.rpc("my_traveler");
     if (error&&/fetch|network|Load failed/i.test(error.message||"")&&offlineBoot()) return;
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
-    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey();
+    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey(); checkNotif();
     if (CAME_FROM_LINK){ $("#pwBox").hidden=false; $("#acctMenu").hidden=false; banner("Welcome! Choose a password in the menu (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
     myId=user.id; canWrite=true; userNs=null; state.me=mine;
     const be=makeBackend(SB); db=be.db; assets=be.files;

@@ -1,6 +1,6 @@
 // Keeps the hub's page and libraries cached so it opens without signal.
 // Trip data itself is cached by the page (last copy you saw), not here.
-const CACHE = "euro27-v1";
+const CACHE = "euro27-v2";
 const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png",
   "https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"];
@@ -19,4 +19,20 @@ self.addEventListener("fetch", e => {
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {       // cache first for libraries, fonts, icons
     if (r.ok && (url.origin === location.origin || /cdnjs|jsdelivr|fonts\.(googleapis|gstatic)/.test(url.hostname))) { const c = r.clone(); caches.open(CACHE).then(k => k.put(req, c)); }
     return r; })));
+});
+
+// Push notifications: someone added a stop to the map.
+self.addEventListener("push", e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || "Euro Summer '27", {
+    body: d.body || "Something new in the hub", tag: d.tag, renotify: !!d.tag,
+    icon: "icon-192.png", badge: "icon-192.png", data: { url: d.url || "./" } }));
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => {
+    for (const c of cs) if (c.url.startsWith(self.registration.scope)) { c.postMessage({ go: "map" }); return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });
