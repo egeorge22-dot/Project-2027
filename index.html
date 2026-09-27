@@ -855,7 +855,7 @@ const tColor=id=>COLORS[tIdx(id)%COLORS.length];
 const tName=id=>tById(id)?.name||"Someone";
 const stopsOf=id=>state.stops.filter(s=>s.traveler===id).sort((a,b)=>(a.start||"").localeCompare(b.start||""));
 const money=eur=>{ const v=state.cur==="AUD"?eur*num(state.settings.eurAud||1.622):eur; return (state.cur==="AUD"?"A$":"€")+Math.round(v).toLocaleString("en-AU"); };
-const viewing=()=>state.view!=="all"&&tById(state.view)?state.view:null;
+const viewing=()=>tById(state.view)?state.view:(tById(state.me)?state.me:(state.travelers[0]?state.travelers[0].id:null));
 const whoDot=id=>el("span",{class:"who"},el("span",{class:"dotc",style:"--c:"+(id?tColor(id):"var(--ink-3)")}),id?tName(id):"Group");
 
 /* ---------- view switch ---------- */
@@ -875,7 +875,7 @@ function renderViewAs(){
   const subOf=t=>{ const ss=stopsOf(t.id); return ss.length?ss.length+" stops · "+fmt(ss[0].start)+" – "+fmt(ss[ss.length-1].end):"No stops yet"; };
   const me=state.travelers.find(t=>t.id===state.me);
   if (me) list.append(item(me.id,me.name,subOf(me),true));
-  list.append(item("all","Everyone","Group dashboard",false),el("div",{class:"who-sep"}));
+  list.append(el("div",{class:"who-sep"}));
   for (const t of state.travelers) if (!me||t.id!==me.id) list.append(item(t.id,t.name,subOf(t),(myId&&t.uid===myId)));
   btn.addEventListener("click",e=>{ e.stopPropagation(); list.hidden=!list.hidden; btn.setAttribute("aria-expanded",String(!list.hidden)); });
   box.append(btn,list);
@@ -1089,6 +1089,7 @@ function renderDash(){
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),flow,
       legsN?el("details",{class:"more"},el("summary",{},"Flights & transport · "+legsN+" legs · "+money(legsCost)),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
       el("div",{class:"actions"},el("button",{class:"btn ghost sm",onclick:()=>showTab("trips")},"Full itinerary"),el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add to my calendar")))); }
+  right.append(activityBox(4));
   const ms=meetups(v); if (ms.length) right.append(el("div",{class:"box"},el("div",{class:"h2"},"Crossing paths"),ms.slice(0,5).map(m=>el("div",{class:"meet"},`${tName(m.a===v?m.b:m.a)} · ${m.place} · ${fmt(m.s)}–${fmt(m.e)}`))));
   if (userNs&&myId&&canWrite){ const claimed=t.uid===myId, other=state.travelers.find(x=>x.uid===myId&&x.id!==v);
     right.append(el("div",{class:"box"},el("div",{class:"sub"},claimed?"This hub opens on your dashboard.":"Is this you? The hub will open on "+t.name+"'s dashboard next time."),
