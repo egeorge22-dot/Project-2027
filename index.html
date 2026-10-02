@@ -693,6 +693,83 @@ body{background:var(--ground);isolation:isolate}
 .split-left{font-size:12.5px}
 .split-left.bad{color:var(--red)}
 .cat-ic{font-size:16px;line-height:1}
+
+/* ============ look & feel pass ============ */
+:root{--t0:#2F4BB8;--t2:#1A8BC4;--land-trip:#DDE3F6;--sun:#F2B544}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--t0:#93A4FF;--t2:#5DBDEB;--land-trip:#2A3352}}
+:root[data-theme="dark"]{--t0:#93A4FF;--t2:#5DBDEB;--land-trip:#2A3352}
+/* one brand accent, not the person colour */
+.ticket h1 span,.login .top h1 span{color:var(--sun)!important}
+.ticket::after{border-color:color-mix(in srgb,var(--sun) 16%,transparent)}
+/* quieter labels: sentence case, body font */
+.eyebrow,.ticket-meta,.stub .lbl,.td-lbl,.pcat,.sk,.fl h4,th,.leg .when,.day .dh,.tl .d,.scrub .d,.win-l,.pill,.opt .tag,.chip .tag,.tab .badge,.vchip .me{font-family:var(--body);text-transform:none;letter-spacing:0}
+.eyebrow{font-size:13px;opacity:.75;font-weight:500}
+.ticket-meta{font-size:13px;opacity:.7;gap:4px 14px}
+.stub .lbl{font-size:13px;opacity:.75}
+.td-lbl,.pcat,.fl h4,th{font-size:12.5px;font-weight:600;color:var(--ink-3)}
+.pill{font-size:12px;font-weight:500;padding:2px 9px}
+.leg .when{font-size:13px;color:var(--ink-3)}
+select{color:var(--ink)}
+.fstack label,.imp-card label{color:var(--ink-3)}
+.fstack select,.fstack input{color:var(--ink)}
+/* compact header off Home */
+body[data-tab]:not([data-tab="dash"]) .ticket{border-radius:16px}
+body[data-tab]:not([data-tab="dash"]) .ticket::after{display:none}
+body[data-tab]:not([data-tab="dash"]) .ticket-main{padding:12px 18px;gap:0;align-content:center}
+body[data-tab]:not([data-tab="dash"]) .ticket h1{font-size:24px;line-height:1}
+body[data-tab]:not([data-tab="dash"]) .eyebrow,body[data-tab]:not([data-tab="dash"]) .ticket-meta{display:none}
+body[data-tab]:not([data-tab="dash"]) .stub{padding:12px 18px;display:flex;align-items:baseline;gap:6px;justify-items:end}
+body[data-tab]:not([data-tab="dash"]) .stub .big{font-size:24px!important}
+body[data-tab]:not([data-tab="dash"]) .stub .lbl{max-width:none;font-size:12.5px}
+@media (max-width:620px){body[data-tab]:not([data-tab="dash"]) .ticket h1 br{display:none} body[data-tab]:not([data-tab="dash"]) .ticket h1{font-size:21px} body[data-tab]:not([data-tab="dash"]) .stub .lbl{display:none}}
+/* route line */
+.metro{position:relative;overflow-x:auto;scrollbar-width:none;margin:2px -18px 0;padding:0 18px 4px;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
+.metro::-webkit-scrollbar{display:none}
+.metro-in{display:flex;width:max-content;padding-top:4px}
+.st{position:relative;flex:0 0 96px;display:grid;justify-items:center;text-align:center;gap:2px;padding:30px 4px 4px;background:none;border:0;font:inherit;color:var(--ink);cursor:pointer;border-radius:12px}
+.st:hover{background:var(--line-2)}
+.st::before{content:"";position:absolute;top:15px;left:0;right:0;height:4px;background:var(--c)}
+.st:first-child::before{left:50%}.st:last-child::before{right:50%}
+.st.past::before{opacity:1}.st:not(.past)::before{background:color-mix(in srgb,var(--c) 35%,var(--line-2))}
+.st.now::before{background:linear-gradient(90deg,var(--c) 50%,color-mix(in srgb,var(--c) 35%,var(--line-2)) 50%)}
+.st-dot{position:absolute;top:8px;left:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--panel);border:4px solid var(--c);z-index:1}
+.st.past .st-dot{background:var(--c)}
+.st.now .st-dot{width:24px;height:24px;margin-left:-12px;top:5px;background:var(--c);box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 22%,transparent)}
+.st-leg{position:absolute;top:4px;left:-13px;width:26px;height:26px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:13px;z-index:2;box-shadow:0 0 0 2px var(--panel)}
+.st-name{font-weight:600;font-size:13.5px;line-height:1.2}
+.st-date{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+/* itinerary rail */
+.rail{position:relative;padding-left:40px;margin-top:4px}
+.rail::before{content:"";position:absolute;left:17px;top:26px;bottom:26px;width:4px;border-radius:4px;background:color-mix(in srgb,var(--c) 30%,var(--line-2))}
+.rail .leg{position:relative;overflow:visible;margin-bottom:10px}
+.rail .leg summary{grid-template-columns:1fr auto}
+.rail .leg .code{position:absolute;left:-38px;top:13px;width:32px;height:32px;border-radius:50%;background:var(--panel);border:4px solid var(--c);color:var(--c);font-family:var(--body);font-weight:700;font-size:12px;z-index:1}
+.rail .leg[open] .code{background:var(--c);color:#fff}
+.rail .leg h3{font-family:var(--display);font-weight:800;font-size:23px;letter-spacing:.01em;line-height:1.05}
+.rail-hop{position:relative;display:flex;align-items:center;gap:8px;margin:-2px 0 8px;font-size:12.5px;color:var(--ink-3)}
+.rh-ic{position:absolute;left:-34px;width:24px;height:24px;border-radius:50%;background:var(--ground);display:grid;place-items:center;font-size:12px;z-index:1}
+.rh-c{margin-left:auto;white-space:nowrap}
+/* bookings: grouped list, check circle */
+.bk-group{display:flex;align-items:center;gap:8px;margin:18px 2px 8px;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.bk-group:first-child{margin-top:4px}
+.bk-group.late{color:var(--red)}
+.bk-gn{font-size:11.5px;font-weight:600;background:var(--line-2);color:var(--ink-3);border-radius:99px;padding:1px 7px}
+.bk-group.late .bk-gn{background:var(--red-soft);color:var(--red)}
+.bklist{gap:8px}
+.bkchk{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:transparent;font-size:17px;font-weight:700;cursor:pointer;display:grid;place-items:center;transition:background .15s,border-color .15s,color .15s,transform .1s;flex-shrink:0}
+.bkchk:hover:not(:disabled){border-color:var(--ok);color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.bkchk[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.bkchk:active{transform:scale(.92)}
+.bk-top,.fl-top{grid-template-columns:auto 1fr auto!important;grid-template-areas:none!important}
+.bk-top>.bkchk,.fl-top>.bkchk{order:-1;grid-area:auto!important}
+.bk-top>.bk-main,.fl-top>.bk-main,.bk-top>.chevb,.fl-top>.chevb{grid-area:auto!important}
+.bk.done .bk-t,.fl.done .bk-t{color:var(--ink-3)}
+.grid2>*,.stack>*,.box{min-width:0}
+.bk-t{font-size:15px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stamp:not(.inked){opacity:.16}}
+:root[data-theme="dark"] .stamp:not(.inked){opacity:.16}
+/* map add-stop fold */
+#addStopBox>summary{font-size:15px}
 </style>
 </head>
 <body>
@@ -764,9 +841,9 @@ body{background:var(--ground);isolation:isolate}
       <div class="stack">
         <div class="box"><div class="h2" id="whereTitle">On —</div><div id="whereis"></div><div id="meetups"></div></div>
         <div class="box" id="stopCard" hidden></div>
-        <div class="box">
-          <div class="h2">Add a stop</div>
-          <form class="fstack" id="stopForm">
+        <details class="box more" id="addStopBox">
+          <summary><span>+ Add a stop</span></summary>
+          <form class="fstack" id="stopForm" style="margin-top:12px">
             <label>Who<select id="sfWho"></select></label>
             <label>Place<input id="sfPlace" list="gaz" placeholder="Start typing, e.g. Naxos" maxlength="60" required autocomplete="off"></label>
             <datalist id="gaz"></datalist>
@@ -776,7 +853,7 @@ body{background:var(--ground);isolation:isolate}
             <label>Note (optional)<input id="sfNote" maxlength="140" placeholder="Hostel booked? Meeting anyone?"></label>
             <button class="btn" type="submit">Add stop</button>
           </form>
-        </div>
+        </details>
       </div>
     </div>
     <div class="box" id="crewTL" style="margin-top:16px"></div>
@@ -875,6 +952,7 @@ const openDet=new Set();
 document.addEventListener("toggle",e=>{ const k=e.target&&e.target.dataset&&e.target.dataset.k; if(k) (e.target.open?openDet.add(k):openDet.delete(k)); },true);
 const el=(tag,a={},...kids)=>{ const e=document.createElement(tag); setA(e,a); if(tag==="details"&&a["data-k"]&&openDet.has(a["data-k"])) e.open=true; for (const k of kids.flat()) if(k!=null&&k!==false) e.append(k instanceof Node?k:document.createTextNode(String(k))); return e; };
 const sv=(tag,a={})=>{ const e=document.createElementNS(SVGNS,tag); setA(e,a); return e; };
+const MONF=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], WK=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const D=s=>{ const [y,m,d]=String(s).split("-").map(Number); return new Date(y,(m||1)-1,d||1); };
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -1265,7 +1343,7 @@ function renderDash(){
   else if (nxt){ const n=nightsOf(nxt); left.append(el("div",{class:"box"},el("div",{class:"h2"},cur?"You're in":"Next up"),
     el("div",{class:"next",style:"--c:"+tColor(v)},el("h3",{},nxt.place),el("div",{class:"sub num"},fmtW(D(nxt.start))+" – "+fmtW(D(nxt.end))+" · "+n+" nights"),
       nxt.hop?.name?el("div",{class:"sub"},"Getting there: "+nxt.hop.name):null,(nxt.events||[]).length?el("div",{class:"sub"},"Planned: "+nxt.events.map(e=>e.name).join(", ")):null,nxt.note?el("div",{},nxt.note):null,wxLine(nxt)))); }
-  else left.append(el("div",{class:"box"},el("div",{class:"h2"},"Start your route"),el("p",{class:"sub"},"Add your stops on the Map tab. Your budget, itinerary and countdown build themselves from them."),el("button",{class:"btn",onclick:()=>{ showTab("map"); $("#sfWho").value=v; }},"Add my first stop")));
+  else left.append(el("div",{class:"box"},el("div",{class:"h2"},"Start your route"),el("p",{class:"sub"},"Add your stops on the Map tab. Your budget, itinerary and countdown build themselves from them."),el("button",{class:"btn",onclick:()=>{ showTab("map"); $("#addStopBox").open=true; $("#sfWho").value=v; }},"Add my first stop")));
   { const pct=mine.length?Math.round(mineDone/mine.length*100):0, nd=mine.filter(x=>x.status!=="done"&&x.due).sort(sortTasks)[0];
     left.append(el("div",{class:"box sum"},el("div",{class:"sum-row"},fig(b.n||"—","nights"),fig(ss.length?money(b.total):"—",(state.tier==="h"?"hostel":"hotel")+" budget"),fig(money(spentBy(v)),"spent so far")),
       el("div",{class:"sum-ready"},el("span",{},el("b",{},mineDone+"/"+mine.length)," booked"),el("div",{class:"meter"},el("b",{style:"width:"+pct+"%"}))),
@@ -1278,7 +1356,7 @@ function renderDash(){
     fl.forEach(f=>tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(ss[0].start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},"Flight"),f.name),el("span",{class:"muted num",style:"font-size:12px"},money(num(f.cost))))));
     ss.forEach(s=>{ if (s.hop?.name&&num(s.hop.cost)>0) tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(s.start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},/^\s*bus\b/i.test(s.hop.name)?"Bus":/fly|flight/i.test(s.hop.name)?"Flight":/\bbus\b/i.test(s.hop.name)?"Bus":/ferry|catamaran|boat/i.test(s.hop.name)?"Ferry":"Train"),s.hop.name),el("span",{class:"muted num",style:"font-size:12px"},money(num(s.hop.cost))))); });
     const legsN=tl.children.length, legsCost=fl.reduce((a,f)=>a+num(f.cost),0)+ss.reduce((a,s)=>a+(s.hop?.name?num(s.hop.cost):0),0);
-    const flow=el("div",{class:"rflow",style:"--c:"+tColor(v)}); ss.forEach((s,i)=>{ if(i) flow.append(el("span",{class:"ar"},"→")); flow.append(el("span",{class:"rs"+(s.start<=ti&&ti<s.end?" now":"")},s.place.replace(/\s*\(.*\)/,""),el("small",{class:"num"},fmt(s.start)+" · "+nightsOf(s)+"n"))); });
+    const flow=routeLine(v);
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),flow,
       legsN?el("details",{class:"more","data-k":"dashTransport"},el("summary",{},"Flights & transport · "+legsN+" legs · "+money(legsCost)),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
       el("div",{class:"actions"},el("button",{class:"btn ghost sm",onclick:()=>showTab("trips")},"Full itinerary"),el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add to my calendar")))); }
@@ -1306,11 +1384,13 @@ function renderTasks(){
   const list=scope.filter(t=>f==="all"||(f==="done"?t.status==="done":t.status!=="done")).sort(sortTasks);
   const box=$("#taskList"); box.innerHTML="";
   if (!list.length) box.append(el("div",{class:"empty"},f==="done"?"Nothing booked yet.":"Nothing waiting. Add a booking above."));
-  for (const t of list){ const di=dueInfo(t), done=t.status==="done";
+  const grpOf=t=>{ if (t.status==="done") return "Booked"; if (!t.due) return "No date yet"; if (daysTo(t.due)<0) return "Overdue"; const d=D(t.due); return MONF[d.getMonth()]+" "+d.getFullYear(); };
+  const gCount={}; list.forEach(t=>{ const g=grpOf(t); gCount[g]=(gCount[g]||0)+1; }); let lastG=null;
+  const ordered=[...list.filter(t=>grpOf(t)==="Overdue"),...list.filter(t=>!["Overdue","Booked","No date yet"].includes(grpOf(t))),...list.filter(t=>grpOf(t)==="No date yet"),...list.filter(t=>grpOf(t)==="Booked")];
+  for (const t of ordered){ const di=dueInfo(t), done=t.status==="done";
+    { const g=grpOf(t); if (g!==lastG){ box.append(el("div",{class:"bk-group"+(g==="Overdue"?" late":"")},el("span",{},g==="Overdue"?"Overdue":g==="Booked"?"Booked":g==="No date yet"?"No date yet":"Book by "+g),el("span",{class:"bk-gn"},String(gCount[g])))); lastG=g; } }
     const setStatus=st=>markStatus(t,st);
-    const stBtns=el("div",{class:"status",role:"group","aria-label":"Booking status"},
-      el("button",{class:"nb","aria-pressed":String(!done),disabled:!canWrite||null,onclick:()=>!done||setStatus("open")},"Not booked"),
-      el("button",{class:"bd","aria-pressed":String(done),disabled:!canWrite||null,onclick:()=>done||setStatus("done")},"Booked ✓"));
+    const stBtns=el("button",{class:"bkchk bd",type:"button","aria-pressed":String(done),"aria-label":done?"Booked. Tap to mark as not booked":"Mark as booked",title:done?"Booked":"Mark as booked",disabled:!canWrite||null,onclick:()=>setStatus(done?"open":"done")},el("span",{"aria-hidden":"true"},"✓"));
     const owner=el("select",{"aria-label":"Whose booking"}); owner.append(el("option",{value:""},"Group")); for (const p of state.travelers) owner.append(el("option",{value:p.id},p.name));
     owner.value=tById(t.owner)?t.owner:""; owner.disabled=!canWrite; owner.addEventListener("change",()=>write(()=>db.doc("tasks/"+t.id).update({owner:owner.value})));
     const due=el("input",{type:"date",value:t.due||"","aria-label":"Book by",style:"background:none;border:1px dashed var(--line);border-radius:6px;font-size:12px;padding:1px 4px;color:var(--ink-2)"}); due.disabled=!canWrite; due.addEventListener("change",()=>write(()=>db.doc("tasks/"+t.id).update({due:due.value||""})));
@@ -1390,9 +1470,7 @@ async function savePaidEur(t,eur){
 function flightCard(t,v){
   const col=tColor(v), done=t.status==="done", bs=buyState(t);
   const setStatus=st=>markStatus(t,st);
-  const stBtns=el("div",{class:"status",role:"group","aria-label":"Flight status"},
-    el("button",{class:"nb","aria-pressed":String(!done),disabled:!canWrite||null,onclick:()=>!done||setStatus("open")},"Not booked"),
-    el("button",{class:"bd","aria-pressed":String(done),disabled:!canWrite||null,onclick:()=>done||setStatus("done")},"Booked ✓"));
+  const stBtns=el("button",{class:"bkchk bd",type:"button","aria-pressed":String(done),"aria-label":done?"Booked. Tap to mark as not booked":"Mark as booked",title:done?"Booked":"Mark as booked",disabled:!canWrite||null,onclick:()=>setStatus(done?"open":"done")},el("span",{"aria-hidden":"true"},"✓"));
   const legs=el("div",{class:"fl-legs"},(t.legs||[]).map(l=>el("span",{class:"fl-leg"},el("b",{},(l.from||"?")+" → "+(l.to||"?")),l.date?fmtW(D(l.date)):"")));
   const left=el("div",{});
   if ((t.options||[]).length){ left.append(el("h4",{},"Best options")); t.options.forEach(o=>left.append(el("div",{class:"opt"},el("span",{},el("b",{},o.n),o.tag?el("span",{class:"tag"},o.tag):null),el("span",{class:"num",style:"white-space:nowrap"},o.p||""),o.d?el("span",{class:"d"},o.d):null))); }
@@ -1502,7 +1580,9 @@ function renderTrips(){
   for (const t of who){ const ss=stopsOf(t.id), col=tColor(t.id);
     if (!v) box.append(el("div",{class:"person-h"},el("span",{class:"dotc",style:"--c:"+col}),t.name,el("span",{class:"sub",style:"font-weight:400"},ss.length?`${ss.length} stops · ${fmt(ss[0].start)} – ${fmt(ss[ss.length-1].end)}`:"no stops yet")));
     if (!ss.length){ if (v) box.append(el("div",{class:"empty"},t.name+" hasn't added stops yet. Add them on the Map tab.")); continue; }
+    const rail=el("div",{class:"rail",style:"--c:"+col}); box.append(rail);
     ss.forEach((s,i)=>{ const body=el("div",{class:"leg-body"});
+      if (i&&s.hop?.name) rail.append(el("div",{class:"rail-hop"},el("span",{class:"rh-ic"},hopIcon(s.hop.name)),el("span",{},s.hop.name),num(s.hop.cost)>0?el("span",{class:"num rh-c"},money(num(s.hop.cost))):null));
       if (s.hop?.name) body.append(el("div",{class:"travel"},"Getting there: "+s.hop.name));
       if (s.note) body.append(el("div",{class:"sub"},s.note));
       if (Array.isArray(s.days)&&s.days.length){ const days=el("div",{class:"days"}); s.days.forEach((d,j)=>{ const dd=D(s.start); dd.setDate(dd.getDate()+j); days.append(el("div",{class:"day"},el("div",{class:"dh"},"Day "+(j+1)+" · "+fmtW(dd)),el("div",{class:"t"},d.t||""),el("p",{},d.p||""))); }); body.append(days); }
@@ -1510,7 +1590,7 @@ function renderTrips(){
       if ((s.events||[]).length) body.append(el("div",{class:"sub"},"In the budget: "+s.events.map(e=>e.name+" €"+num(e.cost)).join(" · ")));
       body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")),thread("stops/"+s.id,s.place));
       const n=nightsOf(s);
-      const det=el("details",{class:"leg","data-k":"leg-"+s.id,style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); box.append(det); }); }
+      const det=el("details",{class:"leg","data-k":"leg-"+s.id,style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},s.place+(s.country?" · "+s.country:"")),el("div",{class:"when"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total))),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); rail.append(det); }); }
 }
 
 /* ---------- notes (ideas, hearts, polls) ---------- */
@@ -1781,11 +1861,11 @@ $("#installNow").addEventListener("click",async()=>{ if(installEvt){ installEvt.
 
 /* ---------- header, tabs ---------- */
 function renderHeader(){
-  const v=viewing(); $("#eyebrow").textContent=v?"Project 2027 · "+tName(v)+"'s dashboard":"Project 2027 · Europe · the crew's hub";
+  const v=viewing(); $("#eyebrow").textContent=v?(v===state.me?"Your summer":tName(v)+"'s summer"):"The crew's summer";
   const ss=v?stopsOf(v):state.stops.slice().sort((a,b)=>a.start.localeCompare(b.start));
   const countries=new Set(ss.map(s=>s.country).filter(Boolean));
   const m=$("#tmeta"); m.innerHTML="";
-  if (v){ if (ss.length){ m.append(el("span",{},fmt(ss[0].start).toUpperCase()+" – "+fmt(ss[ss.length-1].end).toUpperCase()+" 2027"),el("span",{},ss.length+" STOPS"),el("span",{},countries.size+" COUNTRIES")); } else m.append(el("span",{},"NO STOPS YET")); }
+  if (v){ if (ss.length){ m.append(el("span",{},fmt(ss[0].start)+" – "+fmt(ss[ss.length-1].end)+" 2027"),el("span",{},ss.length+" stops"),el("span",{},countries.size+" countries")); } else m.append(el("span",{},"No stops yet")); }
   else m.append(el("span",{},"JUL – SEP 2027"),el("span",{},state.travelers.length+" TRAVELLERS"),el("span",{},state.stops.length+" STOPS"),el("span",{},countries.size+" COUNTRIES"));
   requestAnimationFrame(()=>{ const b=$("#cdBig"); b.classList.toggle("long",b.textContent.length>3); });
   const t=today(); if (!ss.length){ $("#cdBig").textContent="—"; $("#cdLbl").textContent="days to go"; return; }
@@ -1798,7 +1878,7 @@ function renderHeader(){
 function fillSelects(){ const v=viewing();
   for (const [id,withGroup] of [["#sfWho",false],["#tWho",true]]){ const sel=$(id), keep=sel.value; sel.innerHTML=""; if (withGroup) sel.append(el("option",{value:""},"Group")); for (const t of state.travelers) sel.append(el("option",{value:t.id},t.name));
     sel.value=(sel.dataset.touched&&(keep===""?withGroup:state.travelers.some(t=>t.id===keep)))?keep:(v||(withGroup?"":(state.travelers[0]?.id||""))); if(!sel.dataset.l){ sel.dataset.l="1"; sel.addEventListener("change",()=>sel.dataset.touched="1"); } } }
-function showTab(name){ document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===name))); const inMore=["split","trips","packing","notes","ask"].includes(name); document.querySelectorAll("#bnav [data-go],#sheet [data-go]").forEach(b=>{ const on=b.dataset.go===name||(b.dataset.go==="more"&&inMore); on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"); }); $("#sheet").hidden=true; if(window.innerWidth<=700&&showTab.cur!==name) window.scrollTo({top:0}); showTab.cur=name; document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name); store.set("hubTab",name); }
+function showTab(name){ document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===name))); const inMore=["split","trips","packing","notes","ask"].includes(name); document.querySelectorAll("#bnav [data-go],#sheet [data-go]").forEach(b=>{ const on=b.dataset.go===name||(b.dataset.go==="more"&&inMore); on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"); }); $("#sheet").hidden=true; if(window.innerWidth<=700&&showTab.cur!==name) window.scrollTo({top:0}); showTab.cur=name; document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name); store.set("hubTab",name); document.body.dataset.tab=name; }
 $("#tabs").addEventListener("click",e=>{ const b=e.target.closest(".tab"); if(b) showTab(b.dataset.tab); });
 $("#bnav").addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b) return; if(b.dataset.go==="more"){ $("#sheet").hidden=false; return; } showTab(b.dataset.go); });
 $("#sheet").addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(!b){ if(e.target.id==="sheet") $("#sheet").hidden=true; return; } if(b.dataset.go==="search"){ $("#sheet").hidden=true; openSearch(); return; } showTab(b.dataset.go); });
@@ -2013,6 +2093,15 @@ function routeIssues(tid){
   ss.forEach(s=>{ if (s.start===s.end) out.push({lvl:"info",id:s.id,t:shortPlace(s.place)+" has 0 nights. Is that a day trip?"}); });
   const hf=homeFlight(tid); if (hf){ const late=ss.filter(s=>s.end>hf.date); if (late.length) out.push({lvl:"bad",id:late[0].id,t:"Your flight home is "+fmt(hf.date)+" ("+hf.from+" → "+hf.to+"), but "+late.map(s=>shortPlace(s.place)).join(", ")+" run"+(late.length>1?"":"s")+" past it"}); }
   const rank={bad:0,warn:1,info:2}; return out.sort((x,y)=>rank[x.lvl]-rank[y.lvl]); }
+function hopIcon(n){ n=String(n||"").toLowerCase(); if(!n) return null; return /^\s*bus\b/.test(n)?"🚌":/fly|flight|airport/.test(n)?"✈️":/ferry|catamaran|boat|sail/.test(n)?"⛴️":/\bbus\b|coach/.test(n)?"🚌":/train|rail/.test(n)?"🚆":/car|drive|shuttle|taxi/.test(n)?"🚗":"➝"; }
+function routeLine(tid){ const ss=stopsOf(tid).filter(x=>x.start&&x.end); const ti=iso(today());
+  const inner=el("div",{class:"metro-in"});
+  ss.forEach((x,i)=>{ const past=x.end<=ti, now=x.start<=ti&&ti<x.end, ic=i?hopIcon(x.hop&&x.hop.name):null;
+    inner.append(el("button",{class:"st"+(past?" past":"")+(now?" now":""),type:"button",title:shortPlace(x.place)+", "+fmt(x.start)+" to "+fmt(x.end)+(x.hop&&x.hop.name?". Getting there: "+x.hop.name:""),onclick:()=>selectStop(x.id)},
+      ic?el("span",{class:"st-leg","aria-hidden":"true"},ic):null,el("span",{class:"st-dot"}),el("span",{class:"st-name"},shortPlace(x.place)),el("span",{class:"st-date"},fmt(x.start)+" · "+nightsOf(x)+" night"+(nightsOf(x)===1?"":"s")))); });
+  const wrap=el("div",{class:"metro",style:"--c:"+tColor(tid)},inner);
+  requestAnimationFrame(()=>{ const t=wrap.querySelector(".st.now")||[...wrap.querySelectorAll(".st")].find(b=>!b.classList.contains("past")); if (t) wrap.scrollLeft=Math.max(0,t.offsetLeft-wrap.clientWidth/2+t.offsetWidth/2); });
+  return wrap; }
 function routeCheckBox(tid,compact){
   const is=routeIssues(tid); if (!stopsOf(tid).length) return null;
   const box=el("div",{class:"box rcheck"});
