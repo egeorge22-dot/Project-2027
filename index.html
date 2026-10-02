@@ -672,6 +672,20 @@ body{background:var(--ground);isolation:isolate}
 .face.dim{opacity:.85}
 .face:hover,.face:focus{outline:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35)) brightness(1.05)}
 :root[data-theme="dark"] .stamp.inked{mix-blend-mode:screen;filter:brightness(1.6)} :root[data-theme="dark"] .stamp{filter:grayscale(.6) brightness(1.8)}
+
+#impText{width:100%;min-height:120px;flex-shrink:0;background:var(--line-2);border:1px solid transparent;border-radius:12px;padding:10px 12px;font:inherit;font-size:13.5px;color:var(--ink);resize:vertical}
+#impText:focus{outline:none;border-color:var(--t0);background:var(--panel)}
+.imp-card{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.imp-card label{display:grid;gap:4px;font-size:12px;color:var(--ink-3)}
+.imp-card input,.imp-card select{background:var(--line-2);border:1px solid transparent;border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;color:var(--ink);min-width:0;width:100%}
+.imp-card input[type=checkbox]{width:auto}
+.imp-card select[aria-label=Currency]{width:84px;flex-shrink:0}
+#impDlg .body>*{flex-shrink:0}
+.imp-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.imp-found{font-size:14px}
+.imp-legs{display:flex;flex-wrap:wrap;gap:6px 12px}
+.imp-chk{display:flex!important;align-items:center;gap:8px;font-size:14px!important;color:var(--ink)!important}
+#impDlg .dialog{max-height:88vh}
 </style>
 </head>
 <body>
@@ -769,6 +783,7 @@ body{background:var(--ground);isolation:isolate}
         <select id="tWho" aria-label="Whose booking"></select>
         <button class="btn" type="submit">Add</button>
       </form>
+      <button class="btn ghost sm" id="impBtn" type="button" style="margin-top:10px">📧 Import a confirmation email</button>
     </div>
     <div class="filters" id="taskFilters">
       <button class="chip" data-f="open" aria-pressed="true">Not booked</button>
@@ -812,6 +827,13 @@ body{background:var(--ground);isolation:isolate}
 <nav class="bnav" id="bnav" aria-label="Sections"><button type="button" data-go="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button><button type="button" data-go="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Map</span></button><button type="button" data-go="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M8 6V4h8v2M3 11h18"/></svg><span>Bookings</span><b class="dotb" id="bkDot" hidden></b></button><button type="button" data-go="budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v11"/></svg><span>Budget</span></button><button type="button" data-go="more" id="moreBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button></nav>
 <div class="sheet" id="sheet" hidden><div class="card" role="menu"><div class="grab"></div><button type="button" data-go="split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v18M17 3v18M3 8h8M13 16h8"/></svg>Split costs</button><button type="button" data-go="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>Itinerary</button><button type="button" data-go="packing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4.5h6V7M9 11v5M15 11v5"/></svg>Packing</button><button type="button" data-go="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Ideas</button><button type="button" data-go="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.9L19 9.7l-5.2 1.8L12 16.5l-1.8-5L5 9.7l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Ask AI</button><button type="button" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button></div></div>
 <div class="overlay" id="search" hidden><div class="search-card" role="dialog" aria-modal="true" aria-label="Search the hub"><input id="sq" type="search" placeholder="Search stops, bookings, ideas, people…" autocomplete="off" aria-label="Search"><div id="sres"></div><div class="sub" style="padding:8px 14px;border-top:1px solid var(--line)">↑ ↓ to move · Enter to open · Esc to close · press / anywhere to search</div></div></div>
+<div class="overlay" id="impDlg" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="impT"><div class="body">
+  <div style="display:flex;justify-content:space-between;align-items:center"><div class="h2" id="impT" style="margin:0">Import a confirmation</div><button class="iconbtn" id="impClose" type="button" aria-label="Close">✕</button></div>
+  <p class="sub" style="margin:0">Open the confirmation email from the airline, hostel or ferry company, select all, copy, and paste it here. The hub picks out the dates, route, booking reference and price, and ticks off the matching booking. Only the details you see below are saved, not the email.</p>
+  <textarea id="impText" rows="6" placeholder="Paste the confirmation email here…" aria-label="Confirmation email"></textarea>
+  <button class="btn" id="impRead" type="button" style="justify-self:start">Read it</button>
+  <div id="impOut"></div>
+</div></div></div>
 <div class="overlay" id="crewDlg" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="crewT"><div class="body">
   <div style="display:flex;justify-content:space-between;align-items:center"><div class="h2" id="crewT" style="margin:0">Crew & logins</div><button class="iconbtn" id="crewClose" type="button" aria-label="Close">✕</button></div>
   <p class="sub" style="margin:0">Only you see this. Add a friend and they can sign in straight away, with no email needed. Removing someone's access keeps their plans.</p>
@@ -1308,6 +1330,10 @@ $("#fileIn").addEventListener("change",async()=>{ const f=$("#fileIn").files[0],
   catch(e){ const why={too_large:"That file is over 20 MB.",unsupported_type:"Attach a PDF, image (PNG, JPG, GIF, WebP) or text file.",quota_or_state:"The hub's file storage is full.",rate_limited:"Too many uploads at once. Try again in a minute.",not_granted:"You need edit access to attach files."}[e&&e.code]||"Couldn't upload that file. Try again.";
     banner(why); btns.forEach(b=>{ b.disabled=false; b.textContent=b.dataset.label||"Attach file"; }); }
   uploadingFor=null; });
+$("#impBtn").addEventListener("click",()=>{ if(!canWrite){ toast("You're offline, so this can't be saved right now."); return; } openImport(); });
+$("#impRead").addEventListener("click",readImport);
+$("#impClose").addEventListener("click",()=>$("#impDlg").hidden=true);
+$("#impDlg").addEventListener("click",e=>{ if(e.target.id==="impDlg") $("#impDlg").hidden=true; });
 $("#tTitle").addEventListener("input",()=>$("#taskForm").classList.toggle("has",!!$("#tTitle").value.trim()));
 $("#taskForm").addEventListener("submit",async e=>{ e.preventDefault(); const t=$("#tTitle").value.trim(); if(!t) return;
   if (await write(()=>db.collection("tasks").add({title:t,due:$("#tDue").value||"",status:"open",owner:$("#tWho").value,files:[],ref:"",createdAt:Date.now()}))){ logAct("added a booking: "+t); $("#tTitle").value=""; $("#tDue").value=""; $("#taskForm").classList.remove("has"); } });
@@ -1347,8 +1373,8 @@ function searchLinks(leg){
   const s="https://www.skyscanner.com.au/transport/flights/"+a.toLowerCase()+"/"+z.toLowerCase()+"/"+yymmdd+"/";
   return el("span",{class:"sub"},a+" → "+z+": ",el("a",{href:g,target:"_blank",rel:"noopener"},"Google Flights")," · ",el("a",{href:s,target:"_blank",rel:"noopener"},"Skyscanner"));
 }
-async function savePaid(t,valCur){
-  const eur=valCur===""?null:Math.round(curToEur(Math.max(0,num(valCur)))*100)/100;
+async function savePaid(t,valCur){ return savePaidEur(t,valCur===""?null:Math.round(curToEur(Math.max(0,num(valCur)))*100)/100); }
+async function savePaidEur(t,eur){
   if (!(await write(()=>db.doc("tasks/"+t.id).update({paid:eur})))) return;
   const val=eur==null?num(t.est):eur, lk=t.link;
   if (lk&&lk.type==="hop"&&lk.stop){ const s=state.stops.find(x=>x.id===lk.stop); if (s) await write(()=>db.doc("stops/"+s.id).update({hop:{name:s.hop?.name||"",cost:val}})); }
@@ -1829,6 +1855,111 @@ function passportBox(tid){
     st.innerHTML=stampSVG(c,info.cities,info.first,tid,inked); grid.append(st); }
   return el("div",{class:"box passport"},el("div",{class:"pp-h"},el("div",{},el("div",{class:"h2",style:"margin:0"},"Passport"),el("div",{class:"sub"},by.size+" countries · "+ss.length+" stops · ≈ "+(Math.round(km/10)*10).toLocaleString("en-AU")+" km between stops")),el("span",{class:"pp-count num"},stamped+"/"+by.size)),grid,
     el("div",{class:"sub",style:"margin-top:8px"},stamped?"Stamps ink in as you arrive. Tap one for the cities.":"Faded stamps ink in the day you arrive. Tap one for the cities.")); }
+
+/* ---------- confirmation import (TripIt-style) ---------- */
+const MONIDX={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11,january:0,february:1,march:2,april:3,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+const PROVIDERS=[["Ryanair","flight"],["easyJet","flight"],["Wizz Air","flight"],["Aegean","flight"],["Sky Express","flight"],["Croatia Airlines","flight"],["Turkish Airlines","flight"],["Qatar Airways","flight"],["Emirates","flight"],["Etihad","flight"],["Singapore Airlines","flight"],["Qantas","flight"],["Lufthansa","flight"],["Austrian","flight"],["ITA Airways","flight"],["Eurowings","flight"],["Vueling","flight"],["Volotea","flight"],["Transavia","flight"],["Air Serbia","flight"],["Booking.com","stay"],["Hostelworld","stay"],["Airbnb","stay"],["Agoda","stay"],["Expedia","stay"],["Hotels.com","stay"],["Blue Star Ferries","ferry"],["SeaJets","ferry"],["Seajets","ferry"],["Minoan Lines","ferry"],["Hellenic Seaways","ferry"],["Jadrolinija","ferry"],["Krilo","ferry"],["TP Line","ferry"],["Ferryhopper","ferry"],["FlixBus","bus"],["Flixbus","bus"],["RegioJet","train"],["Trainline","train"],["ÖBB","train"],["OBB","train"],["Deutsche Bahn","train"],["Trenitalia","train"],["Italo","train"],["České dráhy","train"],["GetYourGuide","activity"],["Viator","activity"],["Tiqets","activity"]];
+const CURSYM=[["A$","AUD"],["AU$","AUD"],["AUD","AUD"],["US$","USD"],["USD","USD"],["€","EUR"],["EUR","EUR"],["£","GBP"],["GBP","GBP"],["Kč","CZK"],["CZK","CZK"]];
+function isoOf(y,m,d){ if(!(m>=0&&m<12&&d>=1&&d<=31)) return null; y=+y; if(y<100) y+=2000; if(y<2024||y>2030) return null; return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+function findDates(t){ const out=[]; let m;
+  const add=(i,iso)=>{ if(iso) out.push({i,iso}); };
+  const r1=/\b(\d{1,2})(?:st|nd|rd|th)?[\s.\-\/]+([A-Za-z]{3,9})\.?,?[\s.\-\/]+(\d{4}|\d{2})\b/g; while((m=r1.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(m[3],mo,+m[1])); }
+  const r2=/\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/g; while((m=r2.exec(t))) { const mo=MONIDX[m[1].toLowerCase()]; if(mo!=null) add(m.index,isoOf(m[3],mo,+m[2])); }
+  const r3=/\b(20\d{2})-(\d{2})-(\d{2})\b/g; while((m=r3.exec(t))) add(m.index,isoOf(m[1],+m[2]-1,+m[3]));
+  const r4=/\b(\d{1,2})[\/.](\d{1,2})[\/.](20\d{2})\b/g; while((m=r4.exec(t))) add(m.index,isoOf(m[3],+m[2]-1,+m[1]));
+  // "Thu 15 Jul" with no year: assume the trip year
+  const r5=/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+(\d{1,2})\s+([A-Za-z]{3,9})\b(?![\s.\-\/,]*\d)/g; while((m=r5.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(2027,mo,+m[1])); }
+  const seen=new Set(); return out.sort((a,b)=>a.i-b.i).filter(d=>!seen.has(d.i)&&seen.add(d.i)); }
+function dateNear(t,re,dates){ const m=re.exec(t); if(!m) return null; const after=dates.find(d=>d.i>=m.index&&d.i-m.index<90); return after?after.iso:null; }
+function parseConfirmation(raw){
+  const t=String(raw||"").replace(/\r/g,"").replace(/[ \t]+/g," ").slice(0,20000), low=t.toLowerCase(), r={kind:null,provider:null,ref:null,price:null,cur:null,dates:[],legs:[],checkin:null,checkout:null,name:null,flightNo:[]};
+  for (const [p,k] of PROVIDERS) if (low.includes(p.toLowerCase())){ r.provider=p; r.kind=k; break; }
+  let m=/(?:booking|confirmation|reservation|order|itinerary)\s*(?:reference|ref\.?|number|no\.?|code|#|id)\s*(?:\([A-Za-z ]{2,12}\))?\s*[:#]?\s*([A-Z0-9][A-Z0-9.\-]{3,18}[A-Z0-9])\b/i.exec(t)||/\b(?:PNR|record locator|booking code)\s*[:#]?\s*([A-Z0-9]{5,8})\b/i.exec(t);
+  if (m&&/\d|^[A-Z]{6}$/.test(m[1])&&m[1].replace(/[.\-]/g,"").length>=5) r.ref=m[1].toUpperCase();
+  const dates=findDates(t); r.dates=[...new Set(dates.map(d=>d.iso))];
+  r.checkin=dateNear(t,/check[\s-]?in|arriv(?:e|al)\b/i,dates); r.checkout=dateNear(t,/check[\s-]?out|depart(?:ure)?\b(?![\s\S]{0,20}airport)/i,dates);
+  // flights: "SYD → PRG", "SYD - PRG", "(SYD) ... (PRG)"
+  const fl=[...t.matchAll(/\b([A-Z]{2}|[A-Z]\d|\d[A-Z])\s?(\d{2,4})\b(?=[\s\S]{0,80}\b[A-Z]{3}\b)/g)].map(x=>x[1]+x[2]).filter(x=>!/^(AU|EU|US|GB|CZ|PM|AM)\d/.test(x)||/^(EU)/.test(x)===false);
+  r.flightNo=[...new Set(fl)].slice(0,4);
+  const NOT=new Set(["AUD","EUR","USD","GBP","CZK","PNR","VAT","GMT","UTC","AEST","CET","CEST","EET","EEST","THE","AND","FOR","YOU","NOT","ALL","ONE","PER","TAX","FEE","NEW","REF"]);
+  const pairs=[...t.matchAll(/\b([A-Z]{3})\b\s*(?:→|->|–|—|-|to|>)\s*\b([A-Z]{3})\b/g)].filter(p=>!NOT.has(p[1])&&!NOT.has(p[2])&&p[1]!==p[2]);
+  if (!pairs.length) for (const x of t.matchAll(/\(([A-Z]{3})\)\s*(?:→|->|–|—|-|to|>)\s*[^()\n]{0,40}\(([A-Z]{3})\)/g)) if(!NOT.has(x[1])&&!NOT.has(x[2])) pairs.push(x);
+  let paren=[]; if (!pairs.length){ paren=[...t.matchAll(/\(([A-Z]{3})\)/g)].map(x=>x[1]).filter(c=>!NOT.has(c)); }
+  const legCodes=pairs.length?pairs.map(p=>[p[1],p[2],p.index]):paren.reduce((a,c,i,arr)=>i%2?a.concat([[arr[i-1],c,t.indexOf("("+c+")")]]):a,[]);
+  const seenLeg=new Set();
+  for (const [a,b,i] of legCodes){ const k=a+b; if(seenLeg.has(k)) continue; seenLeg.add(k); const ls=t.lastIndexOf("\n",i)+1, le=(t.indexOf("\n",i)+1||t.length+1)-1; const d=dates.find(x=>x.i>=ls&&x.i<=le)||dates.find(x=>x.i>i&&x.i-i<200)||[...dates].reverse().find(x=>x.i<i); r.legs.push({from:a,to:b,date:d?d.iso:null}); }
+  if (!r.legs.length){ const nm=/\b([A-Z][A-Za-zÀ-ž]+(?: [A-Z][A-Za-zÀ-ž]+)?)\s*(?:→|->)\s*([A-Z][A-Za-zÀ-ž]+(?: [A-Z][A-Za-zÀ-ž]+)?)\b/.exec(t);
+    if (nm&&!/^(Check|Booking|Total)/.test(nm[1])){ const d=dates.find(x=>x.i>nm.index)||dates[0]; r.legs.push({from:nm[1],to:nm[2],date:d?d.iso:null}); } }
+  if (r.legs.length&&!r.kind) r.kind=r.flightNo.length?"flight":/ferr|port|catamaran/i.test(t)?"ferry":/bus\b|coach/i.test(t)?"bus":/train|rail/i.test(t)?"train":"flight";
+  if (!r.kind) r.kind=(r.checkin&&r.checkout)||/check[\s-]?in|nights?\b|room|hostel|hotel|apartment|guest/i.test(t)?"stay":/ferry|catamaran/i.test(t)?"ferry":/train|rail/i.test(t)?"train":/bus\b|coach/i.test(t)?"bus":/ticket|tour|entry|admission/i.test(t)?"activity":null;
+  if (r.kind==="stay"&&!r.checkin&&r.dates.length>=2){ r.checkin=r.dates[0]; r.checkout=r.dates[1]; }
+  // price: prefer a line with total/paid/amount
+  const amts=[]; const mre=/(A\$|AU\$|US\$|€|£|Kč|\b(?:AUD|EUR|USD|GBP|CZK)\b)\s?([0-9]{1,3}(?:[ ,.][0-9]{3})*(?:[.,][0-9]{2})?|[0-9]+(?:[.,][0-9]{2})?)|([0-9]{1,3}(?:[ ,.][0-9]{3})*(?:[.,][0-9]{2})|[0-9]+[.,][0-9]{2})\s?(€|Kč|\b(?:AUD|EUR|USD|GBP|CZK)\b)/g;
+  while((m=mre.exec(t))){ const sym=m[1]||m[4], amtS=m[2]||m[3]; const cur=(CURSYM.find(c=>c[0]===sym)||[])[1]; if(!cur) continue;
+    let s=amtS.replace(/\s/g,""); if (/[.,]\d{2}$/.test(s)){ const dec=s.slice(-3,-2); s=s.slice(0,-3).replace(/[.,]/g,"")+"."+s.slice(-2); } else s=s.replace(/[.,]/g,"");
+    const v=parseFloat(s); if(!(v>0)) continue; const ctx=low.slice(Math.max(0,m.index-60),m.index); amts.push({v,cur,score:(/total|paid|amount charged|grand|you paid|price/.test(ctx)?2:0)+(/tax|fee|deposit|per night|per person/.test(ctx)?-1:0),i:m.index}); }
+  if (amts.length){ const best=amts.sort((a,b)=>b.score-a.score||b.v-a.v)[0]; r.price=best.v; r.cur=best.cur; }
+  // a name: line after "Hotel"/"Property"/"Accommodation" or first line mentioning hostel/hotel/apartment
+  m=/(?:property|accommodation|hotel|hostel|stay at|you're staying at|your stay at)\s*[:\-]?\s*([^\n]{3,60})/i.exec(t); if (m) r.name=m[1].replace(/[.!].*$/,"").trim();
+  return r; }
+
+
+const KIND_LBL={flight:"✈️ Flight",stay:"🛏️ Stay",ferry:"⛴️ Ferry",train:"🚆 Train",bus:"🚌 Bus",activity:"🎟️ Activity"};
+const code3=x=>String(x||"").toUpperCase().slice(0,3);
+function importCandidates(r,owner){
+  const ts=state.tasks.filter(t=>!t.owner||t.owner===owner), out=[];
+  const ss=stopsOf(owner);
+  for (const t of ts){ let sc=0; const title=String(t.title||"").toLowerCase();
+    if (r.kind==="flight"&&t.kind==="flight"){ const tl=(t.legs||[]).map(l=>code3(l.from)+code3(l.to)); r.legs.forEach(l=>{ if(tl.includes(code3(l.from)+code3(l.to))) sc+=3; }); if((t.legs||[]).some(l=>r.dates.includes(l.date))) sc+=1; }
+    if (r.kind==="stay"&&r.checkin){ const st=ss.find(x=>Math.abs((D(x.start)-D(r.checkin))/864e5)<=1); if (st&&title.includes(shortPlace(st.place).toLowerCase().split(" ")[0])&&/stay|accommodation|hostel|hotel|apartment|airbnb|book/.test(title)) sc+=4; }
+    if (["ferry","train","bus"].includes(r.kind)){ if (title.includes(r.kind)) sc+=1; r.legs.forEach(l=>{ if(title.includes(String(l.from).toLowerCase())) sc+=1; if(title.includes(String(l.to).toLowerCase())) sc+=2; }); }
+    if (r.kind==="activity"&&r.name&&title.includes(r.name.toLowerCase().split(" ")[0])) sc+=2;
+    if (t.status!=="done") sc+=sc?0.5:0;
+    if (sc>0) out.push({t,sc}); }
+  return out.sort((a,b)=>b.sc-a.sc).slice(0,6).map(x=>x.t); }
+function importTitle(r){ const leg=r.legs.map(l=>l.from+" → "+l.to);
+  if (r.kind==="flight") return "Flight "+(leg.length>2?leg[0].split(" → ")[0]+" → "+r.legs[r.legs.length-1].to+" ("+r.legs.length+" legs)":leg.join(", "))+(r.provider?" · "+r.provider:"");
+  if (r.kind==="stay") return "Stay"+(r.name?": "+r.name:(r.provider?" ("+r.provider+")":""))+(r.checkin&&r.checkout?" · "+fmt(r.checkin)+"–"+fmt(r.checkout):"");
+  if (leg.length) return (r.kind?r.kind[0].toUpperCase()+r.kind.slice(1)+" ":"")+leg[0]+(r.provider?" · "+r.provider:"");
+  return (r.provider||"Booking")+(r.dates[0]?" · "+fmt(r.dates[0]):""); }
+function openImport(){ const d=$("#impDlg"); d.hidden=false; $("#impText").value=""; $("#impOut").innerHTML=""; setTimeout(()=>$("#impText").focus(),50); }
+async function readImport(){ const raw=$("#impText").value; const out=$("#impOut"); out.innerHTML="";
+  if (raw.trim().length<20){ out.append(el("div",{class:"sub"},"Paste the whole confirmation email first.")); return; }
+  const r=parseConfirmation(raw), owner=state.me||viewing(), fxr=await loadFx();
+  if (!r.kind&&!r.ref&&!r.legs.length&&!r.price){ out.append(el("div",{class:"empty"},"Couldn't find booking details in that. Try pasting the full email, including the part with dates and the booking reference.")); return; }
+  const kind=el("select",{"aria-label":"Type"},Object.entries(KIND_LBL).map(([k,v])=>el("option",{value:k},v))); kind.value=r.kind||"activity";
+  const title=el("input",{value:importTitle(r),maxlength:"120","aria-label":"Booking name"});
+  const ref=el("input",{value:r.ref||"",maxlength:"40",placeholder:"Booking reference","aria-label":"Booking reference"});
+  const d1=el("input",{type:"date",value:(r.kind==="stay"?r.checkin:(r.legs[0]&&r.legs[0].date))||r.dates[0]||"","aria-label":"Date"});
+  const d2=el("input",{type:"date",value:r.kind==="stay"?(r.checkout||""):"","aria-label":"Until"});
+  const price=el("input",{type:"number",min:"0",step:"0.01",value:r.price!=null?String(r.price):"",placeholder:"Price","aria-label":"Price"});
+  const cur=el("select",{"aria-label":"Currency"},["EUR","AUD","USD","GBP","CZK"].map(c=>el("option",{value:c},c))); cur.value=r.cur||"EUR";
+  const who=el("select",{"aria-label":"Whose booking"}); who.append(el("option",{value:""},"Group")); state.travelers.forEach(t=>who.append(el("option",{value:t.id},t.name))); who.value=owner||"";
+  const match=el("select",{"aria-label":"Which booking"}); const drawMatch=()=>{ const cands=importCandidates({...r,kind:kind.value},who.value); match.innerHTML=""; cands.forEach(t=>match.append(el("option",{value:t.id},"Update: "+t.title.slice(0,70)+(t.status==="done"?" (booked)":"")))); match.append(el("option",{value:""},"Add as a new booking")); match.value=cands[0]?cands[0].id:""; }; drawMatch();
+  who.addEventListener("change",drawMatch); kind.addEventListener("change",drawMatch);
+  const logIt=el("input",{type:"checkbox",checked:""}); const eurOf=()=>{ const v=num(price.value); return v>0?Math.round(v/(fxr.r[cur.value]||1)*100)/100:0; };
+  const eurNote=el("span",{class:"sub"}); const upd=()=>{ eurNote.textContent=price.value&&cur.value!=="EUR"?"≈ €"+eurOf().toFixed(2):""; }; price.addEventListener("input",upd); cur.addEventListener("change",upd); upd();
+  const legs=r.legs.length?el("div",{class:"imp-legs"},r.legs.map(l=>el("span",{class:"fl-leg"},el("b",{},l.from+" → "+l.to),l.date?fmt(l.date):""))):null;
+  const save=el("button",{class:"btn",type:"button"},"Save as booked ✓");
+  save.addEventListener("click",async()=>{ save.disabled=true; const eur=eurOf(), tid=match.value, owner2=who.value, refTxt=[ref.value.trim()&&"Ref "+ref.value.trim(),r.provider,eur?"€"+eur.toFixed(2)+" paid":""].filter(Boolean).join(" · ");
+    let ok=false, label=title.value.trim()||importTitle(r);
+    if (tid){ const t=state.tasks.find(x=>x.id===tid); const merged=[t.ref,refTxt].filter(Boolean).join(" · ").slice(0,160);
+      ok=await write(()=>db.doc("tasks/"+tid).update({status:"done",ref:merged}));
+      if (ok&&t.kind==="flight"&&eur) await savePaidEur(t,eur);
+      label=t.title; }
+    else { const base={title:label.slice(0,120),status:"done",owner:owner2,files:[],ref:refTxt.slice(0,160),due:d1.value||"",createdAt:Date.now()};
+      if (kind.value==="flight") Object.assign(base,{kind:"flight",legs:(r.legs.length?r.legs:[{from:"?",to:"?",date:d1.value}]).map(l=>({from:l.from,to:l.to,date:l.date||d1.value||""})),est:eur||0,paid:eur||null,options:[],buy:{}});
+      ok=!!(await write(()=>db.collection("tasks").add(base))); }
+    if (ok&&logIt.checked&&eur>0&&owner2) await write(()=>db.collection("expenses").add({what:label.slice(0,80),amount:eur,who:owner2,at:Date.now()}));
+    if (ok){ confetti(); logAct("booked "+label.slice(0,80)); toast("Saved: "+label.slice(0,60)); $("#impDlg").hidden=true; showTab("bookings"); }
+    save.disabled=false; });
+  out.append(el("div",{class:"imp-card"},
+    el("div",{class:"imp-found"},"Found: ",el("b",{},KIND_LBL[r.kind]||"Booking"),r.provider?" from "+r.provider:"",r.flightNo.length?" · "+r.flightNo.join(", "):""),legs,
+    el("label",{},"Name",title),el("div",{class:"imp-two"},el("label",{},"Type",kind),el("label",{},"Ref",ref)),
+    el("div",{class:"imp-two"},el("label",{},kind.value==="stay"?"Check-in":"Date",d1),el("label",{},kind.value==="stay"?"Check-out":"Until (optional)",d2)),
+    el("div",{class:"imp-two"},el("label",{},"Price",el("span",{style:"display:flex;gap:6px"},price,cur)),el("label",{},"Whose",who)),eurNote,
+    el("label",{},"Goes with",match),
+    el("label",{class:"imp-chk"},logIt," Also log it in spending"),save)); }
 
 /* ---------- route checker ---------- */
 const shortPlace=p=>String(p||"").replace(/\s*\(.*\)/,"");
