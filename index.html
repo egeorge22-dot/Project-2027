@@ -1207,7 +1207,7 @@ function travelerBudget(tid,tier){ const sum={n:0,stay:0,food:0,local:0,fun:0,ev
   const extraFl=state.tasks.filter(x=>x.kind==="flight"&&x.owner===tid&&!x.link).reduce((a,x)=>a+num(x.paid!=null&&x.paid!==""?x.paid:x.est),0);
   const fixed=(tById(tid)?.fixed||[]).reduce((a,f)=>a+num(f.cost),0)+extraFl, ground=sum.stay+sum.food+sum.local+sum.fun+sum.events+sum.hop, buffer=Math.round(ground*.1);
   return {...sum,fixed,buffer,ground,total:ground+fixed+buffer}; }
-const spentBy=tid=>state.expenses.reduce((a,e)=>{ if (e.shared) return a+(Array.isArray(e.split)&&e.split.includes(tid)?num(e.amount)/e.split.length:0); if (e.kind==="settle") return a; return a+((e.who||"me")===tid?num(e.amount):0); },0);
+const spentBy=tid=>state.expenses.reduce((a,e)=>{ if (e.shared) return a+(Array.isArray(e.split)&&e.split.includes(tid)?(shareOf(e)[tid]||0):0); if (e.kind==="settle") return a; return a+((e.who||"me")===tid?num(e.amount):0); },0);
 const tasksFor=tid=>state.tasks.filter(t=>!tid||t.owner===tid||!t.owner);
 
 /* ---------- dashboard ---------- */
@@ -1898,12 +1898,12 @@ const CURSYM=[["A$","AUD"],["AU$","AUD"],["AUD","AUD"],["US$","USD"],["USD","USD
 function isoOf(y,m,d){ if(!(m>=0&&m<12&&d>=1&&d<=31)) return null; y=+y; if(y<100) y+=2000; if(y<2024||y>2030) return null; return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
 function findDates(t){ const out=[]; let m;
   const add=(i,iso)=>{ if(iso) out.push({i,iso}); };
-  const r1=/\b(\d{1,2})(?:st|nd|rd|th)?[\s.\-\/]+([A-Za-z]{3,9})\.?,?[\s.\-\/]+(\d{4}|\d{2})\b/g; while((m=r1.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(m[3],mo,+m[1])); }
+  const r1=/\b(\d{1,2})(?:st|nd|rd|th)?[\s.\-\/]+([A-Za-z]{3,9})\.?,?[\s.\-\/]+(\d{4}|\d{2})\b/g; while((m=r1.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(m[3],mo,+m[1])); else r1.lastIndex=m.index+1; }
   const r2=/\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/g; while((m=r2.exec(t))) { const mo=MONIDX[m[1].toLowerCase()]; if(mo!=null) add(m.index,isoOf(m[3],mo,+m[2])); }
   const r3=/\b(20\d{2})-(\d{2})-(\d{2})\b/g; while((m=r3.exec(t))) add(m.index,isoOf(m[1],+m[2]-1,+m[3]));
   const r4=/\b(\d{1,2})[\/.](\d{1,2})[\/.](20\d{2})\b/g; while((m=r4.exec(t))) add(m.index,isoOf(m[3],+m[2]-1,+m[1]));
   // "Thu 15 Jul" with no year: assume the trip year
-  const r5=/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+(\d{1,2})\s+([A-Za-z]{3,9})\b(?![\s.\-\/,]*\d)/g; while((m=r5.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(2027,mo,+m[1])); }
+  const r5=/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+(\d{1,2})\s+([A-Za-z]{3,9})\b(?![\s.\-\/,]*\d{2,4}\b(?!:))/g; while((m=r5.exec(t))) { const mo=MONIDX[m[2].toLowerCase()]; if(mo!=null) add(m.index,isoOf(2027,mo,+m[1])); }
   const seen=new Set(); return out.sort((a,b)=>a.i-b.i).filter(d=>!seen.has(d.i)&&seen.add(d.i)); }
 function dateNear(t,re,dates){ const m=re.exec(t); if(!m) return null; const after=dates.find(d=>d.i>=m.index&&d.i-m.index<90); return after?after.iso:null; }
 function parseConfirmation(raw){
@@ -1916,7 +1916,7 @@ function parseConfirmation(raw){
   // flights: "SYD → PRG", "SYD - PRG", "(SYD) ... (PRG)"
   const fl=[...t.matchAll(/\b([A-Z]{2}|[A-Z]\d|\d[A-Z])\s?(\d{2,4})\b(?=[\s\S]{0,80}\b[A-Z]{3}\b)/g)].map(x=>x[1]+x[2]).filter(x=>!/^(AU|EU|US|GB|CZ|PM|AM)\d/.test(x)||/^(EU)/.test(x)===false);
   r.flightNo=[...new Set(fl)].slice(0,4);
-  const NOT=new Set(["AUD","EUR","USD","GBP","CZK","PNR","VAT","GMT","UTC","AEST","CET","CEST","EET","EEST","THE","AND","FOR","YOU","NOT","ALL","ONE","PER","TAX","FEE","NEW","REF"]);
+  const NOT=new Set(["AUD","EUR","USD","GBP","CZK","PNR","VAT","GMT","UTC","AEST","CET","CEST","EET","EEST","THE","AND","FOR","YOU","NOT","ALL","ONE","PER","TAX","FEE","NEW","REF","MON","TUE","WED","THU","FRI","SAT","SUN","JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]);
   const pairs=[...t.matchAll(/\b([A-Z]{3})\b\s*(?:→|->|–|—|-|to|>)\s*\b([A-Z]{3})\b/g)].filter(p=>!NOT.has(p[1])&&!NOT.has(p[2])&&p[1]!==p[2]);
   if (!pairs.length) for (const x of t.matchAll(/\(([A-Z]{3})\)\s*(?:→|->|–|—|-|to|>)\s*[^()\n]{0,40}\(([A-Z]{3})\)/g)) if(!NOT.has(x[1])&&!NOT.has(x[2])) pairs.push(x);
   let paren=[]; if (!pairs.length){ paren=[...t.matchAll(/\(([A-Z]{3})\)/g)].map(x=>x[1]).filter(c=>!NOT.has(c)); }
@@ -1945,13 +1945,13 @@ function importCandidates(r,owner){
   const ts=state.tasks.filter(t=>!t.owner||t.owner===owner), out=[];
   const ss=stopsOf(owner);
   for (const t of ts){ let sc=0; const title=String(t.title||"").toLowerCase();
-    if (r.kind==="flight"&&t.kind==="flight"){ const tl=(t.legs||[]).map(l=>code3(l.from)+code3(l.to)); r.legs.forEach(l=>{ if(tl.includes(code3(l.from)+code3(l.to))) sc+=3; }); if((t.legs||[]).some(l=>r.dates.includes(l.date))) sc+=1; }
+    if (r.kind==="flight"&&t.kind==="flight"){ const tl=(t.legs||[]).map(l=>code3(l.from)+code3(l.to)); r.legs.forEach(l=>{ if(tl.includes(code3(l.from)+code3(l.to))) sc+=3; }); if(sc&&(t.legs||[]).some(l=>r.dates.includes(l.date))) sc+=1; }
     if (r.kind==="stay"&&r.checkin){ const st=ss.find(x=>Math.abs((D(x.start)-D(r.checkin))/864e5)<=1); if (st&&title.includes(shortPlace(st.place).toLowerCase().split(" ")[0])&&/stay|accommodation|hostel|hotel|apartment|airbnb|book/.test(title)) sc+=4; }
     if (["ferry","train","bus"].includes(r.kind)){ if (title.includes(r.kind)) sc+=1; r.legs.forEach(l=>{ if(title.includes(String(l.from).toLowerCase())) sc+=1; if(title.includes(String(l.to).toLowerCase())) sc+=2; }); }
     if (r.kind==="activity"&&r.name&&title.includes(r.name.toLowerCase().split(" ")[0])) sc+=2;
     if (t.status!=="done") sc+=sc?0.5:0;
     if (sc>0) out.push({t,sc}); }
-  return out.sort((a,b)=>b.sc-a.sc).slice(0,6).map(x=>x.t); }
+  return out.sort((a,b)=>b.sc-a.sc).slice(0,6); }
 function importTitle(r){ const leg=r.legs.map(l=>l.from+" → "+l.to);
   if (r.kind==="flight") return "Flight "+(leg.length>2?leg[0].split(" → ")[0]+" → "+r.legs[r.legs.length-1].to+" ("+r.legs.length+" legs)":leg.join(", "))+(r.provider?" · "+r.provider:"");
   if (r.kind==="stay") return "Stay"+(r.name?": "+r.name:(r.provider?" ("+r.provider+")":""))+(r.checkin&&r.checkout?" · "+fmt(r.checkin)+"–"+fmt(r.checkout):"");
@@ -1970,7 +1970,7 @@ async function readImport(){ const raw=$("#impText").value; const out=$("#impOut
   const price=el("input",{type:"number",min:"0",step:"0.01",value:r.price!=null?String(r.price):"",placeholder:"Price","aria-label":"Price"});
   const cur=el("select",{"aria-label":"Currency"},["EUR","AUD","USD","GBP","CZK"].map(c=>el("option",{value:c},c))); cur.value=r.cur||"EUR";
   const who=el("select",{"aria-label":"Whose booking"}); who.append(el("option",{value:""},"Group")); state.travelers.forEach(t=>who.append(el("option",{value:t.id},t.name))); who.value=owner||"";
-  const match=el("select",{"aria-label":"Which booking"}); const drawMatch=()=>{ const cands=importCandidates({...r,kind:kind.value},who.value); match.innerHTML=""; cands.forEach(t=>match.append(el("option",{value:t.id},"Update: "+t.title.slice(0,70)+(t.status==="done"?" (booked)":"")))); match.append(el("option",{value:""},"Add as a new booking")); match.value=cands[0]?cands[0].id:""; }; drawMatch();
+  const match=el("select",{"aria-label":"Which booking"}); const drawMatch=()=>{ const cands=importCandidates({...r,kind:kind.value},who.value); match.innerHTML=""; cands.forEach(({t})=>match.append(el("option",{value:t.id},"Update: "+t.title.slice(0,70)+(t.status==="done"?" (booked)":"")))); match.append(el("option",{value:""},"Add as a new booking")); match.value=cands[0]&&cands[0].sc>=3?cands[0].t.id:""; }; drawMatch();
   who.addEventListener("change",drawMatch); kind.addEventListener("change",drawMatch);
   const logIt=el("input",{type:"checkbox",checked:""}); const eurOf=()=>{ const v=num(price.value); return v>0?Math.round(v/(fxr.r[cur.value]||1)*100)/100:0; };
   const eurNote=el("span",{class:"sub"}); const upd=()=>{ eurNote.textContent=price.value&&cur.value!=="EUR"?"≈ €"+eurOf().toFixed(2):""; }; price.addEventListener("input",upd); cur.addEventListener("change",upd); upd();
@@ -1978,6 +1978,7 @@ async function readImport(){ const raw=$("#impText").value; const out=$("#impOut
   const save=el("button",{class:"btn",type:"button"},"Save as booked ✓");
   save.addEventListener("click",async()=>{ save.disabled=true; const eur=eurOf(), tid=match.value, owner2=who.value, refTxt=[ref.value.trim()&&"Ref "+ref.value.trim(),r.provider,eur?"€"+eur.toFixed(2)+" paid":""].filter(Boolean).join(" · ");
     let ok=false, label=title.value.trim()||importTitle(r);
+    if (tid&&!state.tasks.find(x=>x.id===tid)){ toast("That booking was just deleted. Pick another or add it as new."); save.disabled=false; return; }
     if (tid){ const t=state.tasks.find(x=>x.id===tid); const merged=[t.ref,refTxt].filter(Boolean).join(" · ").slice(0,160);
       ok=await write(()=>db.doc("tasks/"+tid).update({status:"done",ref:merged}));
       if (ok&&t.kind==="flight"&&eur) await savePaidEur(t,eur);
