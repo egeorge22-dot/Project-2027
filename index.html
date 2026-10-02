@@ -686,6 +686,13 @@ body{background:var(--ground);isolation:isolate}
 .imp-legs{display:flex;flex-wrap:wrap;gap:6px 12px}
 .imp-chk{display:flex!important;align-items:center;gap:8px;font-size:14px!important;color:var(--ink)!important}
 #impDlg .dialog{max-height:88vh}
+
+.split-per{display:grid;gap:6px}
+.split-p{display:grid;grid-template-columns:22px 1fr 110px 40px;gap:8px;align-items:center;font-size:14px}
+.split-p input{background:var(--line-2);border:1px solid transparent;border-radius:8px;padding:6px 8px;font:inherit;color:var(--ink);width:100%}
+.split-left{font-size:12.5px}
+.split-left.bad{color:var(--red)}
+.cat-ic{font-size:16px;line-height:1}
 </style>
 </head>
 <body>
@@ -1650,9 +1657,13 @@ function converterBox(){ const amt=el("input",{type:"number",min:"0",step:"any",
   return el("div",{class:"box",style:"margin-bottom:16px"},el("div",{class:"h2"},"Quick convert"),el("div",{class:"form",style:"margin:0"},amt,from,el("span",{class:"muted"},"="),out),note); }
 
 /* ---------- split costs ---------- */
+const CATS={food:"🍽️ Food & drink",stay:"🏠 Stay",transport:"🚕 Transport",fun:"🎉 Fun",groceries:"🛒 Groceries",other:"📦 Other"};
+function shareOf(e){ const a=num(e.amount), out={}; if (e.shares&&typeof e.shares==="object"){ for (const p of e.split||[]) out[p]=num(e.shares[p]); return out; } const n=(e.split||[]).length||1; (e.split||[]).forEach(p=>out[p]=a/n); return out; }
+function guessCat(w){ w=String(w).toLowerCase(); return /dinner|lunch|breakfast|brunch|drinks?|bar|beer|wine|cocktail|coffee|gelato|restaurant|souvlaki|pizza|food|meal|taverna/.test(w)?"food":/airbnb|apartment|hostel|hotel|villa|room|stay/.test(w)?"stay":/ferry|taxi|uber|bolt|bus|train|car|scooter|fuel|petrol|boat|transfer|flight|parking/.test(w)?"transport":/super|market|grocer|groceries|lidl|spar/.test(w)?"groceries":/club|tour|ticket|cruise|sail|entry|museum|party|kayak|dive|snorkel/.test(w)?"fun":"other"; }
+let splitMode="equal", splitVals={}, splitCur=null;
 function balances(){ const bal={}; state.travelers.forEach(t=>bal[t.id]=0);
   for (const e of state.expenses){ const a=num(e.amount);
-    if (e.shared&&Array.isArray(e.split)&&e.split.length){ bal[e.paidBy]=(bal[e.paidBy]||0)+a; const sh=a/e.split.length; e.split.forEach(p=>bal[p]=(bal[p]||0)-sh); }
+    if (e.shared&&Array.isArray(e.split)&&e.split.length){ bal[e.paidBy]=(bal[e.paidBy]||0)+a; const sh=shareOf(e); e.split.forEach(p=>bal[p]=(bal[p]||0)-(sh[p]||0)); }
     else if (e.kind==="settle"){ bal[e.from]=(bal[e.from]||0)+a; bal[e.to]=(bal[e.to]||0)-a; } }
   return bal; }
 function settleUp(bal){ const cr=[],db_=[]; for (const [k,v] of Object.entries(bal)){ if (v>0.5) cr.push({k,v}); else if (v<-0.5) db_.push({k,v:-v}); }
@@ -1664,22 +1675,46 @@ function renderSplit(){ const box=$("#split"); if(!box) return; box.innerHTML=""
   const shared=state.expenses.filter(e=>e.shared).sort((a,b)=>(b.at||0)-(a.at||0)), bal=balances(), plan=settleUp(bal);
   if (!splitTouched) splitSel=new Set(state.travelers.map(t=>t.id));
   const left=el("div",{class:"stack"}), right=el("div",{class:"stack"});
-  if (canWrite){ const w=el("input",{class:"grow",placeholder:"What was it? e.g. Dinner in Naxos",maxlength:"80",required:"","aria-label":"What was it"}), a=el("input",{type:"number",min:"0",step:"0.01",placeholder:curSym(),style:"width:110px",required:"","aria-label":"Amount in "+state.cur});
+  if (canWrite){ const w=el("input",{class:"grow",placeholder:"What was it? e.g. Dinner in Naxos",maxlength:"80",required:"","aria-label":"What was it"}), a=el("input",{type:"number",min:"0",step:"0.01",placeholder:"Amount",style:"width:110px",required:"","aria-label":"Amount"});
+    const cur=el("select",{"aria-label":"Currency",style:"width:84px"},["EUR","AUD","CZK","USD","GBP"].map(c=>el("option",{value:c},c))); cur.value=splitCur||(state.cur==="AUD"?"AUD":"EUR"); cur.addEventListener("change",()=>{ splitCur=cur.value; drawSplit(); });
+    const cat=el("select",{"aria-label":"Category"},Object.entries(CATS).map(([k,v])=>el("option",{value:k},v))); cat.value="food"; let catTouched=false; cat.addEventListener("change",()=>catTouched=true); w.addEventListener("input",()=>{ if(!catTouched) cat.value=guessCat(w.value); });
     const pb=el("select",{"aria-label":"Paid by"}); state.travelers.forEach(t=>pb.append(el("option",{value:t.id},t.name))); pb.value=actor()||state.travelers[0]?.id||"";
-    const chips=el("div",{class:"filters",style:"margin:4px 0 0"}); const drawChips=()=>{ chips.innerHTML=""; state.travelers.forEach(t=>chips.append(el("button",{type:"button",class:"pchip",style:"--c:"+tColor(t.id),"aria-pressed":String(splitSel.has(t.id)),onclick:()=>{ splitTouched=true; splitSel.has(t.id)?splitSel.delete(t.id):splitSel.add(t.id); drawChips(); }},el("span",{class:"sw"}),t.name)));
-      chips.append(el("button",{type:"button",class:"chip",onclick:()=>{ splitTouched=false; splitSel=new Set(state.travelers.map(t=>t.id)); drawChips(); }},"Everyone")); }; drawChips();
-    const f=el("form",{class:"fstack"},el("div",{class:"form",style:"margin:0"},w,a),el("label",{},"Paid by",pb),el("div",{class:"sub"},"Split equally between"),chips,el("button",{class:"btn",type:"submit",style:"justify-self:start"},"Add shared cost"));
-    f.addEventListener("submit",async e=>{ e.preventDefault(); const what=w.value.trim(), v=num(a.value); const split=[...splitSel].filter(id=>tById(id));
+    const mode=el("div",{class:"seg",role:"group","aria-label":"How to split"},[["equal","Equally"],["exact","Exact amounts"],["shares","Shares"]].map(([k,l])=>el("button",{type:"button","aria-pressed":String(splitMode===k),onclick:()=>{ splitMode=k; mode.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.textContent===l))); drawSplit(); }},l)));
+    const chips=el("div",{class:"filters",style:"margin:4px 0 0"}), per=el("div",{class:"split-per"}), left_=el("div",{class:"sub split-left"});
+    const sel=()=>[...splitSel].filter(id=>tById(id));
+    const calc=()=>{ const tot=num(a.value), ids=sel(), out={}; if (splitMode==="exact"){ ids.forEach(id=>out[id]=num(splitVals["x"+id])); } else if (splitMode==="shares"){ const ws=ids.map(id=>Math.max(0,num(splitVals["s"+id]??1))), W=ws.reduce((x,y)=>x+y,0)||1; ids.forEach((id,i)=>out[id]=tot*ws[i]/W); } else ids.forEach(id=>out[id]=tot/(ids.length||1)); return out; };
+    const drawLeft=()=>{ const tot=num(a.value), c=calc(), sum=Object.values(c).reduce((x,y)=>x+y,0), sym={EUR:"€",AUD:"A$",CZK:"Kč ",USD:"US$",GBP:"£"}[cur.value];
+      left_.textContent=splitMode==="exact"?(Math.abs(tot-sum)<0.01?"✓ Adds up":(tot-sum>0?sym+(tot-sum).toFixed(2)+" left to assign":"Over by "+sym+(sum-tot).toFixed(2))):sel().length?sel().map(id=>tName(id)+" "+sym+(c[id]||0).toFixed(2)).join(" · "):"";
+      left_.classList.toggle("bad",splitMode==="exact"&&Math.abs(tot-sum)>=0.01); };
+    function drawSplit(){ chips.innerHTML=""; state.travelers.forEach(t=>chips.append(el("button",{type:"button",class:"pchip",style:"--c:"+tColor(t.id),"aria-pressed":String(splitSel.has(t.id)),onclick:()=>{ splitTouched=true; splitSel.has(t.id)?splitSel.delete(t.id):splitSel.add(t.id); drawSplit(); }},el("span",{class:"sw"}),t.name)));
+      chips.append(el("button",{type:"button",class:"chip",onclick:()=>{ splitTouched=false; splitSel=new Set(state.travelers.map(t=>t.id)); drawSplit(); }},"Everyone"));
+      per.innerHTML=""; if (splitMode!=="equal") sel().forEach(id=>{ const k=(splitMode==="exact"?"x":"s")+id; const i=el("input",{type:"number",min:"0",step:splitMode==="exact"?"0.01":"0.5",value:splitVals[k]??(splitMode==="shares"?"1":""),placeholder:splitMode==="exact"?"0.00":"1","aria-label":tName(id)+(splitMode==="exact"?" amount":" shares")});
+        i.addEventListener("input",()=>{ splitVals[k]=i.value; drawLeft(); }); per.append(el("label",{class:"split-p"},av(id),el("span",{},tName(id)),i,el("span",{class:"sub"},splitMode==="shares"?"share"+"":cur.value))); });
+      drawLeft(); }
+    a.addEventListener("input",drawLeft); drawSplit();
+    const f=el("form",{class:"fstack"},el("div",{class:"form",style:"margin:0"},w,a,cur),el("div",{class:"two"},el("label",{},"Paid by",pb),el("label",{},"Category",cat)),el("div",{class:"sub"},"Split between"),chips,mode,per,left_,el("button",{class:"btn",type:"submit",style:"justify-self:start"},"Add shared cost"));
+    f.addEventListener("submit",async e=>{ e.preventDefault(); const what=w.value.trim(), v=num(a.value), split=sel();
       if (!what||!(v>0)) return; if (!split.length){ toast("Pick at least one person to split with."); return; }
-      const eur=Math.round(curToEur(v)*100)/100;
-      if (await write(()=>db.collection("expenses").add({shared:true,what,amount:eur,paidBy:pb.value,split,at:Date.now()}))){ logAct("added a shared cost: "+what+" ("+money(eur)+", split "+split.length+" ways)"); toast("Added "+what); w.value=""; a.value=""; } });
-    left.append(el("div",{class:"box"},el("div",{class:"h2"},"Add a shared cost"),el("p",{class:"sub",style:"margin-top:0"},"Dinners, ferries, apartments, car hire: log who paid and who it's for, and the hub works out who owes who."),f)); }
+      const c=calc(), sum=Object.values(c).reduce((x,y)=>x+y,0); if (splitMode==="exact"&&Math.abs(sum-v)>=0.01){ toast("The amounts need to add up to the total."); return; }
+      const r=(await loadFx()).r, toEur=x=>Math.round(x/(r[cur.value]||1)*100)/100, eur=toEur(v);
+      const doc={shared:true,what,amount:eur,paidBy:pb.value,split,cat:cat.value,at:Date.now()}; if (cur.value!=="EUR") Object.assign(doc,{orig:v,origCur:cur.value});
+      if (splitMode!=="equal"){ const sh={}; split.forEach(id=>sh[id]=toEur(c[id]||0)); const diff=Math.round((eur-Object.values(sh).reduce((x,y)=>x+y,0))*100)/100; if (diff) sh[split[0]]=Math.round((sh[split[0]]+diff)*100)/100; doc.shares=sh; }
+      if (await write(()=>db.collection("expenses").add(doc))){ logAct("added a shared cost: "+what+" ("+money(eur)+")"); toast("Added "+what); w.value=""; a.value=""; splitVals={}; catTouched=false; drawSplit(); } });
+    left.append(el("div",{class:"box"},el("div",{class:"h2"},"Add a shared cost"),el("p",{class:"sub",style:"margin-top:0"},"Log who paid and who it's for, in any currency. Split it equally, by exact amounts or by shares, and the hub works out who owes who."),f)); }
   const list=el("div");
   if (!shared.length) list.append(el("div",{class:"empty"},"No shared costs yet."));
-  shared.forEach(e=>list.append(el("div",{class:"wrow",style:"grid-template-columns:14px 1fr auto auto"},el("span",{class:"dotc",style:"--c:"+tColor(e.paidBy)}),
-    el("span",{},el("b",{},e.what),el("div",{class:"muted",style:"font-size:12.5px"},tName(e.paidBy)+" paid · split "+e.split.length+" ways ("+money(num(e.amount)/e.split.length)+" each) · "+ago(e.at||0))),
-    el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>softDelete("expenses",e,e.what)},"✕"):el("span"))));
-  left.append(el("div",{class:"box"},el("div",{class:"h2"},"Shared costs"),list));
+  shared.forEach(e=>{ const sh=shareOf(e), uneven=!!e.shares, symO={EUR:"€",AUD:"A$",CZK:"Kč ",USD:"US$",GBP:"£"}[e.origCur]||"";
+    list.append(el("div",{class:"wrow",style:"grid-template-columns:22px 1fr auto auto"},el("span",{class:"cat-ic",title:CATS[e.cat||guessCat(e.what)]},(CATS[e.cat||guessCat(e.what)]||"📦").split(" ")[0]),
+    el("span",{},el("b",{},e.what),el("div",{class:"muted",style:"font-size:12.5px"},tName(e.paidBy)+" paid"+(e.orig?" "+symO+num(e.orig).toLocaleString("en-AU",{maximumFractionDigits:2}):"")+" · "+(uneven?e.split.map(p=>tName(p)+" "+money(sh[p]||0)).join(", "):"split "+e.split.length+" ways ("+money(num(e.amount)/e.split.length)+" each)")+" · "+ago(e.at||0))),
+    el("span",{class:"num"},money(num(e.amount))),canWrite?el("button",{class:"iconbtn","aria-label":"Delete "+e.what,onclick:()=>softDelete("expenses",e,e.what)},"✕"):el("span"))); });
+  const csv=()=>{ const q=x=>'"'+String(x??"").replace(/"/g,'""')+'"'; const rows=[["Date","What","Category","Paid by","Amount (EUR)","Original","Split between"].map(q).join(",")];
+    shared.slice().reverse().forEach(e=>{ const sh=shareOf(e); rows.push([new Date(e.at||0).toISOString().slice(0,10),e.what,(CATS[e.cat||guessCat(e.what)]||"").replace(/^\S+ /,""),tName(e.paidBy),num(e.amount).toFixed(2),e.orig?e.orig+" "+e.origCur:"",e.split.map(p=>tName(p)+" "+(sh[p]||0).toFixed(2)).join("; ")].map(q).join(",")); });
+    const blob=new Blob([rows.join("\n")],{type:"text/csv"}); const u=URL.createObjectURL(blob); const ln=el("a",{href:u,download:"euro-summer-27-shared-costs.csv"}); document.body.append(ln); ln.click(); ln.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000); };
+  left.append(el("div",{class:"box"},el("div",{class:"h2",style:"display:flex;justify-content:space-between;align-items:center"},"Shared costs",shared.length?el("button",{class:"btn ghost sm",type:"button",onclick:csv},"Export CSV"):null),list));
+  if (shared.length){ const byCat={}; let tot=0; shared.forEach(e=>{ const k=e.cat||guessCat(e.what); byCat[k]=(byCat[k]||0)+num(e.amount); tot+=num(e.amount); });
+    const me=state.me, mine=me?shared.reduce((x,e)=>x+(shareOf(e)[me]||0),0):0; const mx=Math.max(1,...Object.values(byCat)); const cb=el("div");
+    Object.entries(byCat).sort((x,y)=>y[1]-x[1]).forEach(([k,v])=>cb.append(el("div",{class:"brow"},el("span",{},CATS[k]||k),el("div",{class:"bar",style:"--c:var(--t2)"},el("b",{style:"width:"+(v/mx*100).toFixed(1)+"%"})),el("span",{class:"num",style:"text-align:right"},money(v)))));
+    right.append(el("div",{class:"box"},el("div",{class:"h2"},"Group spending"),el("div",{class:"sum-row",style:"margin-bottom:10px"},fig(money(tot),"shared total"),fig(me?money(mine):"—","your share"),fig(shared.length,"costs")),cb)); }
   const pl=el("div");
   if (!plan.length) pl.append(el("div",{class:"empty"},shared.length?"Everyone's square.":"Nothing to settle yet."));
   plan.forEach(p=>pl.append(el("div",{class:"owe"},av(p.from),el("span",{},el("b",{},tName(p.from))," pays ",el("b",{},tName(p.to))),el("span",{class:"num",style:"font-weight:600"},money(p.amt)),
