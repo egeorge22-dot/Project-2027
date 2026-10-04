@@ -645,7 +645,10 @@ body{background:var(--ground);isolation:isolate}
 @media (max-width:620px){.stub .big.long{font-size:26px}.stub .lbl{max-width:110px}}
 
 .crew-list{display:grid;gap:2px;max-height:40vh;min-height:min(170px,28vh);overflow-y:auto;align-content:start}
-.crew-row{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2);font-size:14px}
+.crew-av{position:relative;background:none;border:0;padding:0;cursor:pointer;width:34px;height:34px}
+.crew-av .av{width:34px;height:34px;font-size:12px}
+.crew-cam{position:absolute;right:-4px;bottom:-4px;font-size:11px;background:var(--panel);border-radius:50%;width:18px;height:18px;display:grid;place-items:center;box-shadow:var(--shadow)}
+.crew-row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2);font-size:14px}
 .crew-form{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}
 .crew-form input{background:var(--line-2);border:1px solid transparent;border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink)}
 .crew-form input:focus{outline:none;border-color:var(--t0);background:var(--panel)}
@@ -975,7 +978,7 @@ body[data-tab]:not([data-tab="dash"]) .stub .lbl{max-width:none;font-size:12.5px
 </div></div></div>
 <div class="overlay" id="crewDlg" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="crewT"><div class="body">
   <div style="display:flex;justify-content:space-between;align-items:center"><div class="h2" id="crewT" style="margin:0">Crew & logins</div><button class="iconbtn" id="crewClose" type="button" aria-label="Close">✕</button></div>
-  <p class="sub" style="margin:0">Only you see this. Add a friend and they can sign in straight away, with no email needed. Removing someone's access keeps their plans.</p>
+  <p class="sub" style="margin:0">Only you see this. Add a friend and they can sign in straight away, with no email needed. Tap anyone's picture to set their photo. Removing someone's access keeps their plans.</p>
   <div id="crewList" class="crew-list"><div class="sub">Loading…</div></div>
   <form id="crewForm" class="crew-form">
     <div class="h2" style="margin:6px 0 0;font-size:15px">Add a friend</div>
@@ -2423,7 +2426,8 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     try{ const r=await crewCall({action:"list"}); const crew=(r&&r.crew)||[]; box.innerHTML="";
       crew.forEach(c=>{ const has=c.emails.length, isMe=c.id===state.me;
         const rm=(!isMe&&has)?el("button",{class:"btn ghost sm",type:"button",onclick:async e=>{ const b=e.currentTarget; if(!b.dataset.c){ b.dataset.c="1"; b.textContent="Tap again to remove"; b.style.color="var(--red)"; return; } b.disabled=true; try{ await crewCall({action:"remove",traveler:c.id}); toast(c.name+" can no longer sign in. Their plans are still here."); loadCrew(); }catch(err){ toast(err.message); b.disabled=false; } }},"Remove access"):null;
-        box.append(el("div",{class:"crew-row"},av(c.id),el("span",{},el("b",{},c.name),el("span",{class:"sub",style:"display:block"},has?c.emails.join(", "):"No login yet")),rm||el("span",{class:"pill "+(has?"p-ok":"p-leg")},has?(isMe?"You":"Can sign in"):"—"))); });
+        const ph=el("button",{class:"crew-av",type:"button",title:"Set "+c.name+"'s photo","aria-label":"Set "+c.name+"'s photo",onclick:()=>{ photoFor=c.id; $("#photoIn").value=""; $("#photoIn").click(); }},av(c.id),el("span",{class:"crew-cam","aria-hidden":"true"},"📷"));
+        box.append(el("div",{class:"crew-row"},ph,el("span",{},el("b",{},c.name),el("span",{class:"sub",style:"display:block"},has?c.emails.join(", "):"No login yet")),rm||el("span",{class:"pill "+(has?"p-ok":"p-leg")},has?(isMe?"You":"Can sign in"):"—"))); });
     }catch(e){ box.innerHTML=""; box.append(el("div",{class:"sub"},e.message)); } }
   function openCrew(){ $("#crewDlg").hidden=false; $("#cfOut").hidden=true; loadCrew(); setTimeout(()=>$("#cfName").focus(),50); }
   $("#crewBtn").addEventListener("click",openCrew);
@@ -2445,11 +2449,12 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
   applyTheme(store.get("theme")||"auto");
   $("#themeBtn").addEventListener("click",()=>{ const cur=store.get("theme")||"auto", nx=THEMES[(THEMES.indexOf(cur)+1)%3]; store.set("theme",nx); applyTheme(nx); });
   $("#photoBtn").addEventListener("click",()=>{ if(!state.me){ toast("Your account isn't linked to a traveller yet."); return; } $("#photoIn").value=""; $("#photoIn").click(); });
-  $("#photoIn").addEventListener("change",async()=>{ const f=$("#photoIn").files[0]; if(!f||!state.me||!db) return;
+  let photoFor=null;
+  $("#photoIn").addEventListener("change",async()=>{ const f=$("#photoIn").files[0], who=photoFor||state.me; photoFor=null; if(!f||!who||!db) return;
     try{ const bmp=await createImageBitmap(f); const S=128, c=document.createElement("canvas"); c.width=S; c.height=S; const side=Math.min(bmp.width,bmp.height);
       c.getContext("2d").drawImage(bmp,(bmp.width-side)/2,(bmp.height-side)/2,side,side,0,0,S,S);
       let url=c.toDataURL("image/webp",0.75); if(!url.startsWith("data:image/webp")) url=c.toDataURL("image/jpeg",0.8);
-      if (await write(()=>db.doc("meta/avatars").update({[state.me]:url}))) toast("Photo updated.");
+      if (await write(()=>db.doc("meta/avatars").update({[who]:url}))){ toast(who===state.me?"Photo updated.":"Photo set for "+tName(who)+"."); if(!$("#crewDlg").hidden) loadCrew(); }
     }catch(e){ toast("Couldn't use that picture. Try a JPG or PNG."); } });
   $("#pwBtn").addEventListener("click",()=>{ $("#pwBox").hidden=!$("#pwBox").hidden; if(!$("#pwBox").hidden) $("#pwNew").focus(); });
   $("#pwSave").addEventListener("click",async()=>{ const pw=$("#pwNew").value; if (pw.length<8){ banner("Choose a password of at least 8 characters."); return; }
