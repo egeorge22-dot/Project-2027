@@ -816,6 +816,15 @@ body[data-tab]:not([data-tab="dash"]) .stub .lbl{max-width:none;font-size:12.5px
 .empty2 .btn{margin-top:8px}
 /* bottom nav: readable labels */
 @media (max-width:700px){.bnav button{font-size:12px;gap:3px}.bnav button svg{width:21px;height:21px}}
+
+/* add to home screen */
+.inst-card{border:1.5px solid color-mix(in srgb,var(--sun) 55%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--sun) 10%,var(--panel)),var(--panel) 60%);margin-bottom:16px;display:grid;gap:12px}
+.inst-head{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center}
+.inst-ic{width:52px;height:52px;border-radius:12px;box-shadow:var(--shadow)}
+.inst ol{margin:6px 0 0;padding-left:22px;display:grid;gap:6px;font-size:14.5px}
+.inst b{font-weight:600}
+.inst-actions{display:flex;gap:8px;flex-wrap:wrap}
+#dash>.inst-card{grid-column:1/-1}
 </style>
 </head>
 <body>
@@ -980,8 +989,7 @@ body[data-tab]:not([data-tab="dash"]) .stub .lbl{max-width:none;font-size:12.5px
 <div class="overlay" id="install" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="installT"><div class="body">
   <div class="h2" id="installT" style="margin:0">Put the hub on your phone</div>
   <p class="sub" style="margin:0">It opens full-screen like an app, and your itinerary and bookings stay readable with no signal. Attached tickets still need a connection, so also save those to your phone.</p>
-  <div><b>iPhone (Safari)</b><ol><li>Open this page in Safari.</li><li>Tap the Share button.</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol></div>
-  <div><b>Android (Chrome)</b><ol><li>Tap the ⋮ menu, top right.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol></div>
+  <div id="installSteps"></div>
   <div style="display:flex;gap:8px"><button class="btn" id="installNow" type="button" hidden>Install now</button><button class="btn ghost" id="installClose" type="button">Close</button></div>
 </div></div></div>
 
@@ -1384,6 +1392,7 @@ function renderDash(){
   const t=tById(v), ss=stopsOf(v), b=travelerBudget(v,state.tier), mine=state.tasks.filter(x=>x.owner===v), mineDone=mine.filter(x=>x.status==="done").length;
   const first=ss[0], cur=locOn(v,today()), nxt=cur||ss.find(s=>s.start>=iso(today()))||first;
   const left=el("div",{class:"stack"}), right=el("div",{class:"stack"});
+  { const ic=installCard(); if (ic) box.prepend(ic); }
   const tb=todayBox(v)||recapBox(v);
   if (tb) left.append(tb);
   else if (nxt){ left.append(boardingPass(v,nxt)); }
@@ -1893,7 +1902,7 @@ function renderPacking(){ const box=$("#packing"); if(!box) return; box.innerHTM
 
 /* ---------- install as an app ---------- */
 let installEvt=null; addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
-function openInstall(){ const d=$("#install"); d.hidden=false; $("#installNow").hidden=!installEvt; setTimeout(()=>$("#installClose").focus(),20); }
+function openInstall(){ const d=$("#install"); d.hidden=false; const st=$("#installSteps"); st.innerHTML=""; st.append(installSteps()); $("#installNow").hidden=!installEvt; setTimeout(()=>$("#installClose").focus(),20); }
 function closeInstall(){ $("#install").hidden=true; }
 
 $("#searchBtn").addEventListener("click",openSearch); $("#appBtn").addEventListener("click",openInstall);
@@ -2151,6 +2160,32 @@ function boardingPass(v,nxt){ const ss=stopsOf(v), i=ss.findIndex(x=>x.id===nxt.
 
 /* ---------- empty states ---------- */
 function emptyState(icon,title,text,btn,action){ return el("div",{class:"empty2"},el("div",{class:"e-ic","aria-hidden":"true"},icon),el("div",{class:"e-t"},title),text?el("p",{},text):null,btn&&canWrite?el("button",{class:"btn sm",type:"button",onclick:action},btn):null); }
+
+/* ---------- add-to-Home-Screen nudge ---------- */
+const SHARE_IC='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+function isStandalone(){ return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true; }
+function deviceInfo(){ const ua=navigator.userAgent||"", ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1), android=/Android/.test(ua);
+  const inApp=/Instagram|FBAN|FBAV|FB_IAB|Messenger|Line\/|Snapchat|TikTok|LinkedInApp|GSA\//.test(ua);
+  const browser=ios?(/CriOS/.test(ua)?"chrome":/FxiOS/.test(ua)?"firefox":/EdgiOS/.test(ua)?"edge":"safari"):android?(/SamsungBrowser/.test(ua)?"samsung":/Firefox/.test(ua)?"firefox":"chrome"):"desktop";
+  return {ios,android,inApp,browser,mobile:ios||android}; }
+function installSteps(){ const d=deviceInfo(), li=h=>{ const x=el("li"); x.innerHTML=h; return x; };
+  let title, steps;
+  if (d.inApp){ title="First, open this in "+(d.ios?"Safari":"Chrome");
+    steps=["Tap the <b>⋯</b> or <b>⋮</b> menu in the corner of this screen.","Tap <b>Open in "+(d.ios?"Safari":"Chrome")+"</b> (or <b>Open in browser</b>).","Sign in there, and this guide will show you the last step."]; }
+  else if (d.ios&&d.browser==="safari"){ title="On iPhone (Safari)"; steps=["Tap the <b>Share</b> button "+SHARE_IC+" at the bottom of the screen (or top on iPad).","Scroll down and tap <b>Add to Home Screen</b>.","Tap <b>Add</b>. Then open <b>Euro '27</b> from your Home Screen."]; }
+  else if (d.ios){ title="On iPhone ("+({chrome:"Chrome",firefox:"Firefox",edge:"Edge"}[d.browser]||"this browser")+")"; steps=["Tap the <b>Share</b> button "+SHARE_IC+" next to the address bar.","Tap <b>Add to Home Screen</b>. If you can't see it, open this page in <b>Safari</b> instead.","Tap <b>Add</b>. Then open <b>Euro '27</b> from your Home Screen."]; }
+  else if (d.android&&d.browser==="samsung"){ title="On Android (Samsung Internet)"; steps=["Tap the <b>☰</b> menu at the bottom.","Tap <b>Add page to</b>, then <b>Home screen</b>.","Open <b>Euro '27</b> from your Home screen."]; }
+  else if (d.android){ title="On Android (Chrome)"; steps=["Tap the <b>⋮</b> menu, top right.","Tap <b>Install app</b> (or <b>Add to Home screen</b>), then <b>Install</b>.","Open <b>Euro '27</b> from your Home screen or app drawer."]; }
+  else { title="On a computer"; steps=["In Chrome or Edge, click the install icon at the right end of the address bar, or the ⋮ menu, then <b>Install Euro Summer '27</b>.","On your phone, open the same link to put it on your Home Screen too."]; }
+  return el("div",{class:"inst"},el("b",{},title),el("ol",{},steps.map(li))); }
+function installCard(){ if (isStandalone()) return null; const d=deviceInfo(); if (!d.mobile) return null;
+  const snooze=num(store.get("instSnooze")||0); if (Date.now()<snooze) return null;
+  const card=el("div",{class:"box inst-card"},
+    el("div",{class:"inst-head"},el("img",{src:"icon-192.png",alt:"",class:"inst-ic"}),el("div",{},el("div",{class:"h2",style:"margin:0"},"Add the hub to your Home Screen"),el("div",{class:"sub"},"It opens full-screen like an app, works with no signal, and it's the only way to get notifications on iPhone."))),
+    installSteps(),
+    el("div",{class:"inst-actions"},installEvt?el("button",{class:"btn sm",type:"button",onclick:async()=>{ installEvt.prompt(); installEvt=null; card.remove(); }},"Install now"):null,
+      el("button",{class:"btn ghost sm",type:"button",onclick:()=>{ store.set("instSnooze",String(Date.now()+3*864e5)); card.remove(); }},"Remind me later")));
+  return card; }
 
 /* ---------- route checker ---------- */
 const shortPlace=p=>String(p||"").replace(/\s*\(.*\)/,"");
@@ -2442,7 +2477,8 @@ function loginBusy(on){ ["#lgIn","#lgUp","#lgForgot"].forEach(s=>$(s).disabled=o
     const {data:mine,error}=await SB.rpc("my_traveler");
     if (error&&/fetch|network|Load failed/i.test(error.message||"")&&offlineBoot()) return;
     if (error||!mine){ showLogin("You're signed in as "+user.email+", but that email isn't on the crew list yet. Ask the organiser to add it, then reload.",true); $("#lgOut").hidden=false; started=false; return; }
-    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey(); checkNotif();
+    $("#login").hidden=true; $("#app").hidden=false; $("#acctEmail").textContent=user.email; checkKey();
+    if (!isStandalone()&&deviceInfo().mobile&&!sessionStorage.getItem("instShown")){ try{ sessionStorage.setItem("instShown","1"); }catch(e){} setTimeout(openInstall,1200); } checkNotif();
     if (CAME_FROM_LINK){ $("#pwBox").hidden=false; $("#acctMenu").hidden=false; banner("Welcome! Choose a password in the menu (top right) and press Save, so you can sign in again next time."); setTimeout(()=>$("#pwNew").focus(),300); }
     myId=user.id; canWrite=true; userNs=null; state.me=mine; $("#crewBtn").hidden=mine!=="me";
     const be=makeBackend(SB); db=be.db; assets=be.files;
