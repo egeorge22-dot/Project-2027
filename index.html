@@ -828,6 +828,8 @@ body[data-tab]:not([data-tab="dash"]) .stub .lbl{max-width:none;font-size:12.5px
 .inst b{font-weight:600}
 .inst-actions{display:flex;gap:8px;flex-wrap:wrap}
 #dash>.inst-card{grid-column:1/-1}
+
+.priv-note{font-size:13px;color:var(--ink-2);background:var(--line-2);border-radius:10px;padding:8px 12px;margin:0 0 14px}
 </style>
 </head>
 <body>
@@ -1313,7 +1315,7 @@ function selectStop(id){
   showTab("map"); card.hidden=false; card.innerHTML=""; if(window.innerWidth<=700) setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"start"}),60);
   const n=nightsOf(s);
   card.append(el("div",{class:"card-stop",style:"--c:"+tColor(s.traveler)},el("div",{class:"sub"},tName(s.traveler)+(s.country?" · "+s.country:"")),el("h3",{},s.place),
-    el("div",{class:"sub num"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+" · est. "+money(stopCost(s,state.tier).total)),s.note?el("div",{},s.note):null));
+    el("div",{class:"sub num"},fmt(s.start)+" – "+fmt(s.end)+" · "+n+" night"+(n===1?"":"s")+(isMine(s.traveler)?" · est. "+money(stopCost(s,state.tier).total):"")),s.note?el("div",{},s.note):null));
   if (canWrite&&db){ const inS=el("input",{type:"date",value:s.start,"aria-label":"Arrive",style:"width:100%;background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:6px"}), inE=el("input",{type:"date",value:s.end,"aria-label":"Leave",style:"width:100%;background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:6px"});
     card.append(el("div",{class:"two",style:"margin-top:10px"},el("label",{class:"sub"},"Arrive",inS),el("label",{class:"sub"},"Leave",inE)),
       el("div",{style:"display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"},
@@ -1353,6 +1355,7 @@ function ini(n){ return (String(n||"?").trim().split(/\s+/).map(w=>w[0]).join(""
 function picOf(id){ const u=state.avatars&&state.avatars[id]; return (typeof u==="string"&&/^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+\/=]+$/.test(u))?u:null; }
 function paintAv(node,id){ const u=picOf(id); if(u){ node.classList.add("pic"); node.style.backgroundImage='url("'+u+'")'; } else { node.classList.remove("pic"); node.style.backgroundImage=""; } return node; }
 function av(id){ const t=tById(id); return paintAv(el("span",{class:"av",style:"--c:"+(t?tColor(id):"var(--ink-3)"),"aria-hidden":"true"},t?ini(t.name):"?"),id); }
+const isMine=tid=>!!state.me&&tid===state.me;
 function fig(v,k){ return el("div",{class:"fig"},el("div",{class:"v num"},v),el("div",{class:"k"},k)); }
 const openBk=new Set();
 function stat(v,k,c){ return el("div",{class:"stat",style:"--c:"+c},el("div",{class:"v num"},v),el("div",{class:"k"},k)); }
@@ -1401,7 +1404,7 @@ function renderDash(){
   else if (nxt){ left.append(boardingPass(v,nxt)); }
   else left.append(el("div",{class:"box"},emptyState("🗺️",v===state.me?"Start your route":tName(v)+" hasn't added stops yet","Add stops on the map. The budget, itinerary, countdown and passport build themselves from them.","Add "+(v===state.me?"my":"their")+" first stop",()=>{ showTab("map"); $("#addStopBox").open=true; $("#sfWho").value=v; $("#sfPlace").focus(); })));
   { const pct=mine.length?Math.round(mineDone/mine.length*100):0, nd=mine.filter(x=>x.status!=="done"&&x.due).sort(sortTasks)[0];
-    left.append(el("div",{class:"box sum"},el("div",{class:"sum-row"},fig(b.n||"—","nights"),fig(ss.length?money(b.total):"—",(state.tier==="h"?"hostel":"hotel")+" budget"),fig(money(spentBy(v)),"spent so far")),
+    left.append(el("div",{class:"box sum"},el("div",{class:"sum-row"},fig(b.n||"—","nights"),isMine(v)?fig(ss.length?money(b.total):"—",(state.tier==="h"?"hostel":"hotel")+" budget"):fig(ss.length,"stops"),isMine(v)?fig(money(spentBy(v)),"spent so far"):fig(new Set(ss.map(x=>x.country).filter(Boolean)).size,"countries")),
       el("div",{class:"sum-ready"},el("span",{},el("b",{},mineDone+"/"+mine.length)," booked"),el("div",{class:"meter"},el("b",{style:"width:"+pct+"%"}))),
       el("div",{class:"sub"},mine.length&&mineDone===mine.length?"Everything's booked. Time to pack!":(nd?"Next deadline: "+nd.title+" · "+fmt(nd.due)+" "+nd.due.slice(0,4):"Add booking dates so deadlines show here.")))); }
   { const rc=routeCheckBox(v,true); if (rc&&routeIssues(v).length) right.prepend(rc); }
@@ -1409,12 +1412,12 @@ function renderDash(){
     left.append(el("div",{class:"box"},el("div",{class:"h2"},"Book next"),attentionList(tasksFor(v),3),el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("bookings")},open>3?"See all "+open+" bookings":"Manage bookings + files"))); }
   if (ss.length){ const tl=el("div",{class:"tl"}); const ti=iso(today());
     const fl=(t.fixed||[]).filter(f=>/flight/i.test(f.name));
-    fl.forEach(f=>tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(ss[0].start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},"Flight"),f.name),el("span",{class:"muted num",style:"font-size:12px"},money(num(f.cost))))));
-    ss.forEach(s=>{ if (s.hop?.name&&num(s.hop.cost)>0) tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(s.start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},/^\s*bus\b/i.test(s.hop.name)?"Bus":/fly|flight/i.test(s.hop.name)?"Flight":/\bbus\b/i.test(s.hop.name)?"Bus":/ferry|catamaran|boat/i.test(s.hop.name)?"Ferry":"Train"),s.hop.name),el("span",{class:"muted num",style:"font-size:12px"},money(num(s.hop.cost))))); });
+    fl.forEach(f=>tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(ss[0].start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},"Flight"),f.name),(isMine(v)?el("span",{class:"muted num",style:"font-size:12px"},money(num(f.cost))):el("span")))));
+    ss.forEach(s=>{ if (s.hop?.name&&num(s.hop.cost)>0) tl.append(el("div",{class:"it"},el("span",{class:"d"},fmt(s.start)),el("span",{},el("span",{class:"pill p-leg",style:"margin-right:6px"},/^\s*bus\b/i.test(s.hop.name)?"Bus":/fly|flight/i.test(s.hop.name)?"Flight":/\bbus\b/i.test(s.hop.name)?"Bus":/ferry|catamaran|boat/i.test(s.hop.name)?"Ferry":"Train"),s.hop.name),(isMine(v)?el("span",{class:"muted num",style:"font-size:12px"},money(num(s.hop.cost))):el("span")))); });
     const legsN=tl.children.length, legsCost=fl.reduce((a,f)=>a+num(f.cost),0)+ss.reduce((a,s)=>a+(s.hop?.name?num(s.hop.cost):0),0);
     const flow=routeLine(v);
     right.append(el("div",{class:"box"},el("div",{class:"h2"},"Your route"),flow,
-      legsN?el("details",{class:"more","data-k":"dashTransport"},el("summary",{},"Flights & transport · "+legsN+" legs · "+money(legsCost)),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
+      legsN?el("details",{class:"more","data-k":"dashTransport"},el("summary",{},"Flights & transport · "+legsN+" legs"+(isMine(v)?" · "+money(legsCost):"")),tl,el("button",{class:"btn ghost sm",style:"margin-top:10px",onclick:()=>showTab("budget")},"Edit in Budget")):null,
       el("div",{class:"actions"},el("button",{class:"btn ghost sm",onclick:()=>showTab("trips")},"Full itinerary"),el("button",{class:"btn ghost sm",onclick:()=>downloadIcs(v)},"Add to my calendar")))); }
   { const pp=passportBox(v); if (pp) right.append(pp); }
   right.append(activityBox(4));
@@ -1578,7 +1581,10 @@ function toggles(){ const tier=el("div",{class:"seg"},["h","p"].map(x=>el("butto
   const cur=el("div",{class:"seg"},["AUD","EUR"].map(x=>el("button",{"aria-pressed":String(state.cur===x),onclick:()=>{ state.cur=x; store.set("cur",x); renderAll(); }},x)));
   return el("div",{class:"form"},tier,cur,el("span",{class:"sub"},"€1 = A$"+num(state.settings.eurAud).toFixed(3)+" (ECB, 25 Sep 2026)")); }
 function renderBudget(){
-  const box=$("#budget"); box.innerHTML=""; box.append(toggles()); const v=viewing();
+  const box=$("#budget"); box.innerHTML=""; const v=state.me;
+  if (!v||!tById(v)){ box.append(el("div",{class:"box"},emptyState("🔒","Your budget is private","Your account isn't linked to a traveller yet, so there's no budget to show. Ask the organiser to link you."))); return; }
+  box.append(toggles());
+  if (viewing()!==v) box.append(el("div",{class:"priv-note"},"🔒 Budgets are private. You're seeing your own, not "+tName(viewing())+"'s."));
   { const cv=converterBox(); const d=el("details",{class:"box more","data-k":"conv"},el("summary",{},el("span",{},"Currency converter",el("span",{class:"sub"},"AUD · EUR · CZK")))); [...cv.children].slice(1).forEach(c=>d.append(c)); d.children[1]&&(d.children[1].style.marginTop="12px"); box.append(d); }
   if (!v){ const tb=el("tbody");
     for (const t of state.travelers){ const ss=stopsOf(t.id), bh=travelerBudget(t.id,"h"), bp=travelerBudget(t.id,"p");
@@ -1638,7 +1644,7 @@ function renderTrips(){
     if (!ss.length){ if (v) box.append(emptyState("🗺️",t.name+" hasn't added stops yet","Stops added on the map show up here as a day-by-day itinerary.","Open the map",()=>showTab("map"))); continue; }
     const rail=el("div",{class:"rail",style:"--c:"+col}); box.append(rail);
     ss.forEach((s,i)=>{ const body=el("div",{class:"leg-body"});
-      if (i&&s.hop?.name) rail.append(el("div",{class:"rail-hop"},el("span",{class:"rh-ic"},hopIcon(s.hop.name)),el("span",{},s.hop.name),num(s.hop.cost)>0?el("span",{class:"num rh-c"},money(num(s.hop.cost))):null));
+      if (i&&s.hop?.name) rail.append(el("div",{class:"rail-hop"},el("span",{class:"rh-ic"},hopIcon(s.hop.name)),el("span",{},s.hop.name),num(s.hop.cost)>0&&isMine(t.id)?el("span",{class:"num rh-c"},money(num(s.hop.cost))):null));
       if (s.hop?.name) body.append(el("div",{class:"travel"},"Getting there: "+s.hop.name));
       if (s.note) body.append(el("div",{class:"sub"},s.note));
       if (Array.isArray(s.days)&&s.days.length){ const days=el("div",{class:"days"}); s.days.forEach((d,j)=>{ const dd=D(s.start); dd.setDate(dd.getDate()+j); days.append(el("div",{class:"day"},el("div",{class:"dh"},"Day "+(j+1)+" · "+fmtW(dd)),el("div",{class:"t"},d.t||""),el("p",{},d.p||""))); }); body.append(days); }
@@ -1646,7 +1652,7 @@ function renderTrips(){
       if ((s.events||[]).length) body.append(el("div",{class:"sub"},"In the budget: "+s.events.map(e=>e.name+" €"+num(e.cost)).join(" · ")));
       body.append(el("div",{},el("button",{class:"btn ghost sm",onclick:()=>selectStop(s.id)},"Show on map")),thread("stops/"+s.id,s.place));
       const n=nightsOf(s);
-      const det=el("details",{class:"leg","data-k":"leg-"+s.id,style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},shortPlace(s.place)),el("div",{class:"meta3"},el("span",{},el("small",{},s.country||"Stop"),fmt(s.start)+" – "+fmt(s.end)),el("span",{},el("small",{},"Nights"),String(n)),el("span",{},el("small",{},"Estimate"),money(stopCost(s,state.tier).total)))),photoBg(el("span",{class:"leg-thumb","aria-hidden":"true"}),s.place,s.country,false),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); rail.append(det); }); }
+      const det=el("details",{class:"leg","data-k":"leg-"+s.id,style:"--c:"+col},el("summary",{},el("span",{class:"code"},String(i+1)),el("div",{},el("h3",{},shortPlace(s.place)),el("div",{class:"meta3"},el("span",{},el("small",{},s.country||"Stop"),fmt(s.start)+" – "+fmt(s.end)),el("span",{},el("small",{},"Nights"),String(n)),isMine(t.id)?el("span",{},el("small",{},"Estimate"),money(stopCost(s,state.tier).total)):null)),photoBg(el("span",{class:"leg-thumb","aria-hidden":"true"}),s.place,s.country,false),el("span",{class:"chev","aria-hidden":"true"},"›")),body); det.addEventListener("toggle",()=>{ if(det.open&&!det.dataset.wx){ det.dataset.wx="1"; body.insertBefore(wxLine(s),body.firstChild); } }); rail.append(det); }); }
 }
 
 /* ---------- notes (ideas, hearts, polls) ---------- */
@@ -1997,7 +2003,7 @@ function recapBox(v){ const st=tripState(v); if(!st||!st.done) return null; cons
   const spent=spentBy(v), crew=new Set(meetups(v).map(m=>m.a===v?m.b:m.a));
   return el("div",{class:"box today recap",style:"--c:"+tColor(v)},el("div",{class:"td-lbl"},"That's a wrap"),el("h3",{},"What a summer"),
     el("div",{class:"sum-row",style:"margin-top:10px"},fig(st.total,"days away"),fig(cs.size,"countries"),fig((Math.round(km/10)*10).toLocaleString("en-AU"),"km")),
-    el("div",{class:"sum-row",style:"margin-top:10px"},fig(ss.length,"stops"),fig(crew.size,"friends crossed paths"),fig(money(spent),"logged spending"))); }
+    el("div",{class:"sum-row",style:"margin-top:10px"},fig(ss.length,"stops"),fig(crew.size,"friends crossed paths"),isMine(v)?fig(money(spent),"logged spending"):fig(cs.size,"countries"))); }
 
 /* ---------- passport stamps ---------- */
 const FLAG={Czechia:"🇨🇿","Czech Republic":"🇨🇿",Slovakia:"🇸🇰",Greece:"🇬🇷",Montenegro:"🇲🇪",Croatia:"🇭🇷",Italy:"🇮🇹",Germany:"🇩🇪",Austria:"🇦🇹",Hungary:"🇭🇺",Poland:"🇵🇱",France:"🇫🇷",Spain:"🇪🇸",Portugal:"🇵🇹",Monaco:"🇲🇨",Switzerland:"🇨🇭",Netherlands:"🇳🇱",Belgium:"🇧🇪",Denmark:"🇩🇰",Sweden:"🇸🇪",Norway:"🇳🇴",Finland:"🇫🇮",Albania:"🇦🇱","Bosnia and Herzegovina":"🇧🇦",Slovenia:"🇸🇮",Serbia:"🇷🇸",Turkey:"🇹🇷",Türkiye:"🇹🇷","United Kingdom":"🇬🇧",Ireland:"🇮🇪",Iceland:"🇮🇸",Malta:"🇲🇹",Cyprus:"🇨🇾",Romania:"🇷🇴",Bulgaria:"🇧🇬",Estonia:"🇪🇪",Latvia:"🇱🇻",Lithuania:"🇱🇹",Luxembourg:"🇱🇺","North Macedonia":"🇲🇰","Bosnia and Herz.":"🇧🇦",Bosnia:"🇧🇦"};
@@ -2112,7 +2118,7 @@ async function readImport(){ const raw=$("#impText").value; const out=$("#impOut
   const eurNote=el("span",{class:"sub"}); const upd=()=>{ eurNote.textContent=price.value&&cur.value!=="EUR"?"≈ €"+eurOf().toFixed(2):""; }; price.addEventListener("input",upd); cur.addEventListener("change",upd); upd();
   const legs=r.legs.length?el("div",{class:"imp-legs"},r.legs.map(l=>el("span",{class:"fl-leg"},el("b",{},l.from+" → "+l.to),l.date?fmt(l.date):""))):null;
   const save=el("button",{class:"btn",type:"button"},"Save as booked ✓");
-  save.addEventListener("click",async()=>{ save.disabled=true; const eur=eurOf(), tid=match.value, owner2=who.value, refTxt=[ref.value.trim()&&"Ref "+ref.value.trim(),r.provider,eur?"€"+eur.toFixed(2)+" paid":""].filter(Boolean).join(" · ");
+  save.addEventListener("click",async()=>{ save.disabled=true; const eur=eurOf(), tid=match.value, owner2=who.value, refTxt=[ref.value.trim()&&"Ref "+ref.value.trim(),r.provider].filter(Boolean).join(" · ");
     let ok=false, label=title.value.trim()||importTitle(r);
     if (tid&&!state.tasks.find(x=>x.id===tid)){ toast("That booking was just deleted. Pick another or add it as new."); save.disabled=false; return; }
     if (tid){ const t=state.tasks.find(x=>x.id===tid); const merged=[t.ref,refTxt].filter(Boolean).join(" · ").slice(0,160);
@@ -2271,11 +2277,11 @@ async function write(fn){ if (!db){ banner("Saving isn't available in this view.
 /* ---------- ask AI (copy for Claude) ---------- */
 function context(){
   const lines=state.travelers.map(t=>{ const ss=stopsOf(t.id), b=travelerBudget(t.id,"h"), bp=travelerBudget(t.id,"p");
-    return `${t.name} (id ${t.id}): `+(ss.length?ss.map(s=>`${s.place} ${s.start}→${s.end}`).join("; ")+`. Budget est €${Math.round(b.total)} hostels / €${Math.round(bp.total)} hotels.`:"no stops yet"); }).join("\n");
+    return `${t.name} (id ${t.id}): `+(ss.length?ss.map(s=>`${s.place} ${s.start}→${s.end}`).join("; ")+(isMine(t.id)?`. My budget est €${Math.round(b.total)} hostels / €${Math.round(bp.total)} hotels.`:"."):"no stops yet"); }).join("\n");
   const tasks=[...state.tasks].sort(sortTasks).map(t=>`- [${t.status==="done"?"booked":"not booked"}] ${t.title}${t.due?" (book by "+t.due+")":""} · ${t.owner?tName(t.owner):"group"}`).join("\n")||"(none)";
   const notes=state.notes.slice(0,15).map(n=>"- "+n.text).join("\n")||"(none)";
   return `You are helping plan a trip for friends from Sydney, Australia travelling around Europe in July–September 2027. Each person has their own route. Today is ${iso(today())}. €1 = A$${state.settings.eurAud}.
-${viewing()?"The person asking is "+tName(viewing())+" (id "+viewing()+").":"The person asking is looking at the group view."}
+${state.me?"The person asking is "+tName(state.me)+" (id "+state.me+").":""}
 TRAVELLERS AND STOPS:
 ${lines}
 BOOKINGS:
